@@ -1,0 +1,22 @@
+{
+  "name": "cei-crawler",
+  "version": "1.0.0",
+  "description": "Crawler para pegar dados do Canal Eletronico do Investidor",
+  "main": "src/app.js",
+  "scripts": {
+    "dev": "node src/app.js",
+    "test": "ava"
+  },
+  "keywords": [
+    "cei",
+    "crawler",
+    "acoes",
+    "investir"
+  ],
+  "author": "Joao Menighin <joao.menighin@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "ava": "^2.4.0",
+    "puppeteer": "^2.0.0"
+  }
+}
