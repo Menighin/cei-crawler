@@ -1,0 +1,4 @@
+node_modules
+test/test.config.json
+package-lock.json
+.vscode
