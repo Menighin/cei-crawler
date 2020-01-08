@@ -1,4 +1,6 @@
 const puppeteer = require('puppeteer');
+const StockHistoryCrawler = require('./StockHistoryCrawler');
+
 
 class CeiCrawler {
 
@@ -39,36 +41,7 @@ class CeiCrawler {
 
     async getStockHistory() {
         await this._login();
-        await this._page.goto('https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx');
-
-        const institutionsHandle = await this._page.evaluateHandle(() => {
-            return Array.from(document.querySelectorAll('#ctl00_ContentPlaceHolder1_ddlAgentes option'))
-                .map(o => o.value)
-                .filter(v => v > 0);
-        });
-        const institutions = await institutionsHandle.jsonValue();
-
-        for (const value of institutions) {
-            await this._page.select('#ctl00_ContentPlaceHolder1_ddlAgentes', value);
-
-            //await this._page.waitForNavigation({ waitUntil: 'networkidle0'});
-
-            const accountsHandle = await this._page.evaluateHandle(() => {
-                return Array.from(document.querySelectorAll('#ctl00_ContentPlaceHolder1_ddlContas option'))
-                    .map(o => o.value)
-                    .filter(v => v > 0);
-            });
-            const accounts = await accountsHandle.jsonValue();
-            
-            console.log(accounts);
-
-            await this._page.waitFor(2000);
-        }
-
-
-
-        await this._page.waitFor(10000);
-
+        await StockHistoryCrawler.getStockHistory(this._page);
     }
 
 }
