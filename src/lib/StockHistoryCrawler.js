@@ -6,7 +6,8 @@ const PAGE = {
     SELECT_INSTITUTION_OPTIONS: '#ctl00_ContentPlaceHolder1_ddlAgentes option',
     SELECT_ACCOUNT: '#ctl00_ContentPlaceHolder1_ddlContas',
     SELECT_ACCOUNT_OPTIONS: '#ctl00_ContentPlaceHolder1_ddlContas option',
-    SUBMIT_BUTTON: '#ctl00_ContentPlaceHolder1_btnConsultar'
+    SUBMIT_BUTTON: '#ctl00_ContentPlaceHolder1_btnConsultar',
+    STOCKS_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados'
 }
 
 class StockHistoryCrawler {
@@ -49,15 +50,35 @@ class StockHistoryCrawler {
                 console.log(`Selecting account ${account}`)
                 await page.select(PAGE.SELECT_ACCOUNT, account);
                 await page.click(PAGE.SUBMIT_BUTTON);
+
+                // Wait for table to load
+                await page.waitForFunction(`document.querySelector('${PAGE.STOCKS_TABLE}') !== null`);
+
+                // Process the page
+                console.log(`Processing stock history data`);
+                await this._processStockHistory(page);
+
+                // Click for a new query
+                await page.click(PAGE.SUBMIT_BUTTON);
+
+                // Await until the select for institution is enabled
+                // it means the page is ready for a new query
+                await page.waitForFunction(`!document.querySelector('${PAGE.SELECT_INSTITUTION}').disabled`);
             }
 
             cachedAccount = accounts[0];
             await page.waitFor(2000);
         }
 
-
-
         await page.waitFor(10000);
+    }
+
+    /**
+     * Process the stock history to a DTO
+     * @param {puppeteer.Page} page Page with the loaded data
+     */
+    static async _processStockHistory(page) {
+
     }
 
 }
