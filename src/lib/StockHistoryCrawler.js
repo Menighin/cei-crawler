@@ -7,8 +7,22 @@ const PAGE = {
     SELECT_ACCOUNT: '#ctl00_ContentPlaceHolder1_ddlContas',
     SELECT_ACCOUNT_OPTIONS: '#ctl00_ContentPlaceHolder1_ddlContas option',
     SUBMIT_BUTTON: '#ctl00_ContentPlaceHolder1_btnConsultar',
-    STOCKS_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados'
+    STOCKS_DIV: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados',
+    STOCKS_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados table tbody'
 }
+
+const STOCK_TABLE_HEADERS = [
+    {prop: 'date', type: 'date'},
+    {prop: 'operation', type: 'string'},
+    {prop: 'market', type: 'string'},
+    {prop: 'expiration', type: 'string'},
+    {prop: 'code', type: 'string'},
+    {prop: 'name', type: 'string'},
+    {prop: 'quantity', type: 'int'},
+    {prop: 'price', type: 'float'},
+    {prop: 'totalValue', type: 'float'},
+    {prop: 'cotation', type: 'float'}
+];
 
 class StockHistoryCrawler {
 
@@ -17,6 +31,10 @@ class StockHistoryCrawler {
      * @param {puppeteer.Page} page 
      */
     static async getStockHistory(page) {
+        
+        const result = [];
+
+        // Navigate to stocks page
         await page.goto(PAGE.URL);
         
         // Get all institutions to iterate
@@ -52,11 +70,18 @@ class StockHistoryCrawler {
                 await page.click(PAGE.SUBMIT_BUTTON);
 
                 // Wait for table to load
-                await page.waitForFunction(`document.querySelector('${PAGE.STOCKS_TABLE}') !== null`);
+                await page.waitForFunction(`document.querySelector('${PAGE.STOCKS_DIV}') !== null`);
 
                 // Process the page
                 console.log(`Processing stock history data`);
-                await this._processStockHistory(page);
+                const data = await this._processStockHistory(page);
+
+                // Save the result
+                result.push({
+                    institution: institution.label,
+                    account: account,
+                    stockHistory: data
+                });
 
                 // Click for a new query
                 await page.click(PAGE.SUBMIT_BUTTON);
@@ -67,10 +92,9 @@ class StockHistoryCrawler {
             }
 
             cachedAccount = accounts[0];
-            await page.waitFor(2000);
         }
 
-        await page.waitFor(10000);
+        return result;
     }
 
     /**
@@ -79,6 +103,26 @@ class StockHistoryCrawler {
      */
     static async _processStockHistory(page) {
 
+        const data = await page.evaluateHandle((select, headers) => {
+            const rows = document.querySelector(select).rows;
+            
+            // Helper function
+            const parseValue = (value, type) => {
+                if (type === 'string') return value;
+                if (type === 'int')    return parseInt(value.replace('.', ''));
+                if (type === 'float')  return parseFloat(value.replace('.', '').replace(',', '.'));
+                if (type === 'date')   return new Date(value.split('/').reverse()).getTime();
+            }
+
+            return Array.from(rows)
+                .map(tr => Array.from(tr.cells).reduce((p, c, i) => {
+                    p[headers[i].prop] = parseValue(c.innerText, headers[i].type);
+                    return p;
+                }, {}));
+        }, PAGE.STOCKS_TABLE, STOCK_TABLE_HEADERS);
+
+        // For some reason puppeteer does not return date from evaluateHandle
+        return (await data.jsonValue()).map(d => ({...d, date: new Date(d.date)}));
     }
 
 }
