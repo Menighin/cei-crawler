@@ -1,7 +1,6 @@
 const puppeteer = require('puppeteer');
 const StockHistoryCrawler = require('./StockHistoryCrawler');
 
-
 class CeiCrawler {
 
     /** @type {boolean} */
@@ -19,16 +18,27 @@ class CeiCrawler {
     get password() { return this._password; }
     set password(password) { this._password = password; }
 
-    constructor(username, password) {
+    /** @type {{puppeteerLaunch: puppeteer.LaunchOptions}} options Options for CEI Crawler and Puppeteer */
+    get options() { return this._options; }
+    set options(options) { this._options = options; }
+
+    /**
+     * 
+     * @param {String} username Username to login at CEI
+     * @param {String} password Password to login at CEI
+     * @param {{puppeteerLaunch: puppeteer.LaunchOptions}} options Options for CEI Crawler and Puppeteer
+     */
+    constructor(username, password, options) {
         this.username = username;
         this.password = password;
+        this.options = options;
     }
 
     async _login() {
         if (this._isLogged) return;
 
         if (this._browser == null)
-            this._browser = await puppeteer.launch({ headless: false });
+            this._browser = await puppeteer.launch(this.options.puppeteerLaunch);
 
         this._page = await this._browser.newPage();
         await this._page.goto('https://cei.b3.com.br/CEI_Responsivo/');
@@ -39,9 +49,14 @@ class CeiCrawler {
         this._isLogged = true;
     }
 
-    async getStockHistory() {
+    /**
+     * 
+     * @param {Date} [startDate] - The start date of the history
+     * @param {Date} [endDate]  - The end date of the history
+     */
+    async getStockHistory(startDate, endDate) {
         await this._login();
-        await StockHistoryCrawler.getStockHistory(this._page);
+        await StockHistoryCrawler.getStockHistory(this._page, startDate, endDate);
     }
 
 }

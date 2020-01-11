@@ -6,6 +6,9 @@ const PAGE = {
     SELECT_INSTITUTION_OPTIONS: '#ctl00_ContentPlaceHolder1_ddlAgentes option',
     SELECT_ACCOUNT: '#ctl00_ContentPlaceHolder1_ddlContas',
     SELECT_ACCOUNT_OPTIONS: '#ctl00_ContentPlaceHolder1_ddlContas option',
+    START_DATE_INPUT: '#ctl00_ContentPlaceHolder1_txtDataDeBolsa',
+    END_DATE_INPUT: '#ctl00_ContentPlaceHolder1_txtDataAteBolsa',
+    ALERT_BOX: '.alert-box',
     SUBMIT_BUTTON: '#ctl00_ContentPlaceHolder1_btnConsultar',
     STOCKS_DIV: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados',
     STOCKS_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados table tbody'
@@ -28,15 +31,25 @@ class StockHistoryCrawler {
 
     /**
      * 
-     * @param {puppeteer.Page} page 
+     * @param {puppeteer.Page} page - Logged page to work with
+     * @param {Date} [startDate] - The start date of the history. If none passed, the default of CEI will be used
+     * @param {Date} [endDate] - The end date of the history. If none passed, the default of CEI will be used
      */
-    static async getStockHistory(page) {
+    static async getStockHistory(page, startDate = null, endDate = null) {
         
         const result = [];
 
         // Navigate to stocks page
         await page.goto(PAGE.URL);
+        startDate.toS
+        // Set start and end date
+        if (startDate !== null) 
+            await page.type(PAGE.START_DATE_INPUT, `${startDate.getDate()}/${startDate.getMonth() + 1}/${startDate.getFullYear()}`);
         
+        if (endDate !== null) 
+            await page.type(PAGE.END_DATE_INPUT, `${endDate.getDate()}/${endDate.getMonth() + 1}/${endDate.getFullYear()}`);
+            
+
         // Get all institutions to iterate
         const institutionsHandle = await page.evaluateHandle((selector) => {
             return Array.from(document.querySelectorAll(selector))
