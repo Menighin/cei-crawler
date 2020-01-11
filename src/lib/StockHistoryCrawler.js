@@ -41,13 +41,20 @@ class StockHistoryCrawler {
 
         // Navigate to stocks page
         await page.goto(PAGE.URL);
-        startDate.toS
+
+        const getDateForInput = (date) => 
+            `${date.getDate()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getFullYear()}`;
+
         // Set start and end date
-        if (startDate !== null) 
-            await page.type(PAGE.START_DATE_INPUT, `${startDate.getDate()}/${startDate.getMonth() + 1}/${startDate.getFullYear()}`);
+        if (startDate !== null) {
+            await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.START_DATE_INPUT);
+            await page.type(PAGE.START_DATE_INPUT, getDateForInput(startDate));
+        }
         
-        if (endDate !== null) 
-            await page.type(PAGE.END_DATE_INPUT, `${endDate.getDate()}/${endDate.getMonth() + 1}/${endDate.getFullYear()}`);
+        if (endDate !== null) {
+            await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.END_DATE_INPUT);
+            await page.type(PAGE.END_DATE_INPUT, getDateForInput(endDate));
+        }
             
 
         // Get all institutions to iterate

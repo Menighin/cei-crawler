@@ -1,3 +1,3 @@
 const CeiCrawler = require('./lib/CeiCrawler');
 
-exports.CeiCrawler = CeiCrawler;
+module.exports = CeiCrawler;
