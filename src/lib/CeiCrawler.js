@@ -45,7 +45,7 @@ class CeiCrawler {
         await this._page.type('#ctl00_ContentPlaceHolder1_txtLogin', this.username, { delay: 10 });
         await this._page.type('#ctl00_ContentPlaceHolder1_txtSenha', this.password, { delay: 10 });
         await this._page.click('#ctl00_ContentPlaceHolder1_btnLogar');
-        await this._page.waitForNavigation();
+        await this._page.waitForNavigation({timeout: 0});
         this._isLogged = true;
     }
 
@@ -56,7 +56,7 @@ class CeiCrawler {
      */
     async getStockHistory(startDate, endDate) {
         await this._login();
-        await StockHistoryCrawler.getStockHistory(this._page, startDate, endDate);
+        return await StockHistoryCrawler.getStockHistory(this._page, startDate, endDate);
     }
 
 }
