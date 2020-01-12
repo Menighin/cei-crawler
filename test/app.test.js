@@ -3,21 +3,25 @@ const CeiCrawler = require('../src/app')
 const fs = require('fs')
 
 test.before(t => {
-    // if (!fs.existsSync('test/test.config.json')) {
-    //     console.log('You should create a test.config.json to execute the tests');
-    //     throw Error('You should create a test.config.json to execute the tests');
-    // }
-    // const configStr = fs.readFileSync('test/test.config.json');
-    // t.context = JSON.parse(configStr);
+    if (!process.env.CEI_USERNAME || !process.env.CEI_PASSWORD) {
+        throw Error('You should set environment variables CEI_USERNAME and CEI_PASSWORD in order to run tests');
+    }
+
+    const ceiCrawlerOptions = {
+        puppeteerLaunch: {
+            headless: false,
+            timeout: 0
+        }
+    }
+
+    t.context.ceiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, ceiCrawlerOptions);
+});
+
+test('cei-login', async t => {
+    await t.context.ceiCrawler._login();
+    t.is(t.context.ceiCrawler._isLogged, true);
 });
 
 test('stock-history', async t => {
     t.is(true, true);
-    // try {
-    //     const crawler = new CeiCrawler(t.context.username, t.context.password, {puppeteerLaunch: {headless: false, timeout: 0}});
-    //     const stockHistory = await crawler.getStockHistory(new Date(2019, 5, 10));
-    //     t.is('user', 'user');
-    // } catch (exception) {
-    //     debugger;
-    // }
 });
