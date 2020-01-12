@@ -15,8 +15,10 @@
   ],
   "author": "Joao Menighin <joao.menighin@gmail.com>",
   "license": "MIT",
-  "devDependencies": {
-    "ava": "^2.4.0",
+  "dependencies": {
     "puppeteer": "^2.0.0"
+  },
+  "devDependencies": {
+    "ava": "^2.4.0"
   }
 }

@@ -40,6 +40,7 @@ class CeiCrawler {
         if (this._browser == null)
             this._browser = await puppeteer.launch(this.options.puppeteerLaunch);
 
+        console.log('Logging at CEI...');
         this._page = await this._browser.newPage();
         await this._page.goto('https://cei.b3.com.br/CEI_Responsivo/');
         await this._page.type('#ctl00_ContentPlaceHolder1_txtLogin', this.username, { delay: 10 });
