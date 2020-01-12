@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+const PuppeteerUtils = require('./PuppeteerUtils');
 
 const PAGE = {
     URL: 'https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx',
@@ -11,7 +12,9 @@ const PAGE = {
     ALERT_BOX: '.alert-box',
     SUBMIT_BUTTON: '#ctl00_ContentPlaceHolder1_btnConsultar',
     STOCKS_DIV: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados',
-    STOCKS_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados table tbody'
+    STOCKS_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados table tbody',
+    PAGE_ALERT_ERROR: '.alert-box.alert',
+    PAGE_ALERT_SUCCESS: '.alert-box.success'
 }
 
 const STOCK_TABLE_HEADERS = [
@@ -37,13 +40,15 @@ class StockHistoryCrawler {
      */
     static async getStockHistory(page, startDate = null, endDate = null) {
         
+        console.log('history')
+
         const result = [];
 
         // Navigate to stocks page
         await page.goto(PAGE.URL);
 
         const getDateForInput = (date) => 
-            `${date.getDate()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getFullYear()}`;
+            `${date.getDate().toString().padStart(2, '0')}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getFullYear()}`;
 
         // Set start and end date
         if (startDate !== null) {
@@ -55,6 +60,7 @@ class StockHistoryCrawler {
             await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.END_DATE_INPUT);
             await page.type(PAGE.END_DATE_INPUT, getDateForInput(endDate));
         }
+        console.log('history 2')
             
 
         // Get all institutions to iterate
@@ -64,6 +70,7 @@ class StockHistoryCrawler {
                 .filter(v => v.value > 0);
         }, PAGE.SELECT_INSTITUTION_OPTIONS);
         const institutions = await institutionsHandle.jsonValue();
+        console.log('history')
 
         // Iterate over institutions, accounts, processing the stocks
         let cachedAccount = ''; // Used to wait for page to load
@@ -89,12 +96,22 @@ class StockHistoryCrawler {
                 await page.select(PAGE.SELECT_ACCOUNT, account);
                 await page.click(PAGE.SUBMIT_BUTTON);
 
-                // Wait for table to load
-                await page.waitForFunction(`document.querySelector('${PAGE.STOCKS_DIV}') !== null`);
+                // Wait for table to load or give error / alert
+                let hasData = false;
+                await PuppeteerUtils
+                    .waitForAnySelector(page, [PAGE.STOCKS_DIV, PAGE.PAGE_ALERT_ERROR, PAGE.PAGE_ALERT_SUCCESS])
+                    .then(async (selector) => {
+                        if (selector === PAGE.PAGE_ALERT_ERROR) {
+                            const message = await page.evaluate((s) => document.querySelector(s).textContent, selector);
+                            throw new Error(message);
+                        }
+                        hasData = selector === PAGE.STOCKS_DIV;
+                    });
 
                 // Process the page
                 console.log(`Processing stock history data`);
-                const data = await this._processStockHistory(page);
+                const data = hasData ? await this._processStockHistory(page) : [];
+                console.log (`Found ${data.length} operations`);
 
                 // Save the result
                 result.push({
