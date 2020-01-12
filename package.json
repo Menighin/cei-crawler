@@ -5,7 +5,8 @@
   "main": "src/app.js",
   "scripts": {
     "dev": "node src/app.js",
-    "test": "ava"
+    "test": "nyc ava",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "keywords": [
     "cei",
@@ -19,6 +20,8 @@
     "puppeteer": "^2.0.0"
   },
   "devDependencies": {
-    "ava": "^2.4.0"
+    "ava": "^2.4.0",
+    "coveralls": "^3.0.9",
+    "nyc": "^15.0.0"
   }
 }
