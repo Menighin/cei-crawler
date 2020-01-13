@@ -40,8 +40,6 @@ class StockHistoryCrawler {
      */
     static async getStockHistory(page, startDate = null, endDate = null) {
         
-        console.log('history')
-
         const result = [];
 
         // Navigate to stocks page
@@ -62,8 +60,6 @@ class StockHistoryCrawler {
             await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.END_DATE_INPUT);
             await page.type(PAGE.END_DATE_INPUT, getDateForInput(endDate));
         }
-        console.log('history 2')
-            
 
         // Get all institutions to iterate
         /* istanbul ignore next */
@@ -73,7 +69,6 @@ class StockHistoryCrawler {
                 .filter(v => v.value > 0);
         }, PAGE.SELECT_INSTITUTION_OPTIONS);
         const institutions = await institutionsHandle.jsonValue();
-        console.log('history 3')
 
         // Iterate over institutions, accounts, processing the stocks
         let cachedAccount = ''; // Used to wait for page to load
