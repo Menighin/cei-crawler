@@ -7,7 +7,6 @@ after_success: npm run coverage
 deploy:
   provider: npm
   email: joao.menighin@gmail.com
-  api_key:
-    secure: IGvdSL3dpmfH9GcH8B/dnP9HSR2zLW6TKJJeo+R5jOG1ahvjdJLsURYpQUpdAKFkBiI8mMrkw+wIFkiUqcvvG/fPt3jNdTberfyTFSnzuLwGS5oI4QSlmLwMsvnIQlYeOQcE6Byui10syMiipoZXynRbUJ3FKn5un1pehS4/UsCMWfL09MBrHMmdrb1MiEdHxfnpNw1X0FXQrPEgvsIPEFLXyWURjAz5fKb2zUc0rnY9hYMNAObXPCZ9rvukUEe1dlA9wmpnPqW5e3Civ5UYH1gcV3iR/ecl3+gJW4/ZUXV1ZDRiqRkcO1zmbDeQccik8V+0RwjW8klG/+B9QG84Sv4XmRkR2ZW8SFmjbWK6rJxAAvHSrZ1xNJwLOtaTTZj4dLEMTT/O6Z/MB2mXM68MY2mOcvxyfVmN1vGeQSS72A7lvn/SmBwBd8jdJP23HHwUPie6xY+/9mcC0iacc/YRafOqRJz27JqNfF9lfPPiZLchBSI5IMaY3l740xEcCJk36nLulXfqkPMMEAEdVu1UGp/JoZf4EgsXIUZD/PWLsu3meGTi2E3dimQUszUnUDijp+E2MsrBbuceK2OBDFujHZuuNVIgWaMPIIAgvyp8xejEBoA2w/7uh4V4408Wp0MJAdTw83HQLXIFfvdVPAXjUjkH22TJnVWbng4jSO0OWVM=
+  api_key: "$NPM_TOKEN"
   on:
     tags: true
