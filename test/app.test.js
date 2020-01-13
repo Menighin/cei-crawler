@@ -21,9 +21,6 @@ test.serial('login', async t => {
 });
 
 test.serial('stock-history', async t => {
-    t.is(true, true);
-    console.log('oioi')
-    try {
     const result = await t.context.ceiCrawler.getStockHistory();
     t.true(result.length > 0);
 
@@ -34,30 +31,25 @@ test.serial('stock-history', async t => {
             break;
         }
     }
-
     t.true(hasAnyStock);
-}catch(e) {
-    console.log(e);
-    //debugger;
-}
 });
 
-// test.serial('stock-history-empty', async t => {
-//     const saturday = new Date(2020, 0, 4);
-//     const sunday = new Date(2020, 0, 5);
-//     const result = await t.context.ceiCrawler.getStockHistory(saturday, sunday);
-//     t.true(result.length > 0);
+test.serial('stock-history-empty', async t => {
+    const saturday = new Date(2020, 0, 4);
+    const sunday = new Date(2020, 0, 5);
+    const result = await t.context.ceiCrawler.getStockHistory(saturday, sunday);
+    t.true(result.length > 0);
 
-//     let hasAnyStock = false;
-//     for (const r of result) {
-//         if (r.stockHistory.length > 0) {
-//             hasAnyStock = true;
-//             break;
-//         }
-//     }
-//     t.false(hasAnyStock);
-// });
+    let hasAnyStock = false;
+    for (const r of result) {
+        if (r.stockHistory.length > 0) {
+            hasAnyStock = true;
+            break;
+        }
+    }
+    t.false(hasAnyStock);
+});
 
-// test.serial('stock-history-invalid-dates', async t => {
-//     t.throwsAsync(async () => t.context.ceiCrawler.getStockHistory(new Date(0), new Date(10000)));
-// });
+test.serial('stock-history-invalid-dates', async t => {
+    await t.throwsAsync(async () => t.context.ceiCrawler.getStockHistory(new Date(0), new Date(10000)));
+});

@@ -52,11 +52,13 @@ class StockHistoryCrawler {
 
         // Set start and end date
         if (startDate !== null) {
+            /* istanbul ignore next */
             await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.START_DATE_INPUT);
             await page.type(PAGE.START_DATE_INPUT, getDateForInput(startDate));
         }
         
         if (endDate !== null) {
+            /* istanbul ignore next */
             await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.END_DATE_INPUT);
             await page.type(PAGE.END_DATE_INPUT, getDateForInput(endDate));
         }
@@ -64,13 +66,14 @@ class StockHistoryCrawler {
             
 
         // Get all institutions to iterate
+        /* istanbul ignore next */
         const institutionsHandle = await page.evaluateHandle((selector) => {
             return Array.from(document.querySelectorAll(selector))
                 .map(o => ({ value: o.value, label: o.text }))
                 .filter(v => v.value > 0);
         }, PAGE.SELECT_INSTITUTION_OPTIONS);
         const institutions = await institutionsHandle.jsonValue();
-        console.log('history')
+        console.log('history 3')
 
         // Iterate over institutions, accounts, processing the stocks
         let cachedAccount = ''; // Used to wait for page to load
@@ -79,11 +82,13 @@ class StockHistoryCrawler {
             console.log(`Selecting institution ${institution.label} (${institution.value})`)
             await page.select(PAGE.SELECT_INSTITUTION, institution.value);
 
+            /* istanbul ignore next */
             await page.waitForFunction((cachedAccount, select) => {
                 const value = document.querySelector(select).value;
                 return value != '0' && value != cachedAccount;
             }, {}, cachedAccount, PAGE.SELECT_ACCOUNT_OPTIONS);
 
+            /* istanbul ignore next */
             const accountsHandle = await page.evaluateHandle((select) => {
                 return Array.from(document.querySelectorAll(select))
                     .map(o => o.value)
@@ -140,6 +145,7 @@ class StockHistoryCrawler {
      */
     static async _processStockHistory(page) {
 
+        /* istanbul ignore next */
         const data = await page.evaluateHandle((select, headers) => {
             const rows = document.querySelector(select).rows;
             
