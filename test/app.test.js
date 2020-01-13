@@ -8,7 +8,7 @@ test.before(t => {
     }
     const ceiCrawlerOptions = {
         puppeteerLaunch: {
-            headless: false,
+            headless: true,
             timeout: 0
         }
     }
