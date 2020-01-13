@@ -5,8 +5,8 @@
   "main": "src/app.js",
   "scripts": {
     "dev": "node src/app.js",
-    "test": "nyc ava --serial",
-    "test2": "ava --serial",
+    "test": "nyc ava",
+    "ava": "ava",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "keywords": [
