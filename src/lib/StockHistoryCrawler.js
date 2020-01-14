@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const PuppeteerUtils = require('./PuppeteerUtils');
+const typedefs = require("./typedefs");
 
 const PAGE = {
     URL: 'https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx',
@@ -35,10 +36,13 @@ class StockHistoryCrawler {
     /**
      * 
      * @param {puppeteer.Page} page - Logged page to work with
+     * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
      * @param {Date} [startDate] - The start date of the history. If none passed, the default of CEI will be used
      * @param {Date} [endDate] - The end date of the history. If none passed, the default of CEI will be used
      */
-    static async getStockHistory(page, startDate = null, endDate = null) {
+    static async getStockHistory(page, options = null, startDate = null, endDate = null) {
+        
+        const traceOperations = (options && options.trace) || false;
         
         const result = [];
 
@@ -74,7 +78,8 @@ class StockHistoryCrawler {
         let cachedAccount = ''; // Used to wait for page to load
         for (const institution of institutions) {
 
-            console.log(`Selecting institution ${institution.label} (${institution.value})`)
+            if (traceOperations)
+                console.log(`Selecting institution ${institution.label} (${institution.value})`)
             await page.select(PAGE.SELECT_INSTITUTION, institution.value);
 
             /* istanbul ignore next */
@@ -92,7 +97,9 @@ class StockHistoryCrawler {
             const accounts = await accountsHandle.jsonValue();
             
             for (const account of accounts) {
-                console.log(`Selecting account ${account}`)
+                if (traceOperations)
+                    console.log(`Selecting account ${account}`);
+
                 await page.select(PAGE.SELECT_ACCOUNT, account);
                 await page.click(PAGE.SUBMIT_BUTTON);
 
@@ -109,9 +116,13 @@ class StockHistoryCrawler {
                     });
 
                 // Process the page
-                console.log(`Processing stock history data`);
+                if (traceOperations)
+                    console.log(`Processing stock history data`);
+
                 const data = hasData ? await this._processStockHistory(page) : [];
-                console.log (`Found ${data.length} operations`);
+
+                if (traceOperations)
+                    console.log (`Found ${data.length} operations`);
 
                 // Save the result
                 result.push({

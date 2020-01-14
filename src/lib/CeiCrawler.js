@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const StockHistoryCrawler = require('./StockHistoryCrawler');
+const typedefs = require("./typedefs");
 
 class CeiCrawler {
 
@@ -26,7 +27,7 @@ class CeiCrawler {
      * 
      * @param {String} username Username to login at CEI
      * @param {String} password Password to login at CEI
-     * @param {{puppeteerLaunch: puppeteer.LaunchOptions}} options Options for CEI Crawler and Puppeteer
+     * @param {{puppeteerLaunch: puppeteer.LaunchOptions, wat: typedefs.foo}} options Options for CEI Crawler and Puppeteer
      */
     constructor(username, password, options) {
         this.username = username;
@@ -40,7 +41,8 @@ class CeiCrawler {
         if (this._browser == null)
             this._browser = await puppeteer.launch(this.options.puppeteerLaunch);
 
-        console.log('Logging at CEI...');
+        if ((this.options && this.options.trace) || false)
+            console.log('Logging at CEI...');
         this._page = await this._browser.newPage();
         await this._page.goto('https://cei.b3.com.br/CEI_Responsivo/');
         await this._page.type('#ctl00_ContentPlaceHolder1_txtLogin', this.username, { delay: 10 });
@@ -57,7 +59,7 @@ class CeiCrawler {
      */
     async getStockHistory(startDate, endDate) {
         await this._login();
-        return await StockHistoryCrawler.getStockHistory(this._page, startDate, endDate);
+        return await StockHistoryCrawler.getStockHistory(this._page, this.options, startDate, endDate);
     }
 
 }
