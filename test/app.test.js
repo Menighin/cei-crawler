@@ -1,16 +1,20 @@
 const test = require('ava')
 const CeiCrawler = require('../src/app')
 const fs = require('fs')
+const typedefs = require("../src/lib/typedefs");
 
 test.before(t => {
     if (!process.env.CEI_USERNAME || !process.env.CEI_PASSWORD) {
         throw Error('You should set environment variables CEI_USERNAME and CEI_PASSWORD in order to run tests');
     }
+
+    /** @type {typedefs.CeiCrawlerOptions} */
     const ceiCrawlerOptions = {
         puppeteerLaunch: {
             headless: true,
             timeout: 0
-        }
+        },
+        trace: false
     }
     t.context.ceiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, ceiCrawlerOptions);
 });
