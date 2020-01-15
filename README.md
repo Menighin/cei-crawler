@@ -17,22 +17,22 @@ npm install --save cei-crawler
 ## Utilização
 Crie uma instância do `CeiCrawler` passando os parametros necessários e invoque o método desejado:
 
-```
+```javascript
 let ceiCrawler = new CeiCrawler('username', 'password', {/* options */});
 let stockHistory = await ceiCrawler.getStockHistory(startDate, endDate); // Se nenhuma data for passada, irá trazer o histórico inteiro
 ```
 
 Um exemplo de retorno do método acima é:
 
-```
+```javascript
 [
     {
         institution: 'Banco Inter',
         account: 12345,
         stockHistory: [
             {
-                date: Date(2020, 01, 01),
-                operation: 'C', // C (Compra) ou V (Venda),
+                date: "2019-06-12T03:00:00.000Z",
+                operation: "C", // C (Compra) ou V (Venda),
                 market: "Mercado a Vista",
                 expiration: "",
                 code: "BTOW3",
