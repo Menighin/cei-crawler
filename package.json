@@ -3,6 +3,11 @@
   "version": "0.1.1",
   "description": "Crawler para pegar dados do Canal Eletronico do Investidor",
   "main": "src/app.js",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/Menighin/cei-crawler.git"
+  },
+  "homepage": "https://github.com/Menighin/cei-crawler#readme",
   "scripts": {
     "dev": "node src/app.js",
     "test": "nyc ava",
