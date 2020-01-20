@@ -43,12 +43,17 @@ class CeiCrawler {
 
         if ((this.options && this.options.trace) || false)
             console.log('Logging at CEI...');
+            
         this._page = await this._browser.newPage();
         await this._page.goto('https://cei.b3.com.br/CEI_Responsivo/');
         await this._page.type('#ctl00_ContentPlaceHolder1_txtLogin', this.username, { delay: 10 });
         await this._page.type('#ctl00_ContentPlaceHolder1_txtSenha', this.password, { delay: 10 });
         await this._page.click('#ctl00_ContentPlaceHolder1_btnLogar');
         await this._page.waitForNavigation({timeout: 0});
+
+        if (this._page.url().includes('Mensagens'))
+            throw new Error('Login falhou');
+        
         this._isLogged = true;
     }
 
