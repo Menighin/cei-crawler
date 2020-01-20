@@ -78,8 +78,10 @@ class StockHistoryCrawler {
         let cachedAccount = ''; // Used to wait for page to load
         for (const institution of institutions) {
 
+            /* istanbul ignore next */
             if (traceOperations)
                 console.log(`Selecting institution ${institution.label} (${institution.value})`)
+
             await page.select(PAGE.SELECT_INSTITUTION, institution.value);
 
             /* istanbul ignore next */
@@ -97,6 +99,7 @@ class StockHistoryCrawler {
             const accounts = await accountsHandle.jsonValue();
             
             for (const account of accounts) {
+                /* istanbul ignore next */
                 if (traceOperations)
                     console.log(`Selecting account ${account}`);
 
@@ -109,6 +112,7 @@ class StockHistoryCrawler {
                     .waitForAnySelector(page, [PAGE.STOCKS_DIV, PAGE.PAGE_ALERT_ERROR, PAGE.PAGE_ALERT_SUCCESS])
                     .then(async (selector) => {
                         if (selector === PAGE.PAGE_ALERT_ERROR) {
+                            /* istanbul ignore next */
                             const message = await page.evaluate((s) => document.querySelector(s).textContent, selector);
                             throw new Error(message);
                         }
@@ -116,11 +120,13 @@ class StockHistoryCrawler {
                     });
 
                 // Process the page
+                /* istanbul ignore next */
                 if (traceOperations)
                     console.log(`Processing stock history data`);
 
                 const data = hasData ? await this._processStockHistory(page) : [];
 
+                /* istanbul ignore next */
                 if (traceOperations)
                     console.log (`Found ${data.length} operations`);
 

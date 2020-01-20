@@ -41,6 +41,7 @@ class CeiCrawler {
         if (this._browser == null)
             this._browser = await puppeteer.launch(this.options.puppeteerLaunch);
 
+        /* istanbul ignore next */
         if ((this.options && this.options.trace) || false)
             console.log('Logging at CEI...');
             
