@@ -57,3 +57,10 @@ test.serial('stock-history-empty', async t => {
 test.serial('stock-history-invalid-dates', async t => {
     await t.throwsAsync(async () => t.context.ceiCrawler.getStockHistory(new Date(0), new Date(10000)));
 });
+
+test.serial('login-fail', async t => {
+    await t.throwsAsync(async () => {
+        const wrongCeiCrawler = new CeiCrawler('1234', 'invalidPassword', {});
+        await wrongCeiCrawler.getStockHistory();
+    });
+});
