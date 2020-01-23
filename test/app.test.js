@@ -17,6 +17,7 @@ test.before(t => {
         trace: false
     }
     t.context.ceiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, ceiCrawlerOptions);
+    t.context.emptyOptionsCeiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD);
 });
 
 test.serial('login', async t => {
@@ -60,7 +61,12 @@ test.serial('stock-history-invalid-dates', async t => {
 
 test.serial('login-fail', async t => {
     await t.throwsAsync(async () => {
-        const wrongCeiCrawler = new CeiCrawler('1234', 'invalidPassword', {});
+        const wrongCeiCrawler = new CeiCrawler('1234', 'invalidPassword');
         await wrongCeiCrawler.getStockHistory();
     });
 });
+
+test.serial('empty-options', async t => {
+    const data = await t.context.emptyOptionsCeiCrawler.getStockHistory();
+    t.true(data.length > 0);
+})

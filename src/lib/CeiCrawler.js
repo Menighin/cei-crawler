@@ -29,7 +29,7 @@ class CeiCrawler {
      * @param {String} password Password to login at CEI
      * @param {{puppeteerLaunch: puppeteer.LaunchOptions, wat: typedefs.foo}} options Options for CEI Crawler and Puppeteer
      */
-    constructor(username, password, options) {
+    constructor(username, password, options = {}) {
         this.username = username;
         this.password = password;
         this.options = options;
