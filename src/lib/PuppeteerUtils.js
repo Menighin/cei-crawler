@@ -11,7 +11,11 @@ class PuppeteerUtils {
     static waitForAnySelector(page, selectors) {
 
         const promisses = selectors.map(s => new Promise(async resolve => {
-            await page.waitForSelector(s);
+            try {
+                await page.waitForSelector(s);
+            } catch(e) {
+                // Silence for selectors not found
+            }
             resolve(s);
         }))
 
