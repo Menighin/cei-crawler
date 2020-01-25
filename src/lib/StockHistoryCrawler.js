@@ -28,7 +28,7 @@ const STOCK_TABLE_HEADERS = [
     {prop: 'quantity', type: 'int'},
     {prop: 'price', type: 'float'},
     {prop: 'totalValue', type: 'float'},
-    {prop: 'cotation', type: 'float'}
+    {prop: 'quotationFactor', type: 'float'}
 ];
 
 class StockHistoryCrawler {
@@ -39,6 +39,7 @@ class StockHistoryCrawler {
      * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
      * @param {Date} [startDate] - The start date of the history. If none passed, the default of CEI will be used
      * @param {Date} [endDate] - The end date of the history. If none passed, the default of CEI will be used
+     * @returns {typedefs.StockHistory[]} - List of Stock histories
      */
     static async getStockHistory(page, options = null, startDate = null, endDate = null) {
         

@@ -62,6 +62,7 @@ class CeiCrawler {
      * 
      * @param {Date} [startDate] - The start date of the history
      * @param {Date} [endDate]  - The end date of the history
+     * @returns {typedefs.StockHistory[]} - List of Stock histories
      */
     async getStockHistory(startDate, endDate) {
         await this._login();
