@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const StockHistoryCrawler = require('./StockHistoryCrawler');
 const typedefs = require("./typedefs");
+const PuppeteerUtils = require('./PuppeteerUtils');
 
 class CeiCrawler {
 
@@ -47,14 +48,30 @@ class CeiCrawler {
             
         this._page = await this._browser.newPage();
         await this._page.goto('https://cei.b3.com.br/CEI_Responsivo/');
+
         await this._page.type('#ctl00_ContentPlaceHolder1_txtLogin', this.username, { delay: 10 });
         await this._page.type('#ctl00_ContentPlaceHolder1_txtSenha', this.password, { delay: 10 });
         await this._page.click('#ctl00_ContentPlaceHolder1_btnLogar');
-        await this._page.waitForNavigation({timeout: 0});
 
-        if (this._page.url().includes('Mensagens'))
-            throw new Error('Login falhou');
-        
+        // Wait for one of these things to happen first
+        await PuppeteerUtils.waitForAny([
+            {
+                id: 'nav',
+                pr: this._page.waitForNavigation({timeout: 40000})
+            },
+            {
+                id: 'fail',
+                pr: this._page.waitForSelector('.alert-box.alert')
+            },
+            {
+                id: 'fail',
+                pr: this._page.waitFor(35000) // After 20s, consider the login has failed
+            }
+        ]).then(async id => {
+            if (id === 'fail')
+                throw new Error('Login falhou');
+        });
+
         this._isLogged = true;
     }
 
