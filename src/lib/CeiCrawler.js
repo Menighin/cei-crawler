@@ -5,15 +5,6 @@ const PuppeteerUtils = require('./PuppeteerUtils');
 
 class CeiCrawler {
 
-    /** @type {boolean} */
-    _isLogged = false;
-
-    /** @type {puppeteer.Browser} */
-    _browser = null;
-
-    /** @type {puppeteer.Page} */
-    _page = null;
-
     get username() { return this._username; }
     set username(username) { this._username = username; }
 
@@ -34,6 +25,15 @@ class CeiCrawler {
         this.username = username;
         this.password = password;
         this.options = options;
+
+        /** @type {boolean} */
+        this._isLogged = false;
+
+        /** @type {puppeteer.Browser} */
+        this._browser = null;
+
+        /** @type {puppeteer.Page} */
+        this._page = null;
     }
 
     async _login() {
