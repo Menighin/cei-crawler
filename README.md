@@ -47,6 +47,31 @@ Um exemplo de retorno do método acima é:
 ]
 ```
 
+## Options
+Na criação de um `CeiCrawler` é possivel especificar alguns valores para o parâmetro `options` que modificam a forma que o crawler funciona. As opções são:
+
+| Propriedade         | Tipo      | Default | Descrição                                                                                                                                                                        |
+|---------------------|-----------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **puppeteerLaunch** | _Object_  | _{}_    | Esse objeto é passado ao método `launch` do `Puppeteer`. As opções estão listadas [aqui](https://github.com/puppeteer/puppeteer/blob/v2.1.1/docs/api.md#puppeteerlaunchoptions). |
+| **capEndDate**      | _Boolean_ | _false_ | Se `true`, a data de fim de busca do histórico será limitada à data máxima do CEI, impedindo que ocorra um erro caso o usuário passe uma data maior.                             |
+| **capStartDate**    | _Boolean_ | _false_ | Se `true`, a data de início de busca do histórico será limitada à data mínima do CEI, impedindo que ocorra um erro caso o usuário passe uma data menor.                          |
+| **trace**           | _Boolean_ | _false_ | Printa mensagens de debug no log. Útil para desenvolvimento.                                                                                                                     |
+
+Exemplo:
+
+```javascript
+const ceiCrawlerOptions = {
+    puppeteerLaunch: {
+        headless: false,
+        timeout: 0
+    },
+    trace: false,
+    capEndDate: true
+};
+
+let ceiCrawler = new CeiCrawler('username', 'password', ceiCrawlerOptions);
+``` 
+
 ## Features
 - [x] Histórico de ações
 - [ ] Tesouro Direto

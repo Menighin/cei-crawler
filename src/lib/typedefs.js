@@ -8,6 +8,8 @@ const puppeteer = require('puppeteer');
  * @typedef CeiCrawlerOptions
  * @property {puppeteer.LaunchOptions} puppeteerLaunch - Puppeteer launch options
  * @property {boolean} trace - Indicates if it should print trace messages. Helpful for debugging.
+ * @property {boolean} capEndDate - Prevent crawling with a date bigger than CEI allows, causing an error
+ * @property {boolean} capStartDate - Prevent crawling with a date smaller than CEI allows, causing an error
  * @memberof typdefs
  */
 

@@ -17,6 +17,7 @@ test.before(t => {
         trace: false
     }
     t.context.ceiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, ceiCrawlerOptions);
+    t.context.ceiCrawlerCap = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, { capEndDate: true, capStartDate: true });
     t.context.emptyOptionsCeiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD);
 });
 
@@ -57,6 +58,11 @@ test.serial('stock-history-empty', async t => {
 
 test.serial('stock-history-invalid-dates', async t => {
     await t.throwsAsync(async () => t.context.ceiCrawler.getStockHistory(new Date(0), new Date(10000)));
+});
+
+test.serial('stock-history-invalid-dates-with-cap-on', async t => {
+    const result = await t.context.ceiCrawlerCap.getStockHistory(new Date(0), new Date(10000));
+    t.true(result.length > 0);
 });
 
 test.serial('login-fail', async t => {
