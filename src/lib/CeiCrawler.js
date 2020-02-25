@@ -20,15 +20,15 @@ class CeiCrawler {
     get password() { return this._password; }
     set password(password) { this._password = password; }
 
-    /** @type {{puppeteerLaunch: puppeteer.LaunchOptions}} options Options for CEI Crawler and Puppeteer */
+    /** @type {typedefs.CeiCrawlerOptions} - Options for CEI Crawler and Puppeteer */
     get options() { return this._options; }
     set options(options) { this._options = options; }
 
     /**
      * 
-     * @param {String} username Username to login at CEI
-     * @param {String} password Password to login at CEI
-     * @param {{puppeteerLaunch: puppeteer.LaunchOptions, wat: typedefs.foo}} options Options for CEI Crawler and Puppeteer
+     * @param {String} username - Username to login at CEI
+     * @param {String} password - Password to login at CEI
+     * @param {typedefs.CeiCrawlerOptions} options - Options for CEI Crawler and Puppeteer
      */
     constructor(username, password, options = {}) {
         this.username = username;
