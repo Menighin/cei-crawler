@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const StockHistoryCrawler = require('./StockHistoryCrawler');
+const DividendsCrawler = require('./DividendsCrawler');
 const typedefs = require("./typedefs");
 const PuppeteerUtils = require('./PuppeteerUtils');
 
@@ -84,6 +85,14 @@ class CeiCrawler {
     async getStockHistory(startDate, endDate) {
         await this._login();
         return await StockHistoryCrawler.getStockHistory(this._page, this.options, startDate, endDate);
+    }
+
+    /**
+     * @returns {typedefs.DividendData} - List of available Dividends information
+     */
+    async getDividends() {
+        await this._login();
+        return await DividendsCrawler.getDividends(this._page);
     }
 
 }
