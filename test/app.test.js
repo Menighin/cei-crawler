@@ -3,6 +3,10 @@ const CeiCrawler = require('../src/app')
 const fs = require('fs')
 const typedefs = require("../src/lib/typedefs");
 
+const dotenv = require('dotenv');
+
+dotenv.config();
+
 test.before(t => {
     if (!process.env.CEI_USERNAME || !process.env.CEI_PASSWORD) {
         throw Error('You should set environment variables CEI_USERNAME and CEI_PASSWORD in order to run tests');
@@ -62,6 +66,11 @@ test.serial('stock-history-invalid-dates', async t => {
 
 test.serial('stock-history-invalid-dates-with-cap-on', async t => {
     const result = await t.context.ceiCrawlerCap.getStockHistory(new Date(0), new Date(10000));
+    t.true(result.length > 0);
+});
+
+test.serial('dividends', async t => {
+    const result = await t.context.ceiCrawler.getDividends();
     t.true(result.length > 0);
 });
 
