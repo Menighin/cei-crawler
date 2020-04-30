@@ -56,11 +56,29 @@ class StockHistoryCrawler {
         // Set start and end date
         if (startDate !== null) {
             /* istanbul ignore next */
+            const minDateStr = await page.evaluate((selector) => document.querySelector(selector).value, PAGE.START_DATE_INPUT);
+            const [day, month, year] = minDateStr.split('/').map(s => parseInt(s));
+            const minDate = new Date(year, month - 1, day);
+            
+            // Prevent date out of bound if parameter is set
+            if (options.capStartDate && startDate < minDate)
+                startDate = minDate;
+
+            /* istanbul ignore next */
             await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.START_DATE_INPUT);
             await page.type(PAGE.START_DATE_INPUT, getDateForInput(startDate));
         }
         
         if (endDate !== null) {
+            /* istanbul ignore next */
+            const maxDateStr = await page.evaluate((selector) => document.querySelector(selector).value, PAGE.END_DATE_INPUT);
+            const [day, month, year] = maxDateStr.split('/').map(s => parseInt(s));
+            const maxDate = new Date(year, month - 1, day);
+            
+            // Prevent date out of bound if parameter is set
+            if (options.capEndDate && endDate > maxDate)
+                endDate = maxDate;
+            
             /* istanbul ignore next */
             await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.END_DATE_INPUT);
             await page.type(PAGE.END_DATE_INPUT, getDateForInput(endDate));

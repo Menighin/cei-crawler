@@ -3,4 +3,8 @@ package-lock.json
 .vscode
 .nyc_output
 coverage
+<<<<<<< HEAD
 dist/
+=======
+.env
+>>>>>>> e93841d597d22013d0a0e4d3ad59c7a3372d0e0b

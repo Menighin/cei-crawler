@@ -8,6 +8,8 @@ const puppeteer = require('puppeteer');
  * @typedef CeiCrawlerOptions
  * @property {puppeteer.LaunchOptions} puppeteerLaunch - Puppeteer launch options
  * @property {boolean} trace - Indicates if it should print trace messages. Helpful for debugging.
+ * @property {boolean} capEndDate - Prevent crawling with a date bigger than CEI allows, causing an error
+ * @property {boolean} capStartDate - Prevent crawling with a date smaller than CEI allows, causing an error
  * @memberof typdefs
  */
 
@@ -34,4 +36,16 @@ const puppeteer = require('puppeteer');
   * @memberof typdefs
   */
 
+  /**
+   * @typedef DividendData
+   * @property {String} stockType - Type of Stock (ON, PN, CI)
+   * @property {String} code - The code of the stock
+   * @property {Date} date - Dividend payment date (can be a future date for scheduled payment)
+   * @property {String} type - Dividend type (Rendimento, JPC, Dividendo)
+   * @property {Number} quantity - Quantity of stock dividend is based
+   * @property {Number} factor - Multiply factor for each stock unit
+   * @property {Number} grossValue - Dividend value before taxes
+   * @property {Number} netValue - Dividend value after taxes 
+   * @memberof typdefs
+   */
 exports.unused = {};
