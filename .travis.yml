@@ -7,16 +7,15 @@ after_success:
   - npm run build
 
 before_deploy: 
-  - ls
+  - node before_deploy.js
   - cd dist
   - ls
-  - cd ..
 
 deploy:
   provider: npm
   email: joao.menighin@gmail.com
   api_key: "$NPM_TOKEN"
-  local_dir: dist
+  skip_cleanup: true
   edge: true
   on:
     branch: master
