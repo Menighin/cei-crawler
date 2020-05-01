@@ -9,6 +9,7 @@
   },
   "homepage": "https://github.com/Menighin/cei-crawler#readme",
   "scripts": {
+    "build": "webpack",
     "dev": "node src/app.js",
     "test": "nyc ava",
     "ava": "ava",
@@ -28,22 +29,24 @@
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.9.6",
     "@babel/preset-env": "^7.9.5",
     "ava": "^2.4.0",
     "babel-loader": "^8.1.0",
     "coveralls": "^3.0.9",
+    "dotenv": "^8.2.0",
     "nyc": "^15.0.0",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
-    "webpack-node-externals": "^1.7.2",
-    "dotenv": "^8.2.0"
+    "webpack-node-externals": "^1.7.2"
   },
   "babel": {
     "presets": [
       "@babel/preset-env"
     ],
     "plugins": [
-      "@babel/plugin-proposal-class-properties"
+      "@babel/plugin-proposal-class-properties",
+      "@babel/plugin-transform-runtime"
     ]
   }
 }
