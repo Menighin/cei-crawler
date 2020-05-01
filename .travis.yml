@@ -15,7 +15,6 @@ deploy:
   provider: npm
   email: joao.menighin@gmail.com
   api_key: "$NPM_TOKEN"
-  skip_cleanup: true
   edge: true
   on:
     branch: master
