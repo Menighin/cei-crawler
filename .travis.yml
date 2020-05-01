@@ -6,12 +6,17 @@ after_success:
   - npm run coverage
   - npm run build
 
-before_deploy: cd dist
+before_deploy: 
+  - ls
+  - cd dist
+  - ls
+  - cd ..
 
 deploy:
   provider: npm
   email: joao.menighin@gmail.com
   api_key: "$NPM_TOKEN"
+  local_dir: dist
   edge: true
   on:
-    tags: true
+    branch: master
