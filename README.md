@@ -50,7 +50,7 @@ Resultado:
     }
 ]
 ```
-#### getStockHistory
+#### getDividends
 Método que processa todos os dados disponíveis sobre proventos recebidos em um período e retorna como uma lista. Usualmente os proventos disponíveis na página do CEI são os creditados no mês atual e os já anunciados pela empresas com e sem data definida. Registros com date igual a 2001-01-01 são de proventos anunciados mas sem data definida de pagamento.
 ```javascript
 let dividends = await ceiCrawler.getDividends();
