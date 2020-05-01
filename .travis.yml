@@ -2,7 +2,11 @@ language: node_js
 node_js:
   - 12.14.0
 
-after_success: npm run coverage
+after_success: 
+  - npm run coverage
+  - npm run build
+
+before_deploy: cd dist
 
 deploy:
   provider: npm
