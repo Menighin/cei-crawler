@@ -18,6 +18,8 @@ let config = {
     extensions: ['*', '.js']
   },
   output: {
+    library: 'cei-crawler',
+    libraryTarget: 'umd',
     filename: 'app.js',
     path: path.resolve(__dirname, 'dist'),
   }
