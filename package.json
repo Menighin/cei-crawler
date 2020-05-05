@@ -1,6 +1,6 @@
 {
   "name": "cei-crawler",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Crawler para pegar dados do Canal Eletronico do Investidor",
   "main": "src/app.js",
   "repository": {
@@ -24,6 +24,7 @@
   "author": "Joao Menighin <joao.menighin@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@babel/runtime": "^7.9.6",
     "puppeteer": "^2.0.0"
   },
   "devDependencies": {
