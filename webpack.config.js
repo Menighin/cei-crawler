@@ -1,5 +1,6 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
+const TerserPlugin = require('terser-webpack-plugin');
 
 let config = {
   entry: './src/app.js',
@@ -16,6 +17,17 @@ let config = {
   },
   resolve: {
     extensions: ['*', '.js']
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          keep_classnames: true,
+          keep_fnames: true
+        }
+      }),
+    ],
   },
   output: {
     library: 'cei-crawler',
