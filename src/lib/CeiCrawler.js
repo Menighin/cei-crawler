@@ -66,7 +66,7 @@ class CeiCrawler {
             },
             {
                 id: 'fail',
-                pr: this._page.waitFor(35000) // After 20s, consider the login has failed
+                pr: this._page.waitFor(35000) // After 35s, consider the login has failed
             }
         ]).then(async id => {
             if (id === 'fail')
@@ -77,7 +77,7 @@ class CeiCrawler {
     }
 
     /**
-     * 
+     * Returns the stock history
      * @param {Date} [startDate] - The start date of the history
      * @param {Date} [endDate]  - The end date of the history
      * @returns {typedefs.StockHistory[]} - List of Stock histories
@@ -93,6 +93,16 @@ class CeiCrawler {
     async getDividends() {
         await this._login();
         return await DividendsCrawler.getDividends(this._page);
+    }
+
+    /**
+     * Close puppeteer browser instance in order to free memory
+     */
+    async close() {
+        if (this._browser != null) {
+            await this._browser.close();
+            this._browser = null;
+        }
     }
 
 }

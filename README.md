@@ -82,6 +82,22 @@ Resultado:
 ]
 ```
 
+#### close
+O método close deve ser chamado quando é terminado o processamento dos dados e a instancia do `CeiCrawler` não será reutilizada em um curto espaço de tempo. Esse método simplesmente fecha o browser do `puppeteer`, liberando memória.
+Exemplos do comportamento:
+```javascript
+// Ambas as chamadas são executadas numa mesma janela do browser, somente um login é feito
+let stockHistory = await ceiCrawler.getStockHistory(startDate, endDate);
+let dividends = await ceiCrawler.getDividends();
+await ceiCrawler.close();
+
+// Se intercalarmos chamadas ao método close entre os métodos, o login é realizado duas vezes
+let stockHistory = await ceiCrawler.getStockHistory(startDate, endDate); // Abre browser, faz login e pega o histórico
+await ceiCrawler.close(); // Fecha o browser
+
+let dividends = await ceiCrawler.getDividends(); // Abre novamente, faz login e pega os dividendos
+await ceiCrawler.close(); // Fecha o browser
+```
 
 ## Opções
 Na criação de um `CeiCrawler` é possivel especificar alguns valores para o parâmetro `options` que modificam a forma que o crawler funciona. As opções são:
@@ -110,6 +126,7 @@ let ceiCrawler = new CeiCrawler('username', 'password', ceiCrawlerOptions);
 
 ## Features
 - [x] Histórico de ações
+- [x] Dividendos
 - [ ] Tesouro Direto
 
 ## Licença

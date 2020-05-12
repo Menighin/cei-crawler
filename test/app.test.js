@@ -80,3 +80,9 @@ test.serial('login-fail', async t => {
         await wrongCeiCrawler.getStockHistory();
     });
 });
+
+test.serial('close', async t => {
+    t.true(t.context.ceiCrawler._browser != null);
+    await t.context.ceiCrawler.close();
+    t.true(t.context.ceiCrawler._browser == null);
+});
