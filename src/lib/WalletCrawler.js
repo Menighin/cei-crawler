@@ -1,87 +1,66 @@
 const puppeteer = require('puppeteer');
 const PuppeteerUtils = require('./PuppeteerUtils');
 const typedefs = require("./typedefs");
+const CeiUtils = require('./CeiUtils');
 
 const PAGE = {
-    URL: 'https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx',
+    URL: 'https://cei.b3.com.br/CEI_Responsivo/ConsultarCarteiraAtivos.aspx',
     SELECT_INSTITUTION: '#ctl00_ContentPlaceHolder1_ddlAgentes',
     SELECT_INSTITUTION_OPTIONS: '#ctl00_ContentPlaceHolder1_ddlAgentes option',
     SELECT_ACCOUNT: '#ctl00_ContentPlaceHolder1_ddlContas',
     SELECT_ACCOUNT_OPTIONS: '#ctl00_ContentPlaceHolder1_ddlContas option',
-    START_DATE_INPUT: '#ctl00_ContentPlaceHolder1_txtDataDeBolsa',
-    END_DATE_INPUT: '#ctl00_ContentPlaceHolder1_txtDataAteBolsa',
+    DATE_INPUT: '#ctl00_ContentPlaceHolder1_txtData',
+    DATE_MIN_VALUE: '#ctl00_ContentPlaceHolder1_lblPeriodoInicial',
+    DATE_MAX_VALUE: '#ctl00_ContentPlaceHolder1_lblPeriodoFinal',
     ALERT_BOX: '.alert-box',
     SUBMIT_BUTTON: '#ctl00_ContentPlaceHolder1_btnConsultar',
-    STOCKS_DIV: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados',
-    STOCKS_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados table tbody',
+    WALLET_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira',
+    WALLET_TABLE_BODY: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira tbody',
     PAGE_ALERT_ERROR: '.alert-box.alert',
     PAGE_ALERT_SUCCESS: '.alert-box.success'
 }
 
-const STOCK_TABLE_HEADERS = [
-    {prop: 'date', type: 'date'},
-    {prop: 'operation', type: 'string'},
-    {prop: 'market', type: 'string'},
-    {prop: 'expiration', type: 'string'},
+const WALLET_TABLE_HEADER = [
+    {prop: 'company', type: 'string'},
+    {prop: 'stockType', type: 'string'},
     {prop: 'code', type: 'string'},
-    {prop: 'name', type: 'string'},
-    {prop: 'quantity', type: 'int'},
+    {prop: 'isin', type: 'string'},
     {prop: 'price', type: 'float'},
-    {prop: 'totalValue', type: 'float'},
-    {prop: 'quotationFactor', type: 'float'}
+    {prop: 'quantity', type: 'int'},
+    {prop: 'quotationFactor', type: 'float'},
+    {prop: 'totalValue', type: 'float'}
 ];
 
-class StockHistoryCrawler {
+class WalletCrawler {
 
-    /**
-     * 
-     * @param {puppeteer.Page} page - Logged page to work with
-     * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
-     * @param {Date} [startDate] - The start date of the history. If none passed, the default of CEI will be used
-     * @param {Date} [endDate] - The end date of the history. If none passed, the default of CEI will be used
-     * @returns {typedefs.StockHistory[]} - List of Stock histories
-     */
-    static async getStockHistory(page, options = null, startDate = null, endDate = null) {
-        
+    static async getWallet(page, options = null, date = null) {
+
         const traceOperations = (options && options.trace) || false;
-        
+
         const result = [];
 
-        // Navigate to stocks page
+        // Navigate to wallet page
         await page.goto(PAGE.URL);
 
-        const getDateForInput = (date) => 
-            `${date.getDate().toString().padStart(2, '0')}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getFullYear()}`;
-
-        // Set start and end date
-        if (startDate !== null) {
+        // Set date
+        if (date !== null) {
             /* istanbul ignore next */
-            const minDateStr = await page.evaluate((selector) => document.querySelector(selector).value, PAGE.START_DATE_INPUT);
-            const [day, month, year] = minDateStr.split('/').map(s => parseInt(s));
-            const minDate = new Date(year, month - 1, day);
+            const minDateStr = await page.evaluate((selector) => document.querySelector(selector).value, PAGE.DATE_MIN_VALUE);
+            const minDate = new Date(...minDateStr.split('/').map(s => parseInt(s)));
+
+            const maxDateStr = await page.evaluate((selector) => document.querySelector(selector).value, PAGE.DATE_MAX_VALUE);
+            const maxDate = new Date(...maxDateStr.split('/').map(s => parseInt(s)));
             
             // Prevent date out of bound if parameter is set
-            if (options.capDates && startDate < minDate)
-                startDate = minDate;
+            if (options.capDates && date < minDate)
+                date = minDate;
+
+            if (options.capDates && date > maxDate)
+                date = maxDate;
 
             /* istanbul ignore next */
-            await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.START_DATE_INPUT);
-            await page.type(PAGE.START_DATE_INPUT, getDateForInput(startDate));
-        }
-        
-        if (endDate !== null) {
-            /* istanbul ignore next */
-            const maxDateStr = await page.evaluate((selector) => document.querySelector(selector).value, PAGE.END_DATE_INPUT);
-            const [day, month, year] = maxDateStr.split('/').map(s => parseInt(s));
-            const maxDate = new Date(year, month - 1, day);
-            
-            // Prevent date out of bound if parameter is set
-            if (options.capDates && endDate > maxDate)
-                endDate = maxDate;
-            
-            /* istanbul ignore next */
-            await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.END_DATE_INPUT);
-            await page.type(PAGE.END_DATE_INPUT, getDateForInput(endDate));
+            await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.DATE_INPUT);
+            await page.type(PAGE.DATE_INPUT, CeiUtils.getDateForInput(startDate));
         }
 
         // Get all institutions to iterate
@@ -128,32 +107,32 @@ class StockHistoryCrawler {
                 // Wait for table to load or give error / alert
                 let hasData = false;
                 await PuppeteerUtils
-                    .waitForAnySelector(page, [PAGE.STOCKS_DIV, PAGE.PAGE_ALERT_ERROR, PAGE.PAGE_ALERT_SUCCESS])
+                    .waitForAnySelector(page, [PAGE.WALLET_TABLE, PAGE.PAGE_ALERT_ERROR, PAGE.PAGE_ALERT_SUCCESS])
                     .then(async (selector) => {
                         if (selector === PAGE.PAGE_ALERT_ERROR) {
                             /* istanbul ignore next */
                             const message = await page.evaluate((s) => document.querySelector(s).textContent, selector);
                             throw new Error(message);
                         }
-                        hasData = selector === PAGE.STOCKS_DIV;
+                        hasData = selector === PAGE.WALLET_TABLE;
                     });
 
                 // Process the page
                 /* istanbul ignore next */
                 if (traceOperations)
-                    console.log(`Processing stock history data`);
+                    console.log(`Processing wallet data`);
 
-                const data = hasData ? await this._processStockHistory(page) : [];
+                const data = hasData ? await this._processWallet(page) : [];
 
                 /* istanbul ignore next */
                 if (traceOperations)
-                    console.log (`Found ${data.length} operations`);
+                    console.log (`Found ${data.length} items`);
 
                 // Save the result
                 result.push({
                     institution: institution.label,
                     account: account,
-                    stockHistory: data
+                    wallet: data
                 });
 
                 // Click for a new query
@@ -171,10 +150,10 @@ class StockHistoryCrawler {
     }
 
     /**
-     * Process the stock history to a DTO
+     * Process the wallet to a DTO
      * @param {puppeteer.Page} page Page with the loaded data
      */
-    static async _processStockHistory(page) {
+    static async _processWallet(page) {
 
         /* istanbul ignore next */
         const data = await page.evaluateHandle((select, headers) => {
@@ -193,12 +172,12 @@ class StockHistoryCrawler {
                     p[headers[i].prop] = parseValue(c.innerText, headers[i].type);
                     return p;
                 }, {}));
-        }, PAGE.STOCKS_TABLE, STOCK_TABLE_HEADERS);
+        }, PAGE.WALLET_TABLE_BODY, WALLET_TABLE_HEADER);
 
         // For some reason puppeteer does not return date from evaluateHandle
-        return (await data.jsonValue()).map(d => ({...d, date: new Date(d.date)}));
+        return await data.jsonValue();
     }
 
 }
 
-module.exports = StockHistoryCrawler;
+module.exports = WalletCrawler;
