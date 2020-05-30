@@ -19,18 +19,18 @@ const PAGE = {
     PAGE_ALERT_SUCCESS: '.alert-box.success'
 }
 
-const STOCK_TABLE_HEADERS = [
-    {prop: 'date', type: 'date'},
-    {prop: 'operation', type: 'string'},
-    {prop: 'market', type: 'string'},
-    {prop: 'expiration', type: 'string'},
-    {prop: 'code', type: 'string'},
-    {prop: 'name', type: 'string'},
-    {prop: 'quantity', type: 'int'},
-    {prop: 'price', type: 'float'},
-    {prop: 'totalValue', type: 'float'},
-    {prop: 'quotationFactor', type: 'float'}
-];
+const STOCK_TABLE_HEADERS = {
+    date: 'date',
+    operation: 'string',
+    market: 'string',
+    expiration: 'string',
+    code: 'string',
+    name: 'string',
+    quantity: 'int',
+    price: 'float',
+    totalValue: 'float',
+    quotationFactor: 'float'
+};
 
 class StockHistoryCrawler {
 
@@ -173,26 +173,17 @@ class StockHistoryCrawler {
     static async _processStockHistory(page) {
 
         /* istanbul ignore next */
-        const data = await page.evaluateHandle((select, headers) => {
+        const dataPromise = await page.evaluateHandle((select, headers) => {
             const rows = document.querySelector(select).rows;
-            
-            // Helper function
-            const parseValue = (value, type) => {
-                if (type === 'string') return value;
-                if (type === 'int')    return parseInt(value.replace('.', ''));
-                if (type === 'float')  return parseFloat(value.replace('.', '').replace(',', '.'));
-                if (type === 'date')   return new Date(value.split('/').reverse()).getTime();
-            }
-
             return Array.from(rows)
                 .map(tr => Array.from(tr.cells).reduce((p, c, i) => {
-                    p[headers[i].prop] = parseValue(c.innerText, headers[i].type);
+                    p[headers[i]] = c.innerText;
                     return p;
                 }, {}));
-        }, PAGE.STOCKS_TABLE, STOCK_TABLE_HEADERS);
+        }, PAGE.STOCKS_TABLE, Object.keys(STOCK_TABLE_HEADERS));
 
-        // For some reason puppeteer does not return date from evaluateHandle
-        return (await data.jsonValue()).map(d => ({...d, date: new Date(d.date)}));
+        const data = await dataPromise.jsonValue();
+        return CeiUtils.parseTableTypes(data, STOCK_TABLE_HEADERS);
     }
 
 }
