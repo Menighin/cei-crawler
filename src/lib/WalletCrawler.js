@@ -14,22 +14,34 @@ const PAGE = {
     DATE_MAX_VALUE: '#ctl00_ContentPlaceHolder1_lblPeriodoFinal',
     ALERT_BOX: '.alert-box',
     SUBMIT_BUTTON: '#ctl00_ContentPlaceHolder1_btnConsultar',
-    WALLET_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira',
-    WALLET_TABLE_BODY: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira tbody',
+    STOCK_WALLET_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira',
+    STOCK_WALLET_TABLE_BODY: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira tbody',
+    TREASURE_WALLET_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_trBodyTesouroDireto',
+    TREASURE_WALLET_TABLE_BODY: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_trBodyTesouroDireto tbody',
     PAGE_ALERT_ERROR: '.alert-box.alert',
     PAGE_ALERT_SUCCESS: '.alert-box.success'
 }
 
-const WALLET_TABLE_HEADER = [
-    {prop: 'company', type: 'string'},
-    {prop: 'stockType', type: 'string'},
-    {prop: 'code', type: 'string'},
-    {prop: 'isin', type: 'string'},
-    {prop: 'price', type: 'float'},
-    {prop: 'quantity', type: 'int'},
-    {prop: 'quotationFactor', type: 'float'},
-    {prop: 'totalValue', type: 'float'}
-];
+const STOCK_WALLET_TABLE_HEADER = {
+    company: 'string',
+    stockType: 'string',
+    code: 'string',
+    isin: 'string',
+    price: 'float',
+    quantity: 'int',
+    quotationFactor: 'float',
+    totalValue: 'float'
+};
+
+const TREASURE_WALLET_TABLE_HEADER = {
+    code: 'string',
+    expirationDate: 'string',
+    investedValue: 'float',
+    grossValue: 'float',
+    netValue: 'float',
+    quantity: 'float',
+    blocked: 'float'
+};
 
 class WalletCrawler {
 
@@ -107,14 +119,14 @@ class WalletCrawler {
                 // Wait for table to load or give error / alert
                 let hasData = false;
                 await PuppeteerUtils
-                    .waitForAnySelector(page, [PAGE.WALLET_TABLE, PAGE.PAGE_ALERT_ERROR, PAGE.PAGE_ALERT_SUCCESS])
+                    .waitForAnySelector(page, [PAGE.STOCK_WALLET_TABLE, PAGE.TREASURE_WALLET_TABLE, PAGE.PAGE_ALERT_ERROR, PAGE.PAGE_ALERT_SUCCESS])
                     .then(async (selector) => {
                         if (selector === PAGE.PAGE_ALERT_ERROR) {
                             /* istanbul ignore next */
                             const message = await page.evaluate((s) => document.querySelector(s).textContent, selector);
                             throw new Error(message);
                         }
-                        hasData = selector === PAGE.WALLET_TABLE;
+                        hasData = selector === PAGE.STOCK_WALLET_TABLE || selector === PAGE.TREASURE_WALLET_TABLE;
                     });
 
                 // Process the page
@@ -122,7 +134,8 @@ class WalletCrawler {
                 if (traceOperations)
                     console.log(`Processing wallet data`);
 
-                const data = hasData ? await this._processWallet(page) : [];
+                const stockWallet = hasData ? await this._processStockWallet(page) : [];
+                const treasureWallet = hasData ? await this._processTreasureWallet(page) : [];
 
                 /* istanbul ignore next */
                 if (traceOperations)
@@ -132,15 +145,9 @@ class WalletCrawler {
                 result.push({
                     institution: institution.label,
                     account: account,
-                    wallet: data
+                    stockWallet: stockWallet,
+                    treasureWallet: treasureWallet
                 });
-
-                // Click for a new query
-                await page.click(PAGE.SUBMIT_BUTTON);
-
-                // Await until the select for institution is enabled
-                // it means the page is ready for a new query
-                await page.waitForFunction(`!document.querySelector('${PAGE.SELECT_INSTITUTION}').disabled`);
             }
 
             cachedAccount = accounts[0];
@@ -150,32 +157,46 @@ class WalletCrawler {
     }
 
     /**
-     * Process the wallet to a DTO
+     * Process the stock wallet to a DTO
      * @param {puppeteer.Page} page Page with the loaded data
      */
-    static async _processWallet(page) {
+    static async _processStockWallet(page) {
 
         /* istanbul ignore next */
-        const data = await page.evaluateHandle((select, headers) => {
-            const rows = document.querySelector(select).rows;
-            
-            // Helper function
-            const parseValue = (value, type) => {
-                if (type === 'string') return value;
-                if (type === 'int')    return parseInt(value.replace('.', ''));
-                if (type === 'float')  return parseFloat(value.replace('.', '').replace(',', '.'));
-                if (type === 'date')   return new Date(value.split('/').reverse()).getTime();
-            }
+        const dataPromise = await page.evaluateHandle((select, headers) => {
+            const tBody = document.querySelector(select);
+            if (tBody === null || tBody === undefined) return [];
+
+            const rows = tBody.rows;
 
             return Array.from(rows)
                 .map(tr => Array.from(tr.cells).reduce((p, c, i) => {
-                    p[headers[i].prop] = parseValue(c.innerText, headers[i].type);
+                    p[headers[i]] = c.innerText;
                     return p;
                 }, {}));
-        }, PAGE.WALLET_TABLE_BODY, WALLET_TABLE_HEADER);
+        }, PAGE.STOCK_WALLET_TABLE_BODY, Object.keys(STOCK_WALLET_TABLE_HEADER));
 
-        // For some reason puppeteer does not return date from evaluateHandle
-        return await data.jsonValue();
+        const data = await dataPromise.jsonValue();
+        return CeiUtils.parseTableTypes(data, STOCK_WALLET_TABLE_HEADER);
+    }
+
+    static async _processTreasureWallet(page) {
+
+        /* istanbul ignore next */
+        const dataPromise = await page.evaluateHandle((select, headers) => {
+            const tBody = document.querySelector(select);
+            if (tBody === null || tBody === undefined) return [];
+            const rows = tBody.rows;
+
+            return Array.from(rows)
+                .map(tr => Array.from(tr.cells).reduce((p, c, i) => {
+                    p[headers[i]] = c.innerText;
+                    return p;
+                }, {}));
+        }, PAGE.TREASURE_WALLET_TABLE_BODY, Object.keys(TREASURE_WALLET_TABLE_HEADER));
+
+        const data = await dataPromise.jsonValue();
+        return CeiUtils.parseTableTypes(data, TREASURE_WALLET_TABLE_HEADER);
     }
 
 }
