@@ -74,6 +74,11 @@ test.serial('dividends', async t => {
     t.true(result.length > 0);
 });
 
+test.serial('wallet', async t => {
+    const result = await t.context.ceiCrawler.getWallet();
+    t.true(result.length > 0);
+});
+
 test.serial('login-fail', async t => {
     await t.throwsAsync(async () => {
         const wrongCeiCrawler = new CeiCrawler('1234', 'invalidPassword');

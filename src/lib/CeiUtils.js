@@ -9,16 +9,12 @@ class CeiUtils {
     }
 
     /**
-     * Parses a string to the destination format
-     * @param {String} value - Value to be parsed
-     * @param {String} type - Type of the value to be parsed (string, int, float or date)
+     * Return a date object given a date string
+     * @param {String} dateStr Date string in dd/MM/yyyy format
      */
-    static parseColumnValue(value, type) {
-        if (type === 'string') return value;
-        if (type === 'int')    return parseInt(value.replace('.', ''));
-        if (type === 'float')  return parseFloat(value.replace('.', '').replace(',', '.'));
-        if (type === 'date')   return new Date(value.split('/').reverse()).getTime();
-        return null;
+    static getDateFromInput(dateStr) {
+        const [day, month, year] = dateStr.split('/').map(o => parseInt(o));
+        return new Date(year, month - 1, day);
     }
 
 }
