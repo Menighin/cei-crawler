@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const PuppeteerUtils = require('./PuppeteerUtils');
 const typedefs = require("./typedefs");
+const CeiUtils = require('./CeiUtils');
 
 const PAGE = {
     URL: 'https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx',
@@ -50,15 +51,11 @@ class StockHistoryCrawler {
         // Navigate to stocks page
         await page.goto(PAGE.URL);
 
-        const getDateForInput = (date) => 
-            `${date.getDate().toString().padStart(2, '0')}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getFullYear()}`;
-
         // Set start and end date
         if (startDate !== null) {
             /* istanbul ignore next */
             const minDateStr = await page.evaluate((selector) => document.querySelector(selector).value, PAGE.START_DATE_INPUT);
-            const [day, month, year] = minDateStr.split('/').map(s => parseInt(s));
-            const minDate = new Date(year, month - 1, day);
+            const minDate = CeiUtils.getDateFromInput(minDateStr);
             
             // Prevent date out of bound if parameter is set
             if (options.capDates && startDate < minDate)
@@ -66,14 +63,13 @@ class StockHistoryCrawler {
 
             /* istanbul ignore next */
             await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.START_DATE_INPUT);
-            await page.type(PAGE.START_DATE_INPUT, getDateForInput(startDate));
+            await page.type(PAGE.START_DATE_INPUT, CeiUtils.getDateForInput(startDate));
         }
         
         if (endDate !== null) {
             /* istanbul ignore next */
             const maxDateStr = await page.evaluate((selector) => document.querySelector(selector).value, PAGE.END_DATE_INPUT);
-            const [day, month, year] = maxDateStr.split('/').map(s => parseInt(s));
-            const maxDate = new Date(year, month - 1, day);
+            const maxDate = CeiUtils.getDateFromInput(maxDateStr);
             
             // Prevent date out of bound if parameter is set
             if (options.capDates && endDate > maxDate)
@@ -81,7 +77,7 @@ class StockHistoryCrawler {
             
             /* istanbul ignore next */
             await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.END_DATE_INPUT);
-            await page.type(PAGE.END_DATE_INPUT, getDateForInput(endDate));
+            await page.type(PAGE.END_DATE_INPUT, CeiUtils.getDateForInput(endDate));
         }
 
         // Get all institutions to iterate

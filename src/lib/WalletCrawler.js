@@ -45,11 +45,11 @@ class WalletCrawler {
         // Set date
         if (date !== null) {
             /* istanbul ignore next */
-            const minDateStr = await page.evaluate((selector) => document.querySelector(selector).value, PAGE.DATE_MIN_VALUE);
-            const minDate = new Date(...minDateStr.split('/').map(s => parseInt(s)));
+            const minDateStr = await page.evaluate(selector => document.querySelector(selector).textContent, PAGE.DATE_MIN_VALUE);
+            const minDate = CeiUtils.getDateFromInput(minDateStr);
 
-            const maxDateStr = await page.evaluate((selector) => document.querySelector(selector).value, PAGE.DATE_MAX_VALUE);
-            const maxDate = new Date(...maxDateStr.split('/').map(s => parseInt(s)));
+            const maxDateStr = await page.evaluate(selector => document.querySelector(selector).textContent, PAGE.DATE_MAX_VALUE);
+            const maxDate = CeiUtils.getDateFromInput(maxDateStr);
             
             // Prevent date out of bound if parameter is set
             if (options.capDates && date < minDate)
@@ -59,8 +59,8 @@ class WalletCrawler {
                 date = maxDate;
 
             /* istanbul ignore next */
-            await page.evaluate((selector) => { document.querySelector(selector).value = '' }, PAGE.DATE_INPUT);
-            await page.type(PAGE.DATE_INPUT, CeiUtils.getDateForInput(startDate));
+            await page.evaluate(selector => { document.querySelector(selector).value = '' }, PAGE.DATE_INPUT);
+            await page.type(PAGE.DATE_INPUT, CeiUtils.getDateForInput(date));
         }
 
         // Get all institutions to iterate
