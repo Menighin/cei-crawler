@@ -21,7 +21,7 @@ test.before(t => {
         trace: false
     }
     t.context.ceiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, ceiCrawlerOptions);
-    t.context.ceiCrawlerCap = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, { capEndDate: true, capStartDate: true });
+    t.context.ceiCrawlerCap = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, { capDates: true });
     t.context.emptyOptionsCeiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD);
 });
 
@@ -75,7 +75,8 @@ test.serial('dividends', async t => {
 });
 
 test.serial('wallet', async t => {
-    const result = await t.context.ceiCrawler.getWallet();
+    const nextWeek = new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 7);
+    const result = await t.context.ceiCrawlerCap.getWallet(nextWeek);
     t.true(result.length > 0);
 });
 

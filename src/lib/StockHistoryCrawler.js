@@ -35,7 +35,7 @@ const STOCK_TABLE_HEADERS = {
 class StockHistoryCrawler {
 
     /**
-     * 
+     * Get the stock history from CEI
      * @param {puppeteer.Page} page - Logged page to work with
      * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
      * @param {Date} [startDate] - The start date of the history. If none passed, the default of CEI will be used

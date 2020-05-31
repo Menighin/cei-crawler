@@ -35,7 +35,7 @@ const STOCK_WALLET_TABLE_HEADER = {
 
 const TREASURE_WALLET_TABLE_HEADER = {
     code: 'string',
-    expirationDate: 'string',
+    expirationDate: 'date',
     investedValue: 'float',
     grossValue: 'float',
     netValue: 'float',
@@ -45,6 +45,13 @@ const TREASURE_WALLET_TABLE_HEADER = {
 
 class WalletCrawler {
 
+    /**
+     * Get the wallet data from CEI
+     * @param {puppeteer.Page} page - Logged page to work with
+     * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
+     * @param {Date} [date] - The date of the wallet. If none passed, the default of CEI will be used
+     * @returns {typedefs.AccountWallet[]} - List of Stock histories
+     */
     static async getWallet(page, options = null, date = null) {
 
         const traceOperations = (options && options.trace) || false;
@@ -60,6 +67,7 @@ class WalletCrawler {
             const minDateStr = await page.evaluate(selector => document.querySelector(selector).textContent, PAGE.DATE_MIN_VALUE);
             const minDate = CeiUtils.getDateFromInput(minDateStr);
 
+            /* istanbul ignore next */
             const maxDateStr = await page.evaluate(selector => document.querySelector(selector).textContent, PAGE.DATE_MAX_VALUE);
             const maxDate = CeiUtils.getDateFromInput(maxDateStr);
             
@@ -135,7 +143,7 @@ class WalletCrawler {
                     console.log(`Processing wallet data`);
 
                 const stockWallet = hasData ? await this._processStockWallet(page) : [];
-                const treasureWallet = hasData ? await this._processTreasureWallet(page) : [];
+                const nationalTreasuryWallet = hasData ? await this._processNationalTreasuryWallet(page) : [];
 
                 /* istanbul ignore next */
                 if (traceOperations)
@@ -146,7 +154,7 @@ class WalletCrawler {
                     institution: institution.label,
                     account: account,
                     stockWallet: stockWallet,
-                    treasureWallet: treasureWallet
+                    nationalTreasuryWallet: nationalTreasuryWallet
                 });
             }
 
@@ -180,7 +188,7 @@ class WalletCrawler {
         return CeiUtils.parseTableTypes(data, STOCK_WALLET_TABLE_HEADER);
     }
 
-    static async _processTreasureWallet(page) {
+    static async _processNationalTreasuryWallet(page) {
 
         /* istanbul ignore next */
         const dataPromise = await page.evaluateHandle((select, headers) => {
