@@ -28,7 +28,7 @@ class CeiUtils {
             if (type === 'string') return value;
             if (type === 'int')    return parseInt(value.replace('.', ''));
             if (type === 'float')  return parseFloat(value.replace('.', '').replace(',', '.'));
-            if (type === 'date')   return new Date(value.split('/').reverse()).getTime();
+            if (type === 'date')   return new Date(value.split('/').reverse());
         }
 
         return tableData.map(row => Object.keys(tableDefinition).reduce((p, c) => {

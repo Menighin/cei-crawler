@@ -22,6 +22,74 @@ let ceiCrawler = new CeiCrawler('username', 'password', {/* options */});
 ```
 
 ### Métodos disponíveis
+#### getWallet
+Retorna os dados das carteiras no CEI. As carteiras contém as posições consolidades de ativos e tesouro direto.
+O retorno será uma lista com cada item representando os dados de uma instituição e conta.
+O método recebe uma data como parâmetro para pegar a foto das carteiras no dia escolhido. Se nenhuma data for passada, será utilizada a data padrao do CEI que é o dia corrente. O CEI disponibiliza datas somente em um range de 3 meses, aparentemente.
+
+```javascript
+let wallets = await ceiCrawler.getWallet(date);
+```
+Resultado:
+```javascript
+[
+  {
+    "institution": "1111 - INTER DTVM LTDA",
+    "account": "111111",
+    "stockWallet": [
+      {
+        "company": "BANCO INTER",
+        "stockType": "PN N2",
+        "code": "BIDI4",
+        "isin": "BRBIDIACNPR0",
+        "price": 11.43,
+        "quantity": 100,
+        "quotationFactor": 1,
+        "totalValue": 1143
+      },
+      {
+        "company": "CENTAURO",
+        "stockType": "ON NM",
+        "code": "CNTO3",
+        "isin": "BRCNTOACNOR5",
+        "price": 29,
+        "quantity": 100,
+        "quotationFactor": 1,
+        "totalValue": 2900
+      }
+    ],
+    "treasureWallet": []
+  },
+  {
+    "institution": "222222 - RICO INVESTIMENTOS - GRUPO XP",
+    "account": "2222222",
+    "stockWallet": [
+      {
+        "company": "TENDA",
+        "stockType": "ON NM",
+        "code": "TEND3",
+        "isin": "BRTENDACNOR4",
+        "price": 25.14,
+        "quantity": 100,
+        "quotationFactor": 1,
+        "totalValue": 2514
+      }
+    ],
+    "treasureWallet": [
+      {
+        "code": "Tesouro IPCA+ 2024",
+        "expirationDate": "2019-06-12T03:00:00.000Z",
+        "investedValue": 1000.00,
+        "grossValue": 1500.00,
+        "netValue": 1400.00,
+        "quantity": 0.25,
+        "blocked": 0
+      }
+    ]
+  }
+]
+```
+
 #### getStockHistory
 Método que processa o histórico de compra e venda de ações. O retorno será um uma lista com todas operações de compra ou venda efetuadas dentro do período informado, se nenhuma data for passada o método retornará todo o histórico disponível.
 ```javascript
@@ -105,8 +173,7 @@ Na criação de um `CeiCrawler` é possivel especificar alguns valores para o pa
 | Propriedade         | Tipo      | Default | Descrição                                                                                                                                                                        |
 |---------------------|-----------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **puppeteerLaunch** | _Object_  | _{}_    | Esse objeto é passado ao método `launch` do `Puppeteer`. As opções estão listadas [aqui](https://github.com/puppeteer/puppeteer/blob/v2.1.1/docs/api.md#puppeteerlaunchoptions). |
-| **capEndDate**      | _Boolean_ | _false_ | Se `true`, a data de fim de busca do histórico será limitada à data máxima do CEI, impedindo que ocorra um erro caso o usuário passe uma data maior.                             |
-| **capStartDate**    | _Boolean_ | _false_ | Se `true`, a data de início de busca do histórico será limitada à data mínima do CEI, impedindo que ocorra um erro caso o usuário passe uma data menor.                          |
+| **capDates**      | _Boolean_ | _false_ | Se `true`, as datas utilizadas de input para buscas serão limitadas ao range de datas válidas do CEI, impedindo que ocorra um erro caso o usuário passe uma data maior ou menor.                             |
 | **trace**           | _Boolean_ | _false_ | Printa mensagens de debug no log. Útil para desenvolvimento.                                                                                                                     |
 
 Exemplo:

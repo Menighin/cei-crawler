@@ -1,4 +1,5 @@
 const typedefs = require("./typedefs");
+const CeiUtils = require('./CeiUtils');
 
 const PAGE = {
     URL: 'https://cei.b3.com.br/CEI_Responsivo/ConsultarProventos.aspx',
@@ -32,7 +33,7 @@ class DividendsCrawler {
         await page.waitFor(PAGE.SEARCH_WAITFOR);
 
          /* istanbul ignore next */
-        const dataPromise = await page.evaluate((selector, headers) => {
+        const dataPromise = await page.evaluateHandle((selector, headers) => {
             let rows = [];
             const dividendsTables = Array.from(document.getElementsByClassName(selector));
             

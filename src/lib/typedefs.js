@@ -47,4 +47,39 @@ const puppeteer = require('puppeteer');
    * @property {Number} netValue - Dividend value after taxes 
    * @memberof typdefs
    */
+
+   /**
+    * @typedef AccountWallet
+    * @property {String} institution - Name of the institution
+    * @property {String} account - The institution's account number
+    * @property {StockWalletItem[]} stockWallet - List of stocks in the wallet in the given account and institution
+    * @property {NationalTreasuryItem[]} nationalTreasuryWallet - List of stocks in the wallet in the given account and institution
+    * @memberof typdefs
+    */
+
+    /**
+    * @typedef StockWalletItem
+    * @property {String} company - The name of the company for the given stock
+    * @property {String} stockType - The type of the stock
+    * @property {String} code - The code of the stock
+    * @property {String} isin - The ISIN code of the stock
+    * @property {Number} price - The last price reported for the stock in the last day
+    * @property {String} quantity - The quantitu in the wallet for the stock
+    * @property {Number} quotationFactor - The quotation factor for the stock
+    * @property {Number} totalValue - The total value of that stock in your wallet, given the last price
+    * @memberof typdefs
+    */
+
+   /**
+    * @typedef NationalTreasuryItem
+    * @property {String} code - The code of the national treasury
+    * @property {String} expirationDate - The expiration date of that item
+    * @property {String} investedValue - The value invested
+    * @property {String} grossValue - The gross value now
+    * @property {Number} netValue - The net value now
+    * @property {Number} quantity - The quantity of that treasury
+    * @property {Number} blocked - The quantity blocked of that treasury
+    * @memberof typdefs
+    */
+
 exports.unused = {};
