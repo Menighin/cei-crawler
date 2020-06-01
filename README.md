@@ -194,7 +194,8 @@ let ceiCrawler = new CeiCrawler('username', 'password', ceiCrawlerOptions);
 ## Features
 - [x] Histórico de ações
 - [x] Dividendos
-- [ ] Tesouro Direto
+- [x] Carteira de ações
+- [x] Tesouro Direto
 
 ## Licença
 MIT
