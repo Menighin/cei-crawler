@@ -1,6 +1,6 @@
 {
   "name": "cei-crawler",
-  "version": "0.1.11",
+  "version": "0.2.0",
   "description": "Crawler para pegar dados do Canal Eletronico do Investidor",
   "main": "src/app.js",
   "repository": {
