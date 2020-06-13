@@ -36,6 +36,12 @@ class CeiCrawler {
         this.username = username;
         this.password = password;
         this.options = options;
+        this._setDefaultOptions();
+    }
+
+    _setDefaultOptions() {
+        if (!this.options.trace) this.options.trace = false;
+        if (!this.options.loginTimeout) this.options.loginTimeout = 35000;
     }
 
     async _login() {
@@ -59,7 +65,7 @@ class CeiCrawler {
         await PuppeteerUtils.waitForAny([
             {
                 id: 'nav',
-                pr: this._page.waitForNavigation({timeout: 40000})
+                pr: this._page.waitForNavigation({ timeout: 1000 * 60 * 10 }) // 10 minutes tops
             },
             {
                 id: 'fail',
@@ -67,7 +73,7 @@ class CeiCrawler {
             },
             {
                 id: 'fail',
-                pr: this._page.waitFor(35000) // After 35s, consider the login has failed
+                pr: this._page.waitFor(this.options.loginTimeout) // After the time specified, consider the login has failed
             }
         ]).then(async id => {
             if (id === 'fail')

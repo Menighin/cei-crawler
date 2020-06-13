@@ -174,6 +174,7 @@ Na criação de um `CeiCrawler` é possivel especificar alguns valores para o pa
 |---------------------|-----------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **puppeteerLaunch** | _Object_  | _{}_    | Esse objeto é passado ao método `launch` do `Puppeteer`. As opções estão listadas [aqui](https://github.com/puppeteer/puppeteer/blob/v2.1.1/docs/api.md#puppeteerlaunchoptions). |
 | **capDates**      | _Boolean_ | _false_ | Se `true`, as datas utilizadas de input para buscas serão limitadas ao range de datas válidas do CEI, impedindo que ocorra um erro caso o usuário passe uma data maior ou menor.                             |
+| **loginTimeout** | _Number_ | 35000 | Tempo, em ms, que o crawler espera o login concluir antes de considerar erro. Diversas vezes, como a noite e aos fins de semana, o sistema do CEI parece ficar muito instavél e causa diversos timeouts.
 | **trace**           | _Boolean_ | _false_ | Printa mensagens de debug no log. Útil para desenvolvimento.                                                                                                                     |
 
 Exemplo:
