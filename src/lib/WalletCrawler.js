@@ -145,10 +145,6 @@ class WalletCrawler {
                 const stockWallet = hasData ? await this._processStockWallet(page) : [];
                 const nationalTreasuryWallet = hasData ? await this._processNationalTreasuryWallet(page) : [];
 
-                /* istanbul ignore next */
-                if (traceOperations)
-                    console.log (`Found ${data.length} items`);
-
                 // Save the result
                 result.push({
                     institution: institution.label,

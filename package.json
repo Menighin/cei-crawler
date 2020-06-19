@@ -1,6 +1,6 @@
 {
   "name": "cei-crawler",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Crawler para pegar dados do Canal Eletronico do Investidor",
   "main": "src/app.js",
   "repository": {
@@ -48,7 +48,9 @@
     ],
     "plugins": [
       "@babel/plugin-proposal-class-properties",
-      "@babel/plugin-transform-runtime"
+      "@babel/plugin-transform-runtime",
+      "@babel/plugin-proposal-optional-chaining",
+      "@babel/plugin-proposal-nullish-coalescing-operator"
     ],
     "sourceType": "unambiguous"
   }
