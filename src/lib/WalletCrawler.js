@@ -136,6 +136,7 @@ class WalletCrawler {
                         }
                     });
                 
+                /* istanbul ignore next */
                 const hasData = page.evaluate((s1, s2) => {
                     return document.querySelector(s1) !== null || document.querySelector(s2) !== null;
                 }, PAGE.STOCK_WALLET_TABLE, PAGE.TREASURE_WALLET_TABLE);
