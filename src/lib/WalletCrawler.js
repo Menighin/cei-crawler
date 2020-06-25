@@ -18,6 +18,7 @@ const PAGE = {
     STOCK_WALLET_TABLE_BODY: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira tbody',
     TREASURE_WALLET_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_trBodyTesouroDireto',
     TREASURE_WALLET_TABLE_BODY: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_trBodyTesouroDireto tbody',
+    RESULT_FOOTER: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl01_divTotalCarteira',
     PAGE_ALERT_ERROR: '.alert-box.alert',
     PAGE_ALERT_SUCCESS: '.alert-box.success'
 }
@@ -125,17 +126,19 @@ class WalletCrawler {
                 await page.click(PAGE.SUBMIT_BUTTON);
 
                 // Wait for table to load or give error / alert
-                let hasData = false;
                 await PuppeteerUtils
-                    .waitForAnySelector(page, [PAGE.STOCK_WALLET_TABLE, PAGE.TREASURE_WALLET_TABLE, PAGE.PAGE_ALERT_ERROR, PAGE.PAGE_ALERT_SUCCESS])
+                    .waitForAnySelector(page, [PAGE.RESULT_FOOTER, PAGE.PAGE_ALERT_ERROR, PAGE.PAGE_ALERT_SUCCESS])
                     .then(async (selector) => {
                         if (selector === PAGE.PAGE_ALERT_ERROR) {
                             /* istanbul ignore next */
                             const message = await page.evaluate((s) => document.querySelector(s).textContent, selector);
                             throw new Error(message);
                         }
-                        hasData = selector === PAGE.STOCK_WALLET_TABLE || selector === PAGE.TREASURE_WALLET_TABLE;
                     });
+                
+                const hasData = page.evaluate((s1, s2) => {
+                    return document.querySelector(s1) !== null || document.querySelector(s2) !== null;
+                }, PAGE.STOCK_WALLET_TABLE, PAGE.TREASURE_WALLET_TABLE);
 
                 // Process the page
                 /* istanbul ignore next */
