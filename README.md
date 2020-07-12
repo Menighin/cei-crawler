@@ -126,7 +126,6 @@ let dividends = await ceiCrawler.getDividends();
 Resultado:
 ```javascript
 [
-    [
   {
     stockType: 'ON NM',
     code: 'EGIE3',
@@ -170,12 +169,12 @@ await ceiCrawler.close(); // Fecha o browser
 ## Opções
 Na criação de um `CeiCrawler` é possivel especificar alguns valores para o parâmetro `options` que modificam a forma que o crawler funciona. As opções são:
 
-| Propriedade         | Tipo      | Default | Descrição                                                                                                                                                                        |
-|---------------------|-----------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **puppeteerLaunch** | _Object_  | _{}_    | Esse objeto é passado ao método `launch` do `Puppeteer`. As opções estão listadas [aqui](https://github.com/puppeteer/puppeteer/blob/v2.1.1/docs/api.md#puppeteerlaunchoptions). |
-| **capDates**      | _Boolean_ | _false_ | Se `true`, as datas utilizadas de input para buscas serão limitadas ao range de datas válidas do CEI, impedindo que ocorra um erro caso o usuário passe uma data maior ou menor.                             |
-| **loginTimeout** | _Number_ | 35000 | Tempo, em ms, que o crawler espera o login concluir antes de considerar erro. Diversas vezes, como a noite e aos fins de semana, o sistema do CEI parece ficar muito instavél e causa diversos timeouts.
-| **trace**           | _Boolean_ | _false_ | Printa mensagens de debug no log. Útil para desenvolvimento.                                                                                                                     |
+| Propriedade           | Tipo      | Default | Descrição                                                                                                                                                                                               |
+|-----------------------|-----------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **puppeteerLaunch**   | _Object_  | _{}_    | Esse objeto é passado ao método `launch` do `Puppeteer`. As opções estão listadas [aqui](https://github.com/puppeteer/puppeteer/blob/v2.1.1/docs/api.md#puppeteerlaunchoptions).                        |
+| **capDates**          | _Boolean_ | _false_ | Se `true`, as datas utilizadas de input para buscas serão limitadas ao range de datas válidas do CEI, impedindo que ocorra um erro caso o usuário passe uma data maior ou menor.                        |
+| **navigationTimeout** | _Number_  | 30000   | Tempo, em ms, que o crawler espera por uma ação antes de considerar timeout. Diversas vezes, como a noite e aos fins de semana, o sistema do CEI parece ficar muito instavél e causa diversos timeouts. |
+| **trace**             | _Boolean_ | _false_ | Printa mensagens de debug no log. Útil para desenvolvimento.                                                                                                                                            |
 
 Exemplo:
 
@@ -191,6 +190,36 @@ const ceiCrawlerOptions = {
 
 let ceiCrawler = new CeiCrawler('username', 'password', ceiCrawlerOptions);
 ``` 
+
+## Error Handling
+O CEI Crawler possui um exceção própria, `CeiCrawlerError`, que é lançada em alguns cenários. Essa exceção possui um atributo `type` para te direcionar no tratamento:
+
+| type           | Descrição                                                           |
+|----------------|---------------------------------------------------------------------|
+| LOGIN_FAILED   | Lançada quando o login falha por timeout ou por CPF errado digitado |
+| WRONG_PASSWORD | Lançada quando a senha passada está errada                          |
+
+Exemplo de como fazer um bom tratamento de erros:
+
+```javascript
+const CeiCrawler = require('cei-crawler');
+const { CeiErrorTypes } = require('cei-crawler')
+
+const ceiCrawler = new CeiCrawler('usuario', 'senha', { navigationTimeout: 20000 });
+
+try {
+  const wallet = ceiCrawler.getWallet();
+} catch (err) {
+  if (err.name === 'CeiCrawlerError') {
+    if (err.type === CeiErrorTypes.LOGIN_FAILED)
+      // Handle login failed
+    else if (err.type === CeiErrorTypes.WRONG_PASSWORD)
+      // Handle wrong password
+  } else if (err.name === 'TimeoutError') {
+    // Handle timeout after 'navigationTimeout'
+  }
+}
+```
 
 ## Features
 - [x] Histórico de ações
