@@ -6,11 +6,6 @@ after_success:
   - npm run coverage
   - npm run build
 
-before_deploy: 
-  - node before_deploy.js
-  - cd dist
-  - ls
-
 deploy:
   provider: npm
   email: joao.menighin@gmail.com
