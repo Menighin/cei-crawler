@@ -4,6 +4,7 @@ const DividendsCrawler = require('./DividendsCrawler');
 const WalletCrawler = require('./WalletCrawler');
 const typedefs = require("./typedefs");
 const PuppeteerUtils = require('./PuppeteerUtils');
+const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError')
 
 class CeiCrawler {
 
@@ -41,7 +42,7 @@ class CeiCrawler {
 
     _setDefaultOptions() {
         if (!this.options.trace) this.options.trace = false;
-        if (!this.options.loginTimeout) this.options.loginTimeout = 35000;
+        if (!this.options.navigationTimeout) this.options.navigationTimeout = 30000;
     }
 
     async _login() {
@@ -55,6 +56,8 @@ class CeiCrawler {
             console.log('Logging at CEI...');
             
         this._page = await this._browser.newPage();
+        this._page.setDefaultNavigationTimeout(this.options.navigationTimeout);
+
         await this._page.goto('https://cei.b3.com.br/CEI_Responsivo/');
 
         await this._page.type('#ctl00_ContentPlaceHolder1_txtLogin', this.username, { delay: 10 });
@@ -69,15 +72,28 @@ class CeiCrawler {
             },
             {
                 id: 'fail',
-                pr: this._page.waitForSelector('.alert-box.alert')
+                pr: this._page.waitForSelector('.alert-box')
             },
             {
                 id: 'fail',
-                pr: this._page.waitFor(this.options.loginTimeout) // After the time specified, consider the login has failed
+                pr: this._page.waitFor(this.options.navigationTimeout) // After the time specified, consider the login has failed
+            },
+            {
+                id: 'wrongPassword',
+                pr: new Promise((resolve) => {
+                    this._page.on('dialog', async () => {
+                        resolve();
+                    });
+                })
             }
         ]).then(async id => {
-            if (id === 'fail')
-                throw new Error('Login falhou');
+            if (id === 'fail') {
+                await this.close();
+                throw new CeiCrawlerError(CeiErrorTypes.LOGIN_FAILED, 'Login falhou');
+            } else if (id === 'wrongPassword') {
+                await this.close();
+                throw new CeiCrawlerError(CeiErrorTypes.WRONG_PASSWORD, 'Senha inválida');
+            }
         });
 
         this._isLogged = true;

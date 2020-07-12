@@ -9,6 +9,7 @@ const puppeteer = require('puppeteer');
  * @property {puppeteer.LaunchOptions} puppeteerLaunch - Puppeteer launch options
  * @property {boolean} trace - Indicates if it should print trace messages. Helpful for debugging.
  * @property {boolean} capDates - Prevent crawling with an invalid date in CEI
+ * @property {Number} navigationTimeout - Puppeteer navigation timeout
  * @memberof typdefs
  */
 
