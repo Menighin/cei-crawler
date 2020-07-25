@@ -70,7 +70,8 @@ test.serial('stock-history-invalid-dates-with-cap-on', async t => {
 });
 
 test.serial('dividends', async t => {
-    const result = await t.context.ceiCrawler.getDividends();
+    const nextWeek = new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 7);
+    const result = await t.context.ceiCrawlerCap.getDividends(nextWeek);
     t.true(result.length > 0);
 });
 
