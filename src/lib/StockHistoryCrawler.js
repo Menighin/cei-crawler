@@ -129,7 +129,7 @@ class StockHistoryCrawler {
                         if (selector === PAGE.PAGE_ALERT_ERROR) {
                             /* istanbul ignore next */
                             const message = await page.evaluate((s) => document.querySelector(s).textContent, selector);
-                            throw new Error(message);
+                            throw new CeiCrawlerError(CeiErrorTypes.SUBMIT_ERROR, message);
                         }
                         hasData = selector === PAGE.STOCKS_DIV;
                     });
