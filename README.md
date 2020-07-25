@@ -119,32 +119,71 @@ Resultado:
 ]
 ```
 #### getDividends
-Método que processa todos os dados disponíveis sobre proventos recebidos em um período e retorna como uma lista. Usualmente os proventos disponíveis na página do CEI são os creditados no mês atual e os já anunciados pela empresas com e sem data definida. Registros com date igual a 2001-01-01 são de proventos anunciados mas sem data definida de pagamento.
+Método que processa todos os dados disponíveis sobre proventos recebidos em um período e retorna como uma lista. Usualmente os proventos disponíveis na página do CEI são os creditados no mês atual e os já anunciados pela empresas com e sem data definida. Registros com date igual `null` são de proventos anunciados mas sem data definida de pagamento.
 ```javascript
-let dividends = await ceiCrawler.getDividends();
+let dividends = await ceiCrawler.getDividends(date);
 ```
 Resultado:
 ```javascript
 [
   {
-    stockType: 'ON NM',
-    code: 'EGIE3',
-    date: 2001-01-01T02:00:00.000Z,     
-    type: 'JUROS SOBRE CAPITAL PRÓPRIO',
-    quantity: 70,
-    factor: 1,
-    grossValue: 30.03,
-    netValue: 20.58
+    "institution": "1099 - INTER DTVM LTDA",
+    "account": "12345",
+    "futureEvents": [
+      {
+        "stock": "BANCO INTER",
+        "stockType": "PN N2",
+        "code": "BIDI4",
+        "date": "2020-08-20T03:00:00.000Z",
+        "type": "JUROS SOBRE CAPITAL PRÓPRIO",
+        "quantity": 200,
+        "factor": 1,
+        "grossValue": 7.88,
+        "netValue": 5.8
+      },
+      {
+        "stock": "CIA HERING",
+        "stockType": "ON NM",
+        "code": "HGTX3",
+        "date": null,
+        "type": "JUROS SOBRE CAPITAL PRÓPRIO",
+        "quantity": 100,
+        "factor": 1,
+        "grossValue": 21.96,
+        "netValue": 18.67
+      },
+    ],
+    "pastEvents": [
+      {
+        "stock": "ITAUSA",
+        "stockType": "PN N1",
+        "code": "ITSA4",
+        "date": "2020-07-01T03:00:00.000Z",
+        "type": "DIVIDENDO",
+        "quantity": 300,
+        "factor": 1,
+        "grossValue": 6,
+        "netValue": 6
+      }
+    ]
   },
   {
-    stockType: 'PN EDJ N1',
-    code: 'ITSA4',
-    date: 2020-04-01T03:00:00.000Z,
-    type: 'DIVIDENDO',
-    quantity: 450,
-    factor: 1,
-    grossValue: 9.9,
-    netValue: 9.9
+    "institution": "386 - RICO INVESTIMENTOS - GRUPO XP",
+    "account": "12345",
+    "futureEvents": [],
+    "pastEvents": [
+      {
+        "stock": "FII CSHG LOG",
+        "stockType": "CI",
+        "code": "HGLG11",
+        "date": "2020-07-14T03:00:00.000Z",
+        "type": "RENDIMENTO",
+        "quantity": 100,
+        "factor": 1,
+        "grossValue": 78,
+        "netValue": 78
+      }
+    ]
   }
 ]
 ```
@@ -194,10 +233,11 @@ let ceiCrawler = new CeiCrawler('username', 'password', ceiCrawlerOptions);
 ## Error Handling
 O CEI Crawler possui um exceção própria, `CeiCrawlerError`, que é lançada em alguns cenários. Essa exceção possui um atributo `type` para te direcionar no tratamento:
 
-| type           | Descrição                                                           |
-|----------------|---------------------------------------------------------------------|
-| LOGIN_FAILED   | Lançada quando o login falha por timeout ou por CPF errado digitado |
-| WRONG_PASSWORD | Lançada quando a senha passada está errada                          |
+| type           | Descrição                                                                                                                 |
+|----------------|---------------------------------------------------------------------------------------------------------------------------|
+| LOGIN_FAILED   | Lançada quando o login falha por timeout ou por CPF errado digitado                                                       |
+| WRONG_PASSWORD | Lançada quando a senha passada está errada                                                                                |
+| SUBMIT_ERROR   | Lançada quando acontece um erro ao submeter um formulario de pesquisa em alguma página do CEI. Por exemplo: data inválida |
 
 Exemplo de como fazer um bom tratamento de erros:
 
@@ -214,6 +254,8 @@ try {
     if (err.type === CeiErrorTypes.LOGIN_FAILED)
       // Handle login failed
     else if (err.type === CeiErrorTypes.WRONG_PASSWORD)
+      // Handle wrong password
+    else if (err.type === CeiErrorTypes.SUBMIT_ERROR)
       // Handle wrong password
   } else if (err.name === 'TimeoutError') {
     // Handle timeout after 'navigationTimeout'
