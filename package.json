@@ -1,6 +1,6 @@
 {
   "name": "cei-crawler",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Crawler para pegar dados do Canal Eletronico do Investidor",
   "main": "src/app.js",
   "repository": {
@@ -25,7 +25,7 @@
   "license": "MIT",
   "dependencies": {
     "@babel/runtime": "^7.9.6",
-    "puppeteer": "^2.0.0"
+    "puppeteer": "^5.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
