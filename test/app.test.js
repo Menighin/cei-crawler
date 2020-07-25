@@ -23,6 +23,7 @@ test.before(t => {
     t.context.ceiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, ceiCrawlerOptions);
     t.context.ceiCrawlerCap = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, { capDates: true });
     t.context.emptyOptionsCeiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD);
+    t.context.wrongPasswordCeiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD + 'wrong');
 });
 
 test.serial('login', async t => {
@@ -60,8 +61,10 @@ test.serial('stock-history-empty', async t => {
     t.false(hasAnyStock);
 });
 
-test.serial('stock-history-invalid-dates', async t => {
+test.serial('invalid-dates', async t => {
     await t.throwsAsync(async () => t.context.ceiCrawler.getStockHistory(new Date(0), new Date(10000)));
+    await t.throwsAsync(async () => t.context.ceiCrawler.getDividends(new Date(0)));
+    await t.throwsAsync(async () => t.context.ceiCrawler.getWallet(new Date(0)));
 });
 
 test.serial('stock-history-invalid-dates-with-cap-on', async t => {
@@ -85,6 +88,12 @@ test.serial('login-fail', async t => {
     await t.throwsAsync(async () => {
         const wrongCeiCrawler = new CeiCrawler('1234', 'invalidPassword');
         await wrongCeiCrawler.getStockHistory();
+    });
+});
+
+test.serial('wrong-password', async t => {
+    await t.throwsAsync(async () => {
+        await t.context.wrongPasswordCeiCrawler.getStockHistory();
     });
 });
 

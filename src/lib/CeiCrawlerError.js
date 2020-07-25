@@ -7,8 +7,10 @@ class CeiCrawlerError extends Error {
 }
 
 const CeiErrorTypes = Object.freeze({
-    LOGIN_FAILED: "LOGIN_FAILED",
-    WRONG_PASSWORD: "WRONG_PASSWORD"
+    LOGIN_FAILED: 'LOGIN_FAILED',
+    WRONG_PASSWORD: 'WRONG_PASSWORD',
+    SUBMIT_ERROR: 'SUBMIT_ERROR'
+
 });
 
 module.exports = {

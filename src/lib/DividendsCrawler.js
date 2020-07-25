@@ -1,11 +1,11 @@
 const typedefs = require("./typedefs");
 const CeiUtils = require('./CeiUtils');
 const PuppeteerUtils = require('./PuppeteerUtils');
+const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError')
 
 const PAGE = {
     URL: 'https://cei.b3.com.br/CEI_Responsivo/ConsultarProventos.aspx',
     SUBMIT_BUTTON: '#ctl00_ContentPlaceHolder1_btnConsultar',
-    SEARCH_WAITFOR: "#ctl00_ContentPlaceHolder1_lblAtualizadoEm",
     TABLE_CLASS: '.responsive tbody',
     DATE_MIN_VALUE: '#ctl00_ContentPlaceHolder1_lblPeriodoInicial',
     DATE_MAX_VALUE: '#ctl00_ContentPlaceHolder1_lblPeriodoFinal',
@@ -116,7 +116,7 @@ class DividendsCrawler {
                         if (selector === PAGE.PAGE_ALERT_ERROR) {
                             /* istanbul ignore next */
                             const message = await page.evaluate((s) => document.querySelector(s).textContent, selector);
-                            throw new Error(message);
+                            throw new CeiCrawlerError(CeiErrorTypes.SUBMIT_ERROR, message);
                         }
                     });
                 
