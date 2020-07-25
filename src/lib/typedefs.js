@@ -38,6 +38,15 @@ const puppeteer = require('puppeteer');
 
   /**
    * @typedef DividendData
+   * @property {String} institution - Name of the institution
+   * @property {String} account - The institution's account number
+   * @property {DividendEvent[]} futureEvents - List of future dividend events
+   * @property {DividendEvent[]} pastEvents - List of past dividend events
+   * @memberof typdefs
+   */
+
+  /**
+   * @typedef DividendEvent
    * @property {String} stockType - Type of Stock (ON, PN, CI)
    * @property {String} code - The code of the stock
    * @property {Date} date - Dividend payment date (can be a future date for scheduled payment)

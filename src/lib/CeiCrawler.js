@@ -111,15 +111,19 @@ class CeiCrawler {
     }
 
     /**
+     * Returns the dividends data for each account in CEI
+     * @param {Date} [date] - The date to get the dividends
      * @returns {typedefs.DividendData} - List of available Dividends information
      */
-    async getDividends() {
+    async getDividends(date) {
         await this._login();
-        return await DividendsCrawler.getDividends(this._page);
+        return await DividendsCrawler.getDividends(this._page, this.options, date);
     }
 
     /**
-     * @returns {typedefs.DividendData} - List of available Dividends information
+     * Returns the wallets for each account in CEI
+     * @param {Date} [date] - The date to get the wallet
+     * @returns {typedefs.AccountWallet} - List of available Dividends information
      */
     async getWallet(date) {
         await this._login();
