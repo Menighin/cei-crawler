@@ -54,8 +54,9 @@ class CeiCrawler {
         /* istanbul ignore next */
         if ((this.options && this.options.trace) || false)
             console.log('Logging at CEI...');
-            
-        this._page = await this._browser.newPage();
+        
+        const incognitoContext = await this._browser.createIncognitoBrowserContext();
+        this._page = await incognitoContext.newPage();
         this._page.setDefaultNavigationTimeout(this.options.navigationTimeout);
 
         await this._page.goto('https://cei.b3.com.br/CEI_Responsivo/');
@@ -111,6 +112,15 @@ class CeiCrawler {
     }
 
     /**
+     * Returns the options for the stock history
+     * @returns {typedefs.StockHistoryOptions} - Options for stock history
+     */
+    async getStockHistoryOptions() {
+        await this._login();
+        return await StockHistoryCrawler.getStockHistoryOptions(this._page, this.options);
+    }
+
+    /**
      * Returns the dividends data for each account in CEI
      * @param {Date} [date] - The date to get the dividends
      * @returns {typedefs.DividendData} - List of available Dividends information
@@ -121,6 +131,15 @@ class CeiCrawler {
     }
 
     /**
+     * Returns the options for the dividends
+     * @returns {typedefs.DividendsOptions} - Options for dividends
+     */
+    async getDividendsOptions() {
+        await this._login();
+        return await DividendsCrawler.getDividendsOptions(this._page, this._options);
+    }
+
+    /**
      * Returns the wallets for each account in CEI
      * @param {Date} [date] - The date to get the wallet
      * @returns {typedefs.AccountWallet} - List of available Dividends information
@@ -128,6 +147,15 @@ class CeiCrawler {
     async getWallet(date) {
         await this._login();
         return await WalletCrawler.getWallet(this._page, this.options, date);
+    }
+
+    /**
+     * Returns the options for the wallet
+     * @returns {typedefs.WalletOptions} - Options for wallet
+     */
+    async getWalletOptions() {
+        await this._login();
+        return await WalletCrawler.getWalletOptions(this._page, this._options);
     }
 
     /**
