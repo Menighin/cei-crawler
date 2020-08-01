@@ -22,10 +22,10 @@ let ceiCrawler = new CeiCrawler('username', 'password', {/* options */});
 ```
 
 ### Métodos disponíveis
-#### getWallet
+#### getWallet(_date_)
 Retorna os dados das carteiras no CEI. As carteiras contém as posições consolidades de ativos e tesouro direto.
 O retorno será uma lista com cada item representando os dados de uma instituição e conta.
-O método recebe uma data como parâmetro para pegar a foto das carteiras no dia escolhido. Se nenhuma data for passada, será utilizada a data padrao do CEI que é o dia corrente. O CEI disponibiliza datas somente em um range de 3 meses, aparentemente.
+O método recebe uma data como parâmetro para pegar a foto das carteiras no dia escolhido. Se nenhuma data for passada, será utilizada a data padrao do CEI que é o dia corrente. O CEI disponibiliza datas somente em um range de 2 meses, aparentemente.
 
 ```javascript
 let wallets = await ceiCrawler.getWallet(date);
@@ -90,7 +90,36 @@ Resultado:
 ]
 ```
 
-#### getStockHistory
+#### getWalletOptions()
+Retorna as opções dos formulários da página de carteira de ativos
+```javascript
+const walletOptions = await ceiCrawler.getWalletOptions();
+```
+Resultado:
+```javascript
+{
+  "minDate": "02/06/2020",
+  "maxDate": "31/07/2020",
+  "institutions": [
+    {
+      "value": "123",
+      "label": "123 - RICO INVESTIMENTOS - GRUPO XP",
+      "accounts": [
+        "12345"
+      ]
+    },
+    {
+      "value": "321",
+      "label": "321 - INTER DTVM LTDA",
+      "accounts": [
+        "54321"
+      ]
+    }
+  ]
+}
+```
+
+#### getStockHistory(_startDate_, _endDate_)
 Método que processa o histórico de compra e venda de ações. O retorno será um uma lista com todas operações de compra ou venda efetuadas dentro do período informado, se nenhuma data for passada o método retornará todo o histórico disponível.
 ```javascript
 let stockHistory = await ceiCrawler.getStockHistory(startDate, endDate);
@@ -118,7 +147,36 @@ Resultado:
     }
 ]
 ```
-#### getDividends
+#### getStockHistoryOptions()
+Retorna as opções dos formulários da página de negociações de ativos
+```javascript
+const stockHistoryOptions = await ceiCrawler.getStockHistoryOptions();
+```
+Resultado:
+```javascript
+{
+  "minDate": "08/02/2019",
+  "maxDate": "31/07/2020",
+  "institutions": [
+    {
+      "value": "123",
+      "label": "123 - RICO INVESTIMENTOS - GRUPO XP",
+      "accounts": [
+        "12345"
+      ]
+    },
+    {
+      "value": "321",
+      "label": "321 - INTER DTVM LTDA",
+      "accounts": [
+        "54321"
+      ]
+    }
+  ]
+}
+```
+
+#### getDividends(_date_)
 Método que processa todos os dados disponíveis sobre proventos recebidos em um período e retorna como uma lista. Usualmente os proventos disponíveis na página do CEI são os creditados no mês atual e os já anunciados pela empresas com e sem data definida. Registros com date igual `null` são de proventos anunciados mas sem data definida de pagamento.
 ```javascript
 let dividends = await ceiCrawler.getDividends(date);
@@ -187,8 +245,36 @@ Resultado:
   }
 ]
 ```
+#### getDividendsOptions()
+Retorna as opções dos formulários da página de proventos
+```javascript
+const dividendsOptions = await ceiCrawler.getDividendsOptions();
+```
+Resultado:
+```javascript
+{
+  "minDate": "27/07/2020",
+  "maxDate": "31/07/2020",
+  "institutions": [
+    {
+      "value": "123",
+      "label": "123 - RICO INVESTIMENTOS - GRUPO XP",
+      "accounts": [
+        "12345"
+      ]
+    },
+    {
+      "value": "321",
+      "label": "321 - INTER DTVM LTDA",
+      "accounts": [
+        "54321"
+      ]
+    }
+  ]
+}
+```
 
-#### close
+#### close()
 O método close deve ser chamado quando é terminado o processamento dos dados e a instancia do `CeiCrawler` não será reutilizada em um curto espaço de tempo. Esse método simplesmente fecha o browser do `puppeteer`, liberando memória.
 Exemplos do comportamento:
 ```javascript
