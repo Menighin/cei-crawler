@@ -165,6 +165,60 @@ class WalletCrawler {
     }
 
     /**
+     * Returns the available options to get Wallet data
+     * @param {puppeteer.Page} page - Logged to page to work with
+     * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
+     * @returns {typedefs.WalletOptions} - Options to get data from wallet
+     */
+    static async getWalletOptions(page, options = null) {
+
+        // Navigate to stocks page
+        await page.goto(PAGE.URL);
+
+        /* istanbul ignore next */
+        const minDateStr = await page.evaluate((selector) => document.querySelector(selector).textContent, PAGE.DATE_MIN_VALUE);
+        /* istanbul ignore next */
+        const maxDateStr = await page.evaluate((selector) => document.querySelector(selector).textContent, PAGE.DATE_MAX_VALUE);
+
+        // Get all institutions to iterate
+        /* istanbul ignore next */
+        const institutionsHandle = await page.evaluateHandle((selector) => {
+            return Array.from(document.querySelectorAll(selector))
+                .map(o => ({ value: o.value, label: o.text }))
+                .filter(v => v.value > 0);
+        }, PAGE.SELECT_INSTITUTION_OPTIONS);
+        const institutions = await institutionsHandle.jsonValue();
+
+        let cachedAccount = ''; // Used to wait for page to load
+        for (const institution of institutions) {
+
+            await page.select(PAGE.SELECT_INSTITUTION, institution.value);
+
+            /* istanbul ignore next */
+            await page.waitForFunction((cachedAccount, select) => {
+                const value = document.querySelector(select).value;
+                return value != '0' && value != cachedAccount;
+            }, {}, cachedAccount, PAGE.SELECT_ACCOUNT_OPTIONS);
+
+            /* istanbul ignore next */
+            const accountsHandle = await page.evaluateHandle((select) => {
+                return Array.from(document.querySelectorAll(select))
+                    .map(o => o.value)
+                    .filter(v => v > 0);
+            }, PAGE.SELECT_ACCOUNT_OPTIONS);
+            const accounts = await accountsHandle.jsonValue();
+            institution.accounts = accounts;
+            cachedAccount = accounts[0];
+        }
+
+        return {
+            minDate: minDateStr,
+            maxDate: maxDateStr,
+            institutions: institutions
+        }
+    }
+
+    /**
      * Process the stock wallet to a DTO
      * @param {puppeteer.Page} page Page with the loaded data
      */

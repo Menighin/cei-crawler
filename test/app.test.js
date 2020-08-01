@@ -97,6 +97,21 @@ test.serial('wrong-password', async t => {
     });
 });
 
+test.serial('stockHistoryOptions', async t => {
+    const result = await t.context.ceiCrawlerCap.getStockHistoryOptions();
+    t.true(result.minDate.length > 0);
+});
+
+test.serial('walletOptions', async t => {
+    const result = await t.context.ceiCrawlerCap.getWalletOptions();
+    t.true(result.minDate.length > 0);
+});
+
+test.serial('dividendsOptions', async t => {
+    const result = await t.context.ceiCrawlerCap.getDividendsOptions();
+    t.true(result.minDate.length > 0);
+});
+
 test.serial('close', async t => {
     t.true(t.context.ceiCrawler._browser != null);
     await t.context.ceiCrawler.close();

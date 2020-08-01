@@ -37,6 +37,20 @@ const puppeteer = require('puppeteer');
   */
 
   /**
+   * @typedef StockHistoryOptions
+   * @property {String} minDate - Minimum date which data is available
+   * @property {String} maxDate - Maximum date which data is available
+   * @property {InstitutionOption[]} institutions - Array of available institutions with its accounts
+   */
+
+   /**
+    * @typedef InstitutionOption
+    * @property {String} label - Label for the institution option
+    * @property {String} value - Option value for institution
+    * @property {String[]} accounts - Accounts available for the given institution
+    */
+
+  /**
    * @typedef DividendData
    * @property {String} institution - Name of the institution
    * @property {String} account - The institution's account number
@@ -58,16 +72,23 @@ const puppeteer = require('puppeteer');
    * @memberof typdefs
    */
 
-   /**
-    * @typedef AccountWallet
-    * @property {String} institution - Name of the institution
-    * @property {String} account - The institution's account number
-    * @property {StockWalletItem[]} stockWallet - List of stocks in the wallet in the given account and institution
-    * @property {NationalTreasuryItem[]} nationalTreasuryWallet - List of stocks in the wallet in the given account and institution
-    * @memberof typdefs
-    */
+  /**
+  * @typedef DividendsOptions
+  * @property {String} minDate - Minimum date which data is available
+  * @property {String} maxDate - Maximum date which data is available
+  * @property {InstitutionOption[]} institutions - Array of available institutions with its accounts
+  */
 
-    /**
+  /**
+  * @typedef AccountWallet
+  * @property {String} institution - Name of the institution
+  * @property {String} account - The institution's account number
+  * @property {StockWalletItem[]} stockWallet - List of stocks in the wallet in the given account and institution
+  * @property {NationalTreasuryItem[]} nationalTreasuryWallet - List of stocks in the wallet in the given account and institution
+  * @memberof typdefs
+  */
+
+  /**
     * @typedef StockWalletItem
     * @property {String} company - The name of the company for the given stock
     * @property {String} stockType - The type of the stock
@@ -80,7 +101,7 @@ const puppeteer = require('puppeteer');
     * @memberof typdefs
     */
 
-   /**
+  /**
     * @typedef NationalTreasuryItem
     * @property {String} code - The code of the national treasury
     * @property {String} expirationDate - The expiration date of that item
@@ -91,5 +112,12 @@ const puppeteer = require('puppeteer');
     * @property {Number} blocked - The quantity blocked of that treasury
     * @memberof typdefs
     */
+
+  /**
+   * @typedef WalletOptions
+   * @property {String} minDate - Minimum date which data is available
+   * @property {String} maxDate - Maximum date which data is available
+   * @property {InstitutionOption[]} institutions - Array of available institutions with its accounts
+   */
 
 exports.unused = {};
