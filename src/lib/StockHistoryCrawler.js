@@ -142,7 +142,7 @@ class StockHistoryCrawler {
 
                 // Get the account number from the page
                 /* istanbul ignore next */
-                const accountNumber = (await page.evaluate(selector => document.querySelector(selector).textContent, PAGE.ACCOUNT_NUMBER)).replace(/\D/g, "");
+                const accountNumber = (await page.evaluate(selector => document.querySelector(selector).textContent, PAGE.ACCOUNT_NUMBER)).replace(/\D/g, "").slice(0, -1);
 
                 // Save the result
                 result.push({
@@ -220,7 +220,11 @@ class StockHistoryCrawler {
 
         /* istanbul ignore next */
         const dataPromise = await page.evaluateHandle((select, headers) => {
-            const rows = document.querySelector(select).rows;
+            const tBody = document.querySelector(select);
+            
+            if (tBody === null || tBody === undefined) return [];
+
+            const rows = tBody.rows;
             return Array.from(rows)
                 .map(tr => Array.from(tr.cells).reduce((p, c, i) => {
                     p[headers[i]] = c.innerText;

@@ -130,7 +130,7 @@ class DividendsCrawler {
 
                 // Get the account number from the page
                 /* istanbul ignore next */
-                const accountNumber = (await page.evaluate(selector => document.querySelector(selector).textContent, PAGE.ACCOUNT_NUMBER)).replace(/\D/g, "");
+                const accountNumber = (await page.evaluate(selector => document.querySelector(selector).textContent, PAGE.ACCOUNT_NUMBER)).replace(/\D/g, "").slice(0, -1);
 
                 // Save the result
                 result.push({
