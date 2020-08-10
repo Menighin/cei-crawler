@@ -20,8 +20,7 @@ const PAGE = {
     TREASURE_WALLET_TABLE_BODY: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_trBodyTesouroDireto tbody',
     RESULT_FOOTER: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl01_divTotalCarteira',
     PAGE_ALERT_ERROR: '.alert-box.alert',
-    PAGE_ALERT_SUCCESS: '.alert-box.success',
-    ACCOUNT_NUMBER: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_lblContaPosicao'
+    PAGE_ALERT_SUCCESS: '.alert-box.success'
 }
 
 const STOCK_WALLET_TABLE_HEADER = {
@@ -95,6 +94,7 @@ class WalletCrawler {
         const institutions = await institutionsHandle.jsonValue();
 
         // Iterate over institutions, accounts, processing the stocks
+        let cachedAccount = ''; // Used to wait for page to load
         for (const institution of institutions) {
 
             /* istanbul ignore next */
@@ -103,12 +103,17 @@ class WalletCrawler {
 
             await page.select(PAGE.SELECT_INSTITUTION, institution.value);
 
-            await CeiUtils.waitForLoadingShowAndHide(page, traceOperations);
+            /* istanbul ignore next */
+            await page.waitForFunction((cachedAccount, select) => {
+                const value = document.querySelector(select).value;
+                return value != '0' && value != cachedAccount;
+            }, {}, cachedAccount, PAGE.SELECT_ACCOUNT_OPTIONS);
 
             /* istanbul ignore next */
             const accountsHandle = await page.evaluateHandle((select) => {
                 return Array.from(document.querySelectorAll(select))
-                    .map(o => o.value);
+                    .map(o => o.value)
+                    .filter(v => v > 0);
             }, PAGE.SELECT_ACCOUNT_OPTIONS);
             const accounts = await accountsHandle.jsonValue();
             
@@ -144,18 +149,16 @@ class WalletCrawler {
                 const stockWallet = hasData ? await this._processStockWallet(page) : [];
                 const nationalTreasuryWallet = hasData ? await this._processNationalTreasuryWallet(page) : [];
 
-                // Get the account number from the page
-                /* istanbul ignore next */
-                const accountNumber = (await page.evaluate(selector => document.querySelector(selector).textContent, PAGE.ACCOUNT_NUMBER)).replace(/\D/g, "");
-
                 // Save the result
                 result.push({
                     institution: institution.label,
-                    account: accountNumber,
+                    account: account,
                     stockWallet: stockWallet,
                     nationalTreasuryWallet: nationalTreasuryWallet
                 });
             }
+
+            cachedAccount = accounts[0];
         }
 
         return result;
@@ -168,8 +171,6 @@ class WalletCrawler {
      * @returns {typedefs.WalletOptions} - Options to get data from wallet
      */
     static async getWalletOptions(page, options = null) {
-
-        const traceOperations = (options && options.trace) || false;
 
         // Navigate to stocks page
         await page.goto(PAGE.URL);
@@ -188,19 +189,26 @@ class WalletCrawler {
         }, PAGE.SELECT_INSTITUTION_OPTIONS);
         const institutions = await institutionsHandle.jsonValue();
 
+        let cachedAccount = ''; // Used to wait for page to load
         for (const institution of institutions) {
 
             await page.select(PAGE.SELECT_INSTITUTION, institution.value);
 
-            await CeiUtils.waitForLoadingShowAndHide(page, traceOperations);
+            /* istanbul ignore next */
+            await page.waitForFunction((cachedAccount, select) => {
+                const value = document.querySelector(select).value;
+                return value != '0' && value != cachedAccount;
+            }, {}, cachedAccount, PAGE.SELECT_ACCOUNT_OPTIONS);
 
             /* istanbul ignore next */
             const accountsHandle = await page.evaluateHandle((select) => {
                 return Array.from(document.querySelectorAll(select))
-                    .map(o => o.value);
+                    .map(o => o.value)
+                    .filter(v => v > 0);
             }, PAGE.SELECT_ACCOUNT_OPTIONS);
             const accounts = await accountsHandle.jsonValue();
             institution.accounts = accounts;
+            cachedAccount = accounts[0];
         }
 
         return {

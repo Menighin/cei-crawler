@@ -37,21 +37,6 @@ class CeiUtils {
         }, {}));
     }
 
-    
-    static async waitForLoadingShowAndHide(page, trace = false) {
-        try {
-            /* istanbul ignore next */
-            await page.waitForSelector('#ctl00_ContentPlaceHolder1_UpdateProgress1', { visible: true, timeout: 1500 });
-        } catch (e) {
-            // Do nothing. Maybe the loading flicked so quickly we couldn't detect it
-        }
-        /* istanbul ignore next */
-        if (trace) console.log('Waiting loading to hide');
-        /* istanbul ignore next */
-        await page.waitForSelector('#ctl00_ContentPlaceHolder1_UpdateProgress1', { hidden: true });
-        /* istanbul ignore next */
-        if (trace) console.log('Loading hidden');
-    }
 
 }
 
