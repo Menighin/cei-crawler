@@ -55,8 +55,7 @@ class CeiCrawler {
         if ((this.options && this.options.trace) || false)
             console.log('Logging at CEI...');
         
-        const incognitoContext = await this._browser.createIncognitoBrowserContext();
-        this._page = await incognitoContext.newPage();
+        this._page = await this._browser.newPage();
         this._page.setDefaultNavigationTimeout(this.options.navigationTimeout);
 
         await this._page.goto('https://cei.b3.com.br/CEI_Responsivo/');
