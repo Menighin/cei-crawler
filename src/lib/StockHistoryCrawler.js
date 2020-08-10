@@ -16,8 +16,7 @@ const PAGE = {
     STOCKS_DIV: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados',
     STOCKS_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados table tbody',
     PAGE_ALERT_ERROR: '.alert-box.alert',
-    PAGE_ALERT_SUCCESS: '.alert-box.success',
-    ACCOUNT_NUMBER: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_lblConta'
+    PAGE_ALERT_SUCCESS: '.alert-box.success'
 }
 
 const STOCK_TABLE_HEADERS = {
@@ -91,6 +90,7 @@ class StockHistoryCrawler {
         const institutions = await institutionsHandle.jsonValue();
 
         // Iterate over institutions, accounts, processing the stocks
+        let cachedAccount = ''; // Used to wait for page to load
         for (const institution of institutions) {
 
             /* istanbul ignore next */
@@ -99,12 +99,17 @@ class StockHistoryCrawler {
 
             await page.select(PAGE.SELECT_INSTITUTION, institution.value);
 
-            await CeiUtils.waitForLoadingShowAndHide(page, traceOperations);
+            /* istanbul ignore next */
+            await page.waitForFunction((cachedAccount, select) => {
+                const value = document.querySelector(select).value;
+                return value != '0' && value != cachedAccount;
+            }, {}, cachedAccount, PAGE.SELECT_ACCOUNT_OPTIONS);
 
             /* istanbul ignore next */
             const accountsHandle = await page.evaluateHandle((select) => {
                 return Array.from(document.querySelectorAll(select))
-                    .map(o => o.value);
+                    .map(o => o.value)
+                    .filter(v => v > 0);
             }, PAGE.SELECT_ACCOUNT_OPTIONS);
             const accounts = await accountsHandle.jsonValue();
             
@@ -140,14 +145,10 @@ class StockHistoryCrawler {
                 if (traceOperations)
                     console.log (`Found ${data.length} operations`);
 
-                // Get the account number from the page
-                /* istanbul ignore next */
-                const accountNumber = (await page.evaluate(selector => document.querySelector(selector).textContent, PAGE.ACCOUNT_NUMBER)).replace(/\D/g, "");
-
                 // Save the result
                 result.push({
                     institution: institution.label,
-                    account: accountNumber,
+                    account: account,
                     stockHistory: data
                 });
 
@@ -158,6 +159,8 @@ class StockHistoryCrawler {
                 // it means the page is ready for a new query
                 await page.waitForFunction(`!document.querySelector('${PAGE.SELECT_INSTITUTION}').disabled`);
             }
+
+            cachedAccount = accounts[0];
         }
 
         return result;
@@ -170,8 +173,6 @@ class StockHistoryCrawler {
      * @returns {typedefs.StockHistoryOptions} - Options to get data from stock history
      */
     static async getStockHistoryOptions(page, options = null) {
-
-        const traceOperations = (options && options.trace) || false;
 
         // Navigate to stocks page
         await page.goto(PAGE.URL);
@@ -190,19 +191,26 @@ class StockHistoryCrawler {
         }, PAGE.SELECT_INSTITUTION_OPTIONS);
         const institutions = await institutionsHandle.jsonValue();
 
+        let cachedAccount = ''; // Used to wait for page to load
         for (const institution of institutions) {
 
             await page.select(PAGE.SELECT_INSTITUTION, institution.value);
 
-            await CeiUtils.waitForLoadingShowAndHide(page, traceOperations);
+            /* istanbul ignore next */
+            await page.waitForFunction((cachedAccount, select) => {
+                const value = document.querySelector(select).value;
+                return value != '0' && value != cachedAccount;
+            }, {}, cachedAccount, PAGE.SELECT_ACCOUNT_OPTIONS);
 
             /* istanbul ignore next */
             const accountsHandle = await page.evaluateHandle((select) => {
                 return Array.from(document.querySelectorAll(select))
-                    .map(o => o.value);
+                    .map(o => o.value)
+                    .filter(v => v > 0);
             }, PAGE.SELECT_ACCOUNT_OPTIONS);
             const accounts = await accountsHandle.jsonValue();
             institution.accounts = accounts;
+            cachedAccount = accounts[0];
         }
 
         return {
