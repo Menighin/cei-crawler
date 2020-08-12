@@ -123,6 +123,7 @@ class WalletCrawler {
                     console.log(`Selecting account ${account}`);
 
                 await page.select(PAGE.SELECT_ACCOUNT, account);
+                await page.waitForSelector(PAGE.SUBMIT_BUTTON);
                 await page.click(PAGE.SUBMIT_BUTTON);
 
                 // Wait for table to load or give error / alert
