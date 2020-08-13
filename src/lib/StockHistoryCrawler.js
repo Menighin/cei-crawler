@@ -119,6 +119,7 @@ class StockHistoryCrawler {
                     console.log(`Selecting account ${account}`);
 
                 await page.select(PAGE.SELECT_ACCOUNT, account);
+                await page.waitForSelector(PAGE.SUBMIT_BUTTON);
                 await page.click(PAGE.SUBMIT_BUTTON);
 
                 // Wait for table to load or give error / alert
@@ -228,7 +229,11 @@ class StockHistoryCrawler {
 
         /* istanbul ignore next */
         const dataPromise = await page.evaluateHandle((select, headers) => {
-            const rows = document.querySelector(select).rows;
+
+            const tBody = document.querySelector(select);
+            if (tBody === null || tBody === undefined) return [];
+            const rows = tBody.rows;
+
             return Array.from(rows)
                 .map(tr => Array.from(tr.cells).reduce((p, c, i) => {
                     p[headers[i]] = c.innerText;
