@@ -24,7 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "@babel/runtime": "^7.9.6",
-    "puppeteer": "^2.1.1"
+    "puppeteer": "^2.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
