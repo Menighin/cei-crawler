@@ -17,7 +17,7 @@ Mande também seu nome e usuário do GitHub (caso tenha) que eu coloco aqui no R
 </p>
 
 ## Advertisement
-Criei o `cei-crawler` para um projeto de acompanhamento de investimentos. Caso esteja procurando algo nesse sentido, confira o [Stoincs](https//www.stoincs.com.br)!
+Criei o `cei-crawler` para um projeto de acompanhamento de investimentos. Caso esteja procurando algo nesse sentido, confira o [Stoincs](https://www.stoincs.com.br)!
 
 <p align="center">
   <a href="https://stoincs.com.br" target="_blank"><img src="./advertisement/snout.svg" width="50"></a>
