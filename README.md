@@ -8,6 +8,22 @@ Crawler para ler dados do Canal Eletrônico do Investidor
 O `cei-crawler` utiliza o [puppeteer](https://github.com/puppeteer/puppeteer) para fazer o scrapping das informações do usuário.
 Para isso, basta criar uma instância do `CeiCrawler` e chamar os métodos necessários.
 
+## Sponsor
+Caso o `cei-crawler` tenha te ajudado e você queira fazer alguma doação pra me ajudar a mantê-lo, utilize o QR code abaixo :)
+Mande também seu nome e usuário do GitHub (caso tenha) que eu coloco aqui no README. Obrigado!
+
+<p align="center">
+  <img src="./sponsor/picpay.png" width="150">
+</p>
+
+## Advertisement
+Criei o `cei-crawler` para um projeto de acompanhamento de investimentos. Caso esteja procurando algo nesse sentido, confira o [Stoincs](https//www.stoincs.com.br)!
+
+<p align="center">
+  <a href="https://stoincs.com.br" target="_blank"><img src="./advertisement/snout.svg" width="50"></a>
+</p>
+
+
 ## Instalação
 Basta instalar utilizando o NPM:
 ```

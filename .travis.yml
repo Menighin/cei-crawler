@@ -12,3 +12,4 @@ deploy:
   edge: true
   on:
     branch: master
+    tags: true
