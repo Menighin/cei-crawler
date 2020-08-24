@@ -164,6 +164,7 @@ class CeiCrawler {
         if (this._browser != null) {
             await this._browser.close();
             this._browser = null;
+            this._isLogged = false;
         }
     }
 
