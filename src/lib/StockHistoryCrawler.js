@@ -120,6 +120,11 @@ class StockHistoryCrawler {
 
                 await page.select(PAGE.SELECT_ACCOUNT, account);
                 await page.waitForSelector(PAGE.SUBMIT_BUTTON);
+
+                // If this is not waited, a "Node is not visible" error is thrown from time 
+                // to time, even though we are explicity waiting for the selector in the command before :/
+                await page.waitFor(100); 
+                
                 await page.click(PAGE.SUBMIT_BUTTON);
 
                 // Wait for table to load or give error / alert

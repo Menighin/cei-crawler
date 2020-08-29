@@ -358,7 +358,7 @@ try {
     else if (err.type === CeiErrorTypes.WRONG_PASSWORD)
       // Handle wrong password
     else if (err.type === CeiErrorTypes.SUBMIT_ERROR)
-      // Handle wrong password
+      // Handle submit error
   } else if (err.name === 'TimeoutError') {
     // Handle timeout after 'navigationTimeout'
   }
