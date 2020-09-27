@@ -123,7 +123,7 @@ class StockHistoryCrawler {
 
                 // If this is not waited, a "Node is not visible" error is thrown from time 
                 // to time, even though we are explicity waiting for the selector in the command before :/
-                await page.waitFor(100); 
+                await page.waitFor(200); 
                 
                 await page.click(PAGE.SUBMIT_BUTTON);
 

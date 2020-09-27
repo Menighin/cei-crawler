@@ -15,7 +15,10 @@ const PAGE = {
     SELECT_ACCOUNT: '#ctl00_ContentPlaceHolder1_ddlContas',
     SELECT_ACCOUNT_OPTIONS: '#ctl00_ContentPlaceHolder1_ddlContas option',
     PAGE_ALERT_ERROR: '.alert-box.alert',
-    PAGE_ALERT_SUCCESS: '.alert-box.success'
+    PAGE_ALERT_SUCCESS: '.alert-box.success',
+    TABLE_TITLE_SELECTOR: 'p.title',
+    PAST_EVENTS_TITLE: 'Eventos em Dinheiro Creditado',
+    FUTURE_EVENTS_TITLE: 'Eventos em Dinheiro Provisionado'
 }
 
 const DIVIDENDS_TABLE_HEADERS = {
@@ -111,7 +114,7 @@ class DividendsCrawler {
 
                 // If this is not waited, a "Node is not visible" error is thrown from time 
                 // to time, even though we are explicity waiting for the selector in the command before :/
-                await page.waitFor(100); 
+                await page.waitFor(200); 
                 
                 await page.click(PAGE.SUBMIT_BUTTON);
 
@@ -136,8 +139,8 @@ class DividendsCrawler {
                 if (traceOperations)
                     console.log(`Processing dividends data`);
 
-                const futureEvents = hasData ? await this._processFutureEvents(page) : [];
-                const pastEvents = hasData ? await this._processPastEvents(page) : [];
+                const futureEvents = hasData ? await this._processEvents(page, PAGE.FUTURE_EVENTS_TITLE) : [];
+                const pastEvents = hasData ? await this._processEvents(page, PAGE.PAST_EVENTS_TITLE) : [];
 
                 // Save the result
                 result.push({
@@ -208,15 +211,23 @@ class DividendsCrawler {
         }
     }
 
+
     /**
-     * Process the future dividends
+     * Process the events given the parameters
      * @param {puppeteer.Page} page Page with the loaded data
+     * @param {String} tableTitle The title of the table to process the events
      */
-    static async _processFutureEvents(page) {
+    static async _processEvents(page, tableTitle) {
 
         /* istanbul ignore next */
-        const dataPromise = await page.evaluateHandle((select, headers) => {
-            const tBody = document.querySelectorAll(select)[0];
+        const dataPromise = await page.evaluateHandle((tableTitleSelector, tableTitleText, tbodySelector, headers) => {
+
+            const containerDiv = [...document.querySelectorAll(tableTitleSelector)]
+                .filter(s => s.innerText === tableTitleText)[0];
+
+            if (typeof containerDiv === 'undefined') return [];
+
+            const tBody = containerDiv.parentNode.querySelector(tbodySelector);
             if (tBody === null || tBody === undefined) return [];
 
             const rows = tBody.rows;
@@ -226,32 +237,7 @@ class DividendsCrawler {
                     p[headers[i]] = c.innerText;
                     return p;
                 }, {}));
-        }, PAGE.TABLE_CLASS, Object.keys(DIVIDENDS_TABLE_HEADERS));
-
-        const data = await dataPromise.jsonValue();
-        return CeiUtils.parseTableTypes(data, DIVIDENDS_TABLE_HEADERS);
-    }
-
-    /**
-     * Process the past dividends
-     * @param {puppeteer.Page} page Page with the loaded data
-     */
-    static async _processPastEvents(page) {
-
-        /* istanbul ignore next */
-        const dataPromise = await page.evaluateHandle((select, headers) => {
-            const tBody = document.querySelectorAll(select)[1];
-            if (!tBody) return [];
-            if (tBody === null || tBody === undefined) return [];
-
-            const rows = tBody.rows;
-
-            return Array.from(rows)
-                .map(tr => Array.from(tr.cells).reduce((p, c, i) => {
-                    p[headers[i]] = c.innerText;
-                    return p;
-                }, {}));
-        }, PAGE.TABLE_CLASS, Object.keys(DIVIDENDS_TABLE_HEADERS));
+        }, PAGE.TABLE_TITLE_SELECTOR, tableTitle, PAGE.TABLE_CLASS, Object.keys(DIVIDENDS_TABLE_HEADERS));
 
         const data = await dataPromise.jsonValue();
         return CeiUtils.parseTableTypes(data, DIVIDENDS_TABLE_HEADERS);
