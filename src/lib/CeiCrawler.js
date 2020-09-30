@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const StockHistoryCrawler = require('./StockHistoryCrawler');
+const SummaryStockHistoryCrawler = require('./SummaryStockHistoryCrawler');
 const DividendsCrawler = require('./DividendsCrawler');
 const WalletCrawler = require('./WalletCrawler');
 const typedefs = require("./typedefs");
@@ -117,6 +118,26 @@ class CeiCrawler {
     async getStockHistoryOptions() {
         await this._login();
         return await StockHistoryCrawler.getStockHistoryOptions(this._page, this.options);
+    }
+
+    /**
+     * Returns the summary stock history
+     * @param {Date} [startDate] - The start date of the history
+     * @param {Date} [endDate]  - The end date of the history
+     * @returns {typedefs.SummaryStockHistory[]} - List of Stock histories
+     */
+    async getSummaryStockHistory(startDate, endDate) {
+        await this._login();
+        return await SummaryStockHistoryCrawler.getSummaryStockHistory(this._page, this.options, startDate, endDate);
+    }
+
+    /**
+     * Returns the options for the summary stock history
+     * @returns {typedefs.SummaryStockHistoryOptions} - Options for stock history
+     */
+    async getSummaryStockHistoryOptions() {
+        await this._login();
+        return await SummaryStockHistoryCrawler.getSummaryStockHistoryOptions(this._page, this.options);
     }
 
     /**
