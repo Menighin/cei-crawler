@@ -64,13 +64,6 @@ const puppeteer = require('puppeteer');
   * @memberof typdefs
   */
 
-  /**
-   * @typedef SummaryStockHistoryOptions
-   * @property {String} minDate - Minimum date which data is available
-   * @property {String} maxDate - Maximum date which data is available
-   * @property {InstitutionOption[]} institutions - Array of available institutions with its accounts
-   */
-
    /**
     * @typedef InstitutionOption
     * @property {String} label - Label for the institution option
