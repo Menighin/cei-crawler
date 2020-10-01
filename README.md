@@ -205,7 +205,7 @@ Resultado:
 	"summaryStockHistory": [
 	    {
 		"code":"ABCB4F",
-		"period":"31/08/2020",
+		"period":"31/08/2020 à 15/09/2020",
 		"buyAmount":30,
 		"saleAmount":0,
 		"averageBuyPrice":13.54,
@@ -217,35 +217,6 @@ Resultado:
     }
 ]
 ```
-#### getSummaryStockHistoryOptions()
-Retorna as opções dos formulários da página de negociações de ativos
-```javascript
-const summaryStockHistoryOptions = await ceiCrawler.getSummaryStockHistoryOptions();
-```
-Resultado:
-```javascript
-{
-  "minDate": "08/02/2019",
-  "maxDate": "31/07/2020",
-  "institutions": [
-    {
-      "value": "123",
-      "label": "123 - RICO INVESTIMENTOS - GRUPO XP",
-      "accounts": [
-        "12345"
-      ]
-    },
-    {
-      "value": "321",
-      "label": "321 - INTER DTVM LTDA",
-      "accounts": [
-        "54321"
-      ]
-    }
-  ]
-}
-```
-
 #### getDividends(_date_)
 Método que processa todos os dados disponíveis sobre proventos recebidos em um período e retorna como uma lista. Usualmente os proventos disponíveis na página do CEI são os creditados no mês atual e os já anunciados pela empresas com e sem data definida. Registros com date igual `null` são de proventos anunciados mas sem data definida de pagamento.
 ```javascript
