@@ -120,6 +120,17 @@ class CeiCrawler {
     }
 
     /**
+     * Returns the summary stock history
+     * @param {Date} [startDate] - The start date of the history
+     * @param {Date} [endDate]  - The end date of the history
+     * @returns {typedefs.SummaryStockHistory[]} - List of Stock histories
+     */
+    async getSummaryStockHistory(startDate, endDate) {
+        await this._login();
+        return await StockHistoryCrawler.getSummaryStockHistory(this._page, this.options, startDate, endDate);
+    }
+
+    /**
      * Returns the dividends data for each account in CEI
      * @param {Date} [date] - The date to get the dividends
      * @returns {typedefs.DividendData} - List of available Dividends information

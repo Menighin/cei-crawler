@@ -28,6 +28,19 @@ const puppeteer = require('puppeteer');
  * @memberof typdefs
  */
 
+/**
+ * @typedef SummaryStockOperation
+ * @property {String} code - The code of the summary stock
+ * @property {String} period - The period of the summary stock
+ * @property {Number} buyAmount - Purchase amount of the summary stock
+ * @property {Number} saleAmount - Sale amount of the summary stock
+ * @property {Number} averageBuyPrice - Average buy price of the summary stock
+ * @property {Number} averageSalePrice - Average sale price of the summary stock
+ * @property {Number} quantityNet - Quantity net of the summary stock
+ * @property {String} position - The position of the summary stock
+ * @memberof typdefs
+ */
+
  /**
   * @typedef StockHistory
   * @property {String} institution - Name of the institution
@@ -42,6 +55,14 @@ const puppeteer = require('puppeteer');
    * @property {String} maxDate - Maximum date which data is available
    * @property {InstitutionOption[]} institutions - Array of available institutions with its accounts
    */
+
+ /**
+  * @typedef SummaryStockHistory
+  * @property {String} institution - Name of the institution
+  * @property {String} account - The institution's account number
+  * @property {SummaryStockOperation[]} summaryStockHistory - List of operations for this institution and account
+  * @memberof typdefs
+  */
 
    /**
     * @typedef InstitutionOption

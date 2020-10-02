@@ -191,7 +191,32 @@ Resultado:
   ]
 }
 ```
-
+#### getSummaryStockHistory(_startDate_, _endDate_)
+Método que processa o resumo do histórico de compra e venda de ações. O retorno será um uma lista com um resumo de todas operações de compra ou venda efetuadas dentro do período informado, se nenhuma data for passada o método retornará todo o histórico disponível.
+```javascript
+let summaryStockHistory = await ceiCrawler.getSummaryStockHistory(startDate, endDate);
+```
+Resultado:
+```javascript
+[
+    {
+	"institution":"1099 - INTER DTVM LTDA",
+	"account":"123456",
+	"summaryStockHistory": [
+	    {
+		"code":"ABCB4F",
+		"period":"31/08/2020 à 15/09/2020",
+		"buyAmount":30,
+		"saleAmount":0,
+		"averageBuyPrice":13.54,
+		"averageSalePrice":0,
+		"quantityNet":0,
+		"position":"-"
+            }
+        ]
+    }
+]
+```
 #### getDividends(_date_)
 Método que processa todos os dados disponíveis sobre proventos recebidos em um período e retorna como uma lista. Usualmente os proventos disponíveis na página do CEI são os creditados no mês atual e os já anunciados pela empresas com e sem data definida. Registros com date igual `null` são de proventos anunciados mas sem data definida de pagamento.
 ```javascript

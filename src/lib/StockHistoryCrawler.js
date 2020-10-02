@@ -15,6 +15,8 @@ const PAGE = {
     SUBMIT_BUTTON: '#ctl00_ContentPlaceHolder1_btnConsultar',
     STOCKS_DIV: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados',
     STOCKS_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados table tbody',
+    SUMMARY_STOCKS_DIV:'#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnResumoNegocios',
+    SUMMARY_STOCKS_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnResumoNegocios table tbody',
     PAGE_ALERT_ERROR: '.alert-box.alert',
     PAGE_ALERT_SUCCESS: '.alert-box.success'
 }
@@ -32,6 +34,17 @@ const STOCK_TABLE_HEADERS = {
     quotationFactor: 'float'
 };
 
+const SUMMARY_STOCK_TABLE_HEADERS = {
+    code: 'string',
+    period: 'string',
+    buyAmount: 'int',
+    saleAmount: 'int',
+    averageBuyPrice: 'float',
+    averageSalePrice: 'float',
+    quantityNet: 'int',
+    position: 'string',
+};
+
 class StockHistoryCrawler {
 
     /**
@@ -43,8 +56,23 @@ class StockHistoryCrawler {
      * @returns {typedefs.StockHistory[]} - List of Stock histories
      */
     static async getStockHistory(page, options = null, startDate = null, endDate = null) {
-        
-        const traceOperations = (options && options.trace) || false;
+        return await this._processSummaryAndStockHistory(page, "false", options, startDate, endDate);
+    }
+
+    /**
+     * Get the summary stock history from CEI
+     * @param {puppeteer.Page} page - Logged page to work with
+     * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
+     * @param {Date} [startDate] - The start date of the history. If none passed, the default of CEI will be used
+     * @param {Date} [endDate] - The end date of the history. If none passed, the default of CEI will be used
+     * @returns {typedefs.SummaryStockHistory[]} - List of Stock histories
+     */
+    static async getSummaryStockHistory(page, options = null, startDate = null, endDate = null) {
+        return await this._processSummaryAndStockHistory(page, "true", options, startDate, endDate);
+    }
+
+    static async _processSummaryAndStockHistory(page, isSummary, options = null, startDate = null, endDate = null){
+	const traceOperations = (options && options.trace) || false;
         
         const result = [];
 
@@ -91,6 +119,10 @@ class StockHistoryCrawler {
 
         // Iterate over institutions, accounts, processing the stocks
         let cachedAccount = ''; // Used to wait for page to load
+	let div = PAGE.STOCKS_DIV;
+	if (isSummary == "true"){
+	    div = PAGE.SUMMARY_STOCKS_DIV;
+	}
         for (const institution of institutions) {
 
             /* istanbul ignore next */
@@ -129,15 +161,16 @@ class StockHistoryCrawler {
 
                 // Wait for table to load or give error / alert
                 let hasData = false;
+
                 await PuppeteerUtils
-                    .waitForAnySelector(page, [PAGE.STOCKS_DIV, PAGE.PAGE_ALERT_ERROR, PAGE.PAGE_ALERT_SUCCESS])
+                    .waitForAnySelector(page, [div, PAGE.PAGE_ALERT_ERROR, PAGE.PAGE_ALERT_SUCCESS])
                     .then(async (selector) => {
                         if (selector === PAGE.PAGE_ALERT_ERROR) {
                             /* istanbul ignore next */
                             const message = await page.evaluate((s) => document.querySelector(s).textContent, selector);
                             throw new CeiCrawlerError(CeiErrorTypes.SUBMIT_ERROR, message);
                         }
-                        hasData = selector === PAGE.STOCKS_DIV;
+                        hasData = selector === div;
                     });
 
                 // Process the page
@@ -145,18 +178,27 @@ class StockHistoryCrawler {
                 if (traceOperations)
                     console.log(`Processing stock history data`);
 
-                const data = hasData ? await this._processStockHistory(page) : [];
+                const data = hasData ? await this._processStockHistory(page, isSummary) : [];
 
                 /* istanbul ignore next */
                 if (traceOperations)
                     console.log (`Found ${data.length} operations`);
 
                 // Save the result
-                result.push({
-                    institution: institution.label,
-                    account: account,
-                    stockHistory: data
-                });
+		if (isSummary == "true"){
+		    result.push({
+	                institution: institution.label,
+	                account: account,
+	                summaryStockHistory: data
+	            });
+		}else{
+		    result.push({
+	                institution: institution.label,
+	                account: account,
+	                stockHistory: data
+	            });
+		}
+                
 
                 // Click for a new query
                 await page.click(PAGE.SUBMIT_BUTTON);
@@ -230,7 +272,13 @@ class StockHistoryCrawler {
      * Process the stock history to a DTO
      * @param {puppeteer.Page} page Page with the loaded data
      */
-    static async _processStockHistory(page) {
+    static async _processStockHistory(page, isSummary) {
+	let table = PAGE.STOCKS_TABLE;
+	let table_header = STOCK_TABLE_HEADERS;
+	if (isSummary == "true"){
+	    table = PAGE.SUMMARY_STOCKS_TABLE;
+            table_header = SUMMARY_STOCK_TABLE_HEADERS;
+	}
 
         /* istanbul ignore next */
         const dataPromise = await page.evaluateHandle((select, headers) => {
@@ -244,10 +292,10 @@ class StockHistoryCrawler {
                     p[headers[i]] = c.innerText;
                     return p;
                 }, {}));
-        }, PAGE.STOCKS_TABLE, Object.keys(STOCK_TABLE_HEADERS));
+        }, table, Object.keys(table_header));
 
         const data = await dataPromise.jsonValue();
-        return CeiUtils.parseTableTypes(data, STOCK_TABLE_HEADERS);
+        return CeiUtils.parseTableTypes(data, table_header);
     }
 
 }
