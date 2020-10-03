@@ -5,17 +5,17 @@ const WalletCrawler = require('./WalletCrawler');
 const typedefs = require("./typedefs");
 const PuppeteerUtils = require('./PuppeteerUtils');
 const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError')
+const FetchCookieManager = require('../utils/FetchCookieManager');
+const cheerio = require('cheerio');
+const { extractFormDataFromDOM } = require('../utils');
 
 class CeiCrawler {
 
     /** @type {boolean} */
     _isLogged = false;
 
-    /** @type {puppeteer.Browser} */
-    _browser = null;
-
-    /** @type {puppeteer.Page} */
-    _page = null;
+    /** @type {FetchCookieManager} */
+    _cookieManager = null;
 
     get username() { return this._username; }
     set username(username) { this._username = username; }
@@ -38,6 +38,7 @@ class CeiCrawler {
         this.password = password;
         this.options = options;
         this._setDefaultOptions();
+        this._cookieManager = new FetchCookieManager();
     }
 
     _setDefaultOptions() {
@@ -48,55 +49,48 @@ class CeiCrawler {
     async _login() {
         if (this._isLogged) return;
 
-        if (this._browser == null)
-            this._browser = await puppeteer.launch(this.options.puppeteerLaunch);
-
         /* istanbul ignore next */
         if ((this.options && this.options.trace) || false)
             console.log('Logging at CEI...');
         
-        this._page = await this._browser.newPage();
-        this._page.setDefaultNavigationTimeout(this.options.navigationTimeout);
+        const getPageLogin = await this._cookieManager.fetch("https://cei.b3.com.br/CEI_Responsivo/login.aspx");
+        const doomLoginPage = cheerio.load(await getPageLogin.text());
 
-        await this._page.goto('https://cei.b3.com.br/CEI_Responsivo/');
 
-        await this._page.type('#ctl00_ContentPlaceHolder1_txtLogin', this.username, { delay: 10 });
-        await this._page.type('#ctl00_ContentPlaceHolder1_txtSenha', this.password, { delay: 10 });
-        await this._page.click('#ctl00_ContentPlaceHolder1_btnLogar');
-
-        // Wait for one of these things to happen first
-        await PuppeteerUtils.waitForAny([
-            {
-                id: 'nav',
-                pr: this._page.waitForNavigation({ timeout: 1000 * 60 * 10 }) // 10 minutes tops
+        doomLoginPage('#ctl00_ContentPlaceHolder1_txtLogin').attr('value', this.username);
+        doomLoginPage('#ctl00_ContentPlaceHolder1_txtSenha').attr('value', this.password);
+        
+        const formData = extractFormDataFromDOM(doomLoginPage);
+        
+        const postLogin = await this._cookieManager.fetch("https://cei.b3.com.br/CEI_Responsivo/login.aspx", {
+            "headers": {
+                "accept": "*/*",
+                "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+                "cache-control": "no-cache",
+                "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "same-origin",
+                "x-microsoftajax": "Delta=true",
+                "x-requested-with": "XMLHttpRequest"
             },
-            {
-                id: 'fail',
-                pr: this._page.waitForSelector('.alert-box')
-            },
-            {
-                id: 'fail',
-                pr: this._page.waitFor(this.options.navigationTimeout) // After the time specified, consider the login has failed
-            },
-            {
-                id: 'wrongPassword',
-                pr: new Promise((resolve) => {
-                    this._page.on('dialog', async () => {
-                        resolve();
-                    });
-                })
-            }
-        ]).then(async id => {
-            if (id === 'fail') {
-                await this.close();
-                throw new CeiCrawlerError(CeiErrorTypes.LOGIN_FAILED, 'Login falhou');
-            } else if (id === 'wrongPassword') {
-                await this.close();
-                throw new CeiCrawlerError(CeiErrorTypes.WRONG_PASSWORD, 'Senha inválida');
-            }
+            "referrer": "https://cei.b3.com.br/CEI_Responsivo/login.aspx",
+            "referrerPolicy": "strict-origin-when-cross-origin",
+            "body": formData,
+            "method": "POST",
+            "mode": "cors",
+            "credentials": "include"
         });
 
-        this._isLogged = true;
+        const accessCookie = ((postLogin.headers.raw()['set-cookie'] || []).find(str => str.includes('Acesso=')) || '');
+
+        if (accessCookie.includes('Acesso=0')) {
+            this._isLogged = true;
+        } else if (accessCookie.includes('Acesso=1')) {
+            throw new CeiCrawlerError(CeiErrorTypes.WRONG_PASSWORD, 'Senha inválida');
+        } else {
+            throw new CeiCrawlerError(CeiErrorTypes.LOGIN_FAILED, 'Login falhou');
+        }
     }
 
     /**
