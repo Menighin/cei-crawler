@@ -44,7 +44,7 @@ class FetchCookieManager {
             
         const newCookies = response.headers.raw()['set-cookie'] || [];
 
-        console.log(newCookies, "\n");
+        // console.log(newCookies, "\n");
 
         await Promise.all(
             newCookies.map(newCookie => this._jar.setCookie(newCookie, response.url, { ignoreError: true }))
