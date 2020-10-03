@@ -56,7 +56,7 @@ class StockHistoryCrawler {
      * @returns {typedefs.StockHistory[]} - List of Stock histories
      */
     static async getStockHistory(page, options = null, startDate = null, endDate = null) {
-        return await this._processSummaryAndStockHistory(page, "false", options, startDate, endDate);
+        return await this._processSummaryAndStockHistory(page, false, options, startDate, endDate);
     }
 
     /**
@@ -68,7 +68,7 @@ class StockHistoryCrawler {
      * @returns {typedefs.SummaryStockHistory[]} - List of Stock histories
      */
     static async getSummaryStockHistory(page, options = null, startDate = null, endDate = null) {
-        return await this._processSummaryAndStockHistory(page, "true", options, startDate, endDate);
+        return await this._processSummaryAndStockHistory(page, true, options, startDate, endDate);
     }
 
     static async _processSummaryAndStockHistory(page, isSummary, options = null, startDate = null, endDate = null){
@@ -119,10 +119,8 @@ class StockHistoryCrawler {
 
         // Iterate over institutions, accounts, processing the stocks
         let cachedAccount = ''; // Used to wait for page to load
-	let div = PAGE.STOCKS_DIV;
-	if (isSummary == "true"){
-	    div = PAGE.SUMMARY_STOCKS_DIV;
-	}
+        const div = isSummary ? PAGE.SUMMARY_STOCKS_DIV : PAGE.STOCKS_DIV;
+        
         for (const institution of institutions) {
 
             /* istanbul ignore next */
@@ -185,21 +183,12 @@ class StockHistoryCrawler {
                     console.log (`Found ${data.length} operations`);
 
                 // Save the result
-		if (isSummary == "true"){
-		    result.push({
-	                institution: institution.label,
-	                account: account,
-	                summaryStockHistory: data
-	            });
-		}else{
-		    result.push({
-	                institution: institution.label,
-	                account: account,
-	                stockHistory: data
-	            });
-		}
+                result.push({
+                    institution: institution.label,
+                    account: account,
+                    stockHistory: data
+                });
                 
-
                 // Click for a new query
                 await page.click(PAGE.SUBMIT_BUTTON);
 
@@ -273,12 +262,8 @@ class StockHistoryCrawler {
      * @param {puppeteer.Page} page Page with the loaded data
      */
     static async _processStockHistory(page, isSummary) {
-	let table = PAGE.STOCKS_TABLE;
-	let table_header = STOCK_TABLE_HEADERS;
-	if (isSummary == "true"){
-	    table = PAGE.SUMMARY_STOCKS_TABLE;
-            table_header = SUMMARY_STOCK_TABLE_HEADERS;
-	}
+        const table = isSummary ? PAGE.SUMMARY_STOCKS_TABLE : PAGE.STOCKS_TABLE;
+        const tableHeader = isSummary ? SUMMARY_STOCK_TABLE_HEADERS : STOCK_TABLE_HEADERS;
 
         /* istanbul ignore next */
         const dataPromise = await page.evaluateHandle((select, headers) => {
@@ -292,10 +277,10 @@ class StockHistoryCrawler {
                     p[headers[i]] = c.innerText;
                     return p;
                 }, {}));
-        }, table, Object.keys(table_header));
+        }, table, Object.keys(tableHeader));
 
         const data = await dataPromise.jsonValue();
-        return CeiUtils.parseTableTypes(data, table_header);
+        return CeiUtils.parseTableTypes(data, tableHeader);
     }
 
 }
