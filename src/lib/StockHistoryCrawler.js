@@ -183,11 +183,18 @@ class StockHistoryCrawler {
                     console.log (`Found ${data.length} operations`);
 
                 // Save the result
-                result.push({
-                    institution: institution.label,
-                    account: account,
-                    stockHistory: data
-                });
+                if (isSummary)
+                    result.push({
+                        institution: institution.label,
+                        account: account,
+                        summaryStockHistory: data
+                    });
+                else
+                    result.push({
+                        institution: institution.label,
+                        account: account,
+                        stockHistory: data
+                    });
                 
                 // Click for a new query
                 await page.click(PAGE.SUBMIT_BUTTON);
