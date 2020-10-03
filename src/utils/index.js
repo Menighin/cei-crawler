@@ -40,8 +40,8 @@ async function retry(callback, attempts = 3, checkRetryCallback = () => true) {
  * @param {cheerio.Root} dom - The start date of the history
  * @returns {String} - FormData in string format
  */
-function extractFormDataFromDOM(dom) {
-    const fields = dom('input, select').map((_, el) => ({
+function extractFormDataFromDOM(dom, fields, extraFields = {}) {
+    const allFields = dom('input, select').map((_, el) => ({
         name: el.attribs.name,
         value: el.attribs.value || ''
     }))
@@ -49,11 +49,28 @@ function extractFormDataFromDOM(dom) {
     .reduce((form, item) => {
         form[item.name] = item.value;
         return form;
+    }, { __ASYNCPOST: true });
+
+    const form = fields.reduce((dict, field) => {
+        if (field in allFields) {
+            dict[field] = allFields[field];
+        }
+        return dict;
     }, {});
 
-    // console.log(fields);
+    return new URLSearchParams({
+        ...form,
+        ...extraFields
+    }).toString();
+}
 
-    return new URLSearchParams(fields).toString();
+function updateFieldsDOM(dom, fields) {
+    fields.forEach(field => {
+        const i = dom(`#${field.id}`);
+        if (i && field.value !== '0') {
+            i.attr('value', field.value);
+        }
+    });
 }
 
 /**
@@ -65,18 +82,45 @@ function extractUpdateForm(responseTxt) {
     return responseTxt.split('\n')
         .slice(-1)[0]
         .trim()
-        .split('||')
-        .filter(it => it.includes('|hiddenField|'))
-        .map(it => it.split('|hiddenField|')[1].split('|'))
-        .map(it => ({
-            id: it[0],
-            value: it[1] || ''
-        }));
+        .replace(/\|\|/g, "|")
+        .split('|')
+        .map((str, idx, array) => {
+            if (str.includes('hiddenField')) {
+                return {
+                    id: array[idx+1],
+                    value: array[idx+2]
+                }
+            }
+            
+            return null;
+        })
+        .filter(it => it);
+}
+
+/**
+ * Returns message post response
+ * @param {String} line - Last line of the response
+ * @returns {Object} - Message
+ */
+function extractMessagePostResponse(line) {
+    try {
+        const parameters = line.split('CEIWeb.IncluirMensagem')[1].split(';')[0].trim();
+        const arrayStr = `[${parameters.slice(1).slice(0, -1)}]`.replace(/'/g, '"');
+        const args = JSON.parse(arrayStr)
+        return {
+            status: args[0],
+            message: args[1]
+        };
+    } catch {
+        return '';
+    }
 }
 
 module.exports = {
     sleep,
     retry,
     extractFormDataFromDOM,
-    extractUpdateForm
+    extractUpdateForm,
+    extractMessagePostResponse,
+    updateFieldsDOM
 }

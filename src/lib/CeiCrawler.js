@@ -60,8 +60,19 @@ class CeiCrawler {
         doomLoginPage('#ctl00_ContentPlaceHolder1_txtLogin').attr('value', this.username);
         doomLoginPage('#ctl00_ContentPlaceHolder1_txtSenha').attr('value', this.password);
         
-        const formData = extractFormDataFromDOM(doomLoginPage);
-        
+        const formData = extractFormDataFromDOM(doomLoginPage, [
+            'ctl00$ContentPlaceHolder1$smLoad',
+            '__EVENTTARGET',
+            '__EVENTARGUMENT',
+            '__VIEWSTATE',
+            '__VIEWSTATEGENERATOR',
+            '__EVENTVALIDATION',
+            'ctl00$ContentPlaceHolder1$txtLogin',
+            'ctl00$ContentPlaceHolder1$txtSenha',
+            '__ASYNCPOST',
+            'ctl00$ContentPlaceHolder1$btnLogar'
+        ]);
+
         const postLogin = await this._cookieManager.fetch("https://cei.b3.com.br/CEI_Responsivo/login.aspx", {
             "headers": {
                 "accept": "*/*",
@@ -97,20 +108,20 @@ class CeiCrawler {
      * Returns the stock history
      * @param {Date} [startDate] - The start date of the history
      * @param {Date} [endDate]  - The end date of the history
-     * @returns {typedefs.StockHistory[]} - List of Stock histories
+     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
      */
     async getStockHistory(startDate, endDate) {
         await this._login();
-        return await StockHistoryCrawler.getStockHistory(this._page, this.options, startDate, endDate);
+        return await StockHistoryCrawler.getStockHistory(this._cookieManager, this.options, startDate, endDate);
     }
 
     /**
      * Returns the options for the stock history
-     * @returns {typedefs.StockHistoryOptions} - Options for stock history
+     * @returns {Promise<typedefs.StockHistoryOptions>} - Options for stock history
      */
     async getStockHistoryOptions() {
         await this._login();
-        return await StockHistoryCrawler.getStockHistoryOptions(this._page, this.options);
+        return await StockHistoryCrawler.getStockHistoryOptions(this._cookieManager, this.options);
     }
 
     /**
