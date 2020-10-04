@@ -129,11 +129,9 @@ class DividendsCrawler {
 
         // Set date
         if (date !== null) {
-            /* istanbul ignore next */
             const minDateStr = domPage(PAGE.DATE_MIN_VALUE).text().trim();
             const minDate = CeiUtils.getDateFromInput(minDateStr);
 
-            /* istanbul ignore next */
             const maxDateStr = domPage(PAGE.DATE_MAX_VALUE).text().trim();
             const maxDate = CeiUtils.getDateFromInput(maxDateStr);
             
@@ -234,11 +232,12 @@ class DividendsCrawler {
 
         // Get all institutions to iterate
         const institutions = domPage(PAGE.SELECT_INSTITUTION_OPTIONS)
-        .map((_, option) => ({
-            value: option.attribs.value,
-            label: domPage(option).text()
-        })).get()
-        .filter(institution => institution.value > 0);
+            .map((_, option) => ({
+                value: option.attribs.value,
+                label: domPage(option).text()
+            }))
+            .get()
+            .filter(institution => institution.value > 0);
 
         for (const institution of institutions) {
             domPage(PAGE.SELECT_INSTITUTION).attr('value', institution.value);
