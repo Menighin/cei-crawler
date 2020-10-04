@@ -51,7 +51,7 @@ test.serial('summary-stock-history', async t => {
 
     let hasAnyStock = false;
     for (const r of result) {
-        if (r.stockHistory.length > 0) {
+        if (r.summaryStockHistory.length > 0) {
             hasAnyStock = true;
             break;
         }
@@ -83,7 +83,7 @@ test.serial('summary-stock-history-empty', async t => {
 
     let hasAnyStock = false;
     for (const r of result) {
-        if (r.stockHistory.length > 0) {
+        if (r.summaryStockHistory.length > 0) {
             hasAnyStock = true;
             break;
         }
