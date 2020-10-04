@@ -132,8 +132,6 @@ class WalletCrawler {
     static async getWallet(cookieManager, options = null, date = null) {
         let { institutions } = await this.getWalletOptions(cookieManager, options);
 
-        console.log(institutions);
-
         const traceOperations = (options && options.trace) || false;
 
         const result = [];
@@ -152,12 +150,13 @@ class WalletCrawler {
             const maxDate = CeiUtils.getDateFromInput(maxDateStr);
             
             // Prevent date out of bound if parameter is set
-            if (options.capDates && date < minDate)
+            if (options.capDates && date < minDate) {
                 date = minDate;
+            }
 
-            if (options.capDates && date > maxDate)
+            if (options.capDates && date > maxDate) {
                 date = maxDate;
-
+            }
             domPage(PAGE.DATE_INPUT).attr('value', CeiUtils.getDateForInput(date));
         }
 

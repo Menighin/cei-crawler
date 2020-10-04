@@ -1,15 +1,12 @@
-const puppeteer = require('puppeteer');
-
 /**
  * @namespace typedefs
  */
 
 /**
  * @typedef CeiCrawlerOptions
- * @property {puppeteer.LaunchOptions} puppeteerLaunch - Puppeteer launch options
  * @property {boolean} trace - Indicates if it should print trace messages. Helpful for debugging.
  * @property {boolean} capDates - Prevent crawling with an invalid date in CEI
- * @property {Number} navigationTimeout - Puppeteer navigation timeout
+ * @property {Number} navigationTimeout - Fetch timeout
  * @memberof typdefs
  */
 

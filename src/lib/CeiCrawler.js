@@ -1,9 +1,7 @@
-const puppeteer = require('puppeteer');
 const StockHistoryCrawler = require('./StockHistoryCrawler');
 const DividendsCrawler = require('./DividendsCrawler');
 const WalletCrawler = require('./WalletCrawler');
 const typedefs = require("./typedefs");
-const PuppeteerUtils = require('./PuppeteerUtils');
 const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError')
 const FetchCookieManager = require('../utils/FetchCookieManager');
 const cheerio = require('cheerio');
@@ -23,7 +21,7 @@ class CeiCrawler {
     get password() { return this._password; }
     set password(password) { this._password = password; }
 
-    /** @type {typedefs.CeiCrawlerOptions} - Options for CEI Crawler and Puppeteer */
+    /** @type {typedefs.CeiCrawlerOptions} - Options for CEI Crawler and Fetch */
     get options() { return this._options; }
     set options(options) { this._options = options; }
 
@@ -31,7 +29,7 @@ class CeiCrawler {
      * 
      * @param {String} username - Username to login at CEI
      * @param {String} password - Password to login at CEI
-     * @param {typedefs.CeiCrawlerOptions} options - Options for CEI Crawler and Puppeteer
+     * @param {typedefs.CeiCrawlerOptions} options - Options for CEI Crawler and Fetch
      */
     constructor(username, password, options = {}) {
         this.username = username;
@@ -96,6 +94,7 @@ class CeiCrawler {
         const accessCookie = ((postLogin.headers.raw()['set-cookie'] || []).find(str => str.includes('Acesso=')) || '');
 
         if (accessCookie.includes('Acesso=0')) {
+            /* istanbul ignore next */
             if ((this.options && this.options.trace) || false)
                 console.log('Login success');
             this._isLogged = true;
@@ -164,15 +163,8 @@ class CeiCrawler {
         return await WalletCrawler.getWalletOptions(this._cookieManager, this._options);
     }
 
-    /**
-     * Close puppeteer browser instance in order to free memory
-     */
     async close() {
-        if (this._browser != null) {
-            await this._browser.close();
-            this._browser = null;
-            this._isLogged = false;
-        }
+        this._isLogged = false;
     }
 
 }

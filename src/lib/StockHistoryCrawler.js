@@ -161,6 +161,7 @@ class StockHistoryCrawler {
 
         // Iterate over institutions, accounts, processing the stocks
         for (const institution of institutions) {
+            /* istanbul ignore next */
             if (traceOperations)
                 console.log(`Selecting institution ${institution.label} (${institution.value})`);
 
@@ -206,6 +207,7 @@ class StockHistoryCrawler {
                 
                 const historyDOM = cheerio.load(historyText);
 
+                /* istanbul ignore next */
                 if (traceOperations)
                     console.log(`Processing stock history data`);
 
