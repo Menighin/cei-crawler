@@ -96,6 +96,8 @@ class CeiCrawler {
         const accessCookie = ((postLogin.headers.raw()['set-cookie'] || []).find(str => str.includes('Acesso=')) || '');
 
         if (accessCookie.includes('Acesso=0')) {
+            if ((this.options && this.options.trace) || false)
+                console.log('Login success');
             this._isLogged = true;
         } else if (accessCookie.includes('Acesso=1')) {
             throw new CeiCrawlerError(CeiErrorTypes.WRONG_PASSWORD, 'Senha inválida');
@@ -127,39 +129,39 @@ class CeiCrawler {
     /**
      * Returns the dividends data for each account in CEI
      * @param {Date} [date] - The date to get the dividends
-     * @returns {typedefs.DividendData} - List of available Dividends information
+     * @returns {Promise<typedefs.DividendData} - List of available Dividends information
      */
     async getDividends(date) {
         await this._login();
-        return await DividendsCrawler.getDividends(this._page, this.options, date);
+        return await DividendsCrawler.getDividends(this._cookieManager, this.options, date);
     }
 
     /**
      * Returns the options for the dividends
-     * @returns {typedefs.DividendsOptions} - Options for dividends
+     * @returns {Promise<typedefs.DividendsOptions>} - Options for dividends
      */
     async getDividendsOptions() {
         await this._login();
-        return await DividendsCrawler.getDividendsOptions(this._page, this._options);
+        return await DividendsCrawler.getDividendsOptions(this._cookieManager, this._options);
     }
 
     /**
      * Returns the wallets for each account in CEI
      * @param {Date} [date] - The date to get the wallet
-     * @returns {typedefs.AccountWallet} - List of available Dividends information
+     * @returns {Promise<typedefs.AccountWallet} - List of available Dividends information
      */
     async getWallet(date) {
         await this._login();
-        return await WalletCrawler.getWallet(this._page, this.options, date);
+        return await WalletCrawler.getWallet(this._cookieManager, this.options, date);
     }
 
     /**
      * Returns the options for the wallet
-     * @returns {typedefs.WalletOptions} - Options for wallet
+     * @returns {Promise<typedefs.WalletOptions} - Options for wallet
      */
     async getWalletOptions() {
         await this._login();
-        return await WalletCrawler.getWalletOptions(this._page, this._options);
+        return await WalletCrawler.getWalletOptions(this._cookieManager, this._options);
     }
 
     /**

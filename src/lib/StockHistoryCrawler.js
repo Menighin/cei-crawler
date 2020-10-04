@@ -1,11 +1,9 @@
-const puppeteer = require('puppeteer');
-const PuppeteerUtils = require('./PuppeteerUtils');
 const typedefs = require("./typedefs");
 const CeiUtils = require('./CeiUtils');
 const FetchCookieManager = require('../utils/FetchCookieManager');
 const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError')
 const cheerio = require('cheerio');
-const { extractFormDataFromDOM, extractUpdateForm, sleep, updateFieldsDOM, extractMessagePostResponse } = require('../utils');
+const { extractFormDataFromDOM, extractUpdateForm, updateFieldsDOM, extractMessagePostResponse } = require('../utils');
 
 const PAGE = {
     URL: 'https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx',
@@ -182,10 +180,12 @@ class StockHistoryCrawler {
             updateFieldsDOM(domPage, updtForm);
 
             for (const account of institution.accounts) {
+                /* istanbul ignore next */
                 if (traceOperations)
                     console.log(`Selecting account ${account}`);
 
                 domPage(PAGE.SELECT_ACCOUNT).attr('value', account);
+                
                 const formDataHistory = extractFormDataFromDOM(domPage, FETCH_FORMS.STOCK_HISTORY_ACCOUNT, {
                     ctl00$ContentPlaceHolder1$ToolkitScriptManager1: 'ctl00$ContentPlaceHolder1$updFiltro|ctl00$ContentPlaceHolder1$btnConsultar',
                     __EVENTARGUMENT: ''
@@ -197,10 +197,9 @@ class StockHistoryCrawler {
                 });
 
                 const historyText = await historyRequest.text();
-
                 const lastLine = historyText.split('\n').slice(-1)[0];
-
                 const errorMessage = extractMessagePostResponse(lastLine);
+                
                 if (errorMessage && errorMessage.status === 2) {
                     throw new CeiCrawlerError(CeiErrorTypes.SUBMIT_ERROR, errorMessage.message);
                 }
@@ -242,7 +241,12 @@ class StockHistoryCrawler {
         const maxDateStr = domPage(PAGE.END_DATE_INPUT).attr('value');
 
         // Get all institutions to iterate
-        const institutions = this._getInstitutions(domPage);
+        const institutions = domPage(PAGE.SELECT_INSTITUTION_OPTIONS)
+            .map((_, option) => ({
+                value: option.attribs.value,
+                label: domPage(option).text()
+            })).get()
+            .filter(institution => institution.value > 0);
 
         for (const institution of institutions) {
             domPage(PAGE.SELECT_INSTITUTION).attr('value', institution.value);
@@ -272,38 +276,21 @@ class StockHistoryCrawler {
     }
 
     /**
-     * Get institutions
-     * @param {cheerio.Root} domPage DOM
-     * @returns {Object[]} Institutions
-     */
-    static _getInstitutions(domPage) {
-        return domPage(PAGE.SELECT_INSTITUTION_OPTIONS)
-            .map(function(_, option) {
-                return {
-                    value: option.attribs.value,
-                    label: domPage(this).text()
-                };
-            }).get()
-            .filter(institution => institution.value > 0);
-    }
-
-    /**
      * Process the stock history to a DTO
      * @param {cheerio.Root} dom DOM table stock history
      */
     static _processStockHistory(dom) {
         const headers = Object.keys(STOCK_TABLE_HEADERS);
 
-        const data = dom(PAGE.STOCKS_TABLE_ROWS).map((_, tr) => dom('td', tr)
-            .map(function() {
-                return dom(this).text().trim();
-            })
-            .get()
-            .reduce((dict, txt, idx) => {
-                dict[headers[idx]] = txt;
-                return dict;
-            }, {})
-        ).get();
+        const data = dom(PAGE.STOCKS_TABLE_ROWS)
+            .map((_, tr) => dom('td', tr)
+                .map((_, td) => dom(td).text().trim())
+                .get()
+                .reduce((dict, txt, idx) => {
+                    dict[headers[idx]] = txt;
+                    return dict;
+                }, {})
+            ).get();
 
         return CeiUtils.parseTableTypes(data, STOCK_TABLE_HEADERS);
     }
