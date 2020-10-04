@@ -14,12 +14,9 @@ test.before(t => {
 
     /** @type {typedefs.CeiCrawlerOptions} */
     const ceiCrawlerOptions = {
-        puppeteerLaunch: {
-            headless: true,
-            timeout: 0
-        },
         trace: false
-    }
+    };
+    
     t.context.ceiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, ceiCrawlerOptions);
     t.context.ceiCrawlerCap = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, { capDates: true });
     t.context.emptyOptionsCeiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD);
@@ -113,7 +110,6 @@ test.serial('dividendsOptions', async t => {
 });
 
 test.serial('close', async t => {
-    t.true(t.context.ceiCrawler._browser != null);
     await t.context.ceiCrawler.close();
-    t.true(t.context.ceiCrawler._browser == null);
+    t.true(t.context.ceiCrawler._isLogged == false);
 });
