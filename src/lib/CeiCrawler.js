@@ -3,9 +3,9 @@ const DividendsCrawler = require('./DividendsCrawler');
 const WalletCrawler = require('./WalletCrawler');
 const typedefs = require("./typedefs");
 const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError')
-const FetchCookieManager = require('../utils/FetchCookieManager');
+const FetchCookieManager = require('./FetchCookieManager');
 const cheerio = require('cheerio');
-const { extractFormDataFromDOM } = require('../utils');
+const CeiUtils = require('./CeiUtils');
 
 class CeiCrawler {
 
@@ -36,7 +36,12 @@ class CeiCrawler {
         this.password = password;
         this.options = options;
         this._setDefaultOptions();
-        this._cookieManager = new FetchCookieManager();
+        this._cookieManager = new FetchCookieManager({
+            'Host': 'cei.b3.com.br',
+            'Origin': 'https://cei.b3.com.br',
+            'Referer': 'https://cei.b3.com.br/CEI_Responsivo/login.aspx',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36'
+        });
     }
 
     _setDefaultOptions() {
@@ -58,7 +63,7 @@ class CeiCrawler {
         doomLoginPage('#ctl00_ContentPlaceHolder1_txtLogin').attr('value', this.username);
         doomLoginPage('#ctl00_ContentPlaceHolder1_txtSenha').attr('value', this.password);
         
-        const formData = extractFormDataFromDOM(doomLoginPage, [
+        const formData = CeiUtils.extractFormDataFromDOM(doomLoginPage, [
             'ctl00$ContentPlaceHolder1$smLoad',
             '__EVENTTARGET',
             '__EVENTARGUMENT',
@@ -69,40 +74,49 @@ class CeiCrawler {
             'ctl00$ContentPlaceHolder1$txtSenha',
             '__ASYNCPOST',
             'ctl00$ContentPlaceHolder1$btnLogar'
-        ]);
-
-        const postLogin = await this._cookieManager.fetch("https://cei.b3.com.br/CEI_Responsivo/login.aspx", {
-            "headers": {
-                "accept": "*/*",
-                "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
-                "cache-control": "no-cache",
-                "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-                "sec-fetch-dest": "empty",
-                "sec-fetch-mode": "cors",
-                "sec-fetch-site": "same-origin",
-                "x-microsoftajax": "Delta=true",
-                "x-requested-with": "XMLHttpRequest"
-            },
-            "referrer": "https://cei.b3.com.br/CEI_Responsivo/login.aspx",
-            "referrerPolicy": "strict-origin-when-cross-origin",
-            "body": formData,
-            "method": "POST",
-            "mode": "cors",
-            "credentials": "include"
+        ], {
+            ctl00$ContentPlaceHolder1$smLoad: 'ctl00$ContentPlaceHolder1$UpdatePanel1|ctl00$ContentPlaceHolder1$btnLogar',
+            __EVENTTARGET: '',
+            __EVENTARGUMENT: ''
         });
 
-        const accessCookie = ((postLogin.headers.raw()['set-cookie'] || []).find(str => str.includes('Acesso=')) || '');
+        await CeiUtils.retry(async () => {
+            const postLogin = await this._cookieManager.fetch("https://cei.b3.com.br/CEI_Responsivo/login.aspx", {
+                "headers": {
+                    "accept": "*/*",
+                    "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+                    "cache-control": "no-cache",
+                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "same-origin",
+                    "x-microsoftajax": "Delta=true",
+                    "x-requested-with": "XMLHttpRequest",
+                    'Connection': 'keep-alive'
+                },
+                "referrer": "https://cei.b3.com.br/CEI_Responsivo/login.aspx",
+                "referrerPolicy": "strict-origin-when-cross-origin",
+                "body": formData,
+                "method": "POST",
+                "mode": "cors",
+                "credentials": "include"
+            });
 
-        if (accessCookie.includes('Acesso=0')) {
-            /* istanbul ignore next */
-            if ((this.options && this.options.trace) || false)
-                console.log('Login success');
-            this._isLogged = true;
-        } else if (accessCookie.includes('Acesso=1')) {
-            throw new CeiCrawlerError(CeiErrorTypes.WRONG_PASSWORD, 'Senha inválida');
-        } else {
-            throw new CeiCrawlerError(CeiErrorTypes.LOGIN_FAILED, 'Login falhou');
-        }
+            const accessCookie = ((postLogin.headers.raw()['set-cookie'] || []).find(str => str.includes('Acesso=')) || '');
+
+            if (accessCookie.includes('Acesso=0')) {
+                /* istanbul ignore next */
+                if ((this.options && this.options.trace) || false)
+                    console.log('Login success');
+                this._isLogged = true;
+            } else if (accessCookie.includes('Acesso=1')) {
+                throw new CeiCrawlerError(CeiErrorTypes.WRONG_PASSWORD, 'Senha inválida');
+            } else {
+                const loginText = await postLogin.text();
+                const info = CeiUtils.extractMessagePostResponse(loginText);
+                throw new CeiCrawlerError(CeiErrorTypes.LOGIN_FAILED, info.message || 'Login falhou');
+            }
+        }, e => e.type === CeiErrorTypes.LOGIN_FAILED && e.message.includes('could not be activated'));
     }
 
     /**
@@ -147,7 +161,7 @@ class CeiCrawler {
     /**
      * Returns the wallets for each account in CEI
      * @param {Date} [date] - The date to get the wallet
-     * @returns {Promise<typedefs.AccountWallet} - List of available Dividends information
+     * @returns {Promise<typedefs.AccountWallet>} - List of available Dividends information
      */
     async getWallet(date) {
         await this._login();
@@ -156,7 +170,7 @@ class CeiCrawler {
 
     /**
      * Returns the options for the wallet
-     * @returns {Promise<typedefs.WalletOptions} - Options for wallet
+     * @returns {Promise<typedefs.WalletOptions>} - Options for wallet
      */
     async getWalletOptions() {
         await this._login();

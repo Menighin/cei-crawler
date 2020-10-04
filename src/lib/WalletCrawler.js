@@ -1,9 +1,8 @@
 const typedefs = require("./typedefs");
 const CeiUtils = require('./CeiUtils');
-const FetchCookieManager = require('../utils/FetchCookieManager');
+const FetchCookieManager = require('./FetchCookieManager');
 const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError')
 const cheerio = require('cheerio');
-const { extractFormDataFromDOM, extractUpdateForm, updateFieldsDOM, extractMessagePostResponse } = require('../utils');
 
 const PAGE = {
     URL: 'https://cei.b3.com.br/CEI_Responsivo/ConsultarCarteiraAtivos.aspx',
@@ -168,7 +167,7 @@ class WalletCrawler {
 
             domPage(PAGE.SELECT_INSTITUTION).attr('value', institution.value);
 
-            const formDataInstitution = extractFormDataFromDOM(domPage, FETCH_FORMS.WALLET_INSTITUTION, {
+            const formDataInstitution = CeiUtils.extractFormDataFromDOM(domPage, FETCH_FORMS.WALLET_INSTITUTION, {
                 ctl00$ContentPlaceHolder1$ToolkitScriptManager1: 'ctl00$ContentPlaceHolder1$updFiltro|ctl00$ContentPlaceHolder1$ddlAgentes',
                 __EVENTTARGET: 'ctl00$ContentPlaceHolder1$ddlAgentes'
             });
@@ -178,8 +177,8 @@ class WalletCrawler {
                 body: formDataInstitution
             });
 
-            const updtForm = extractUpdateForm(await req.text());
-            updateFieldsDOM(domPage, updtForm);
+            const updtForm = CeiUtils.extractUpdateForm(await req.text());
+            CeiUtils.updateFieldsDOM(domPage, updtForm);
             
             for (const account of institution.accounts) {
                 /* istanbul ignore next */
@@ -188,7 +187,7 @@ class WalletCrawler {
 
                 domPage(PAGE.SELECT_ACCOUNT).attr('value', account);
         
-                const formDataHistory = extractFormDataFromDOM(domPage, FETCH_FORMS.WALLET_ACCOUNT, {
+                const formDataHistory = CeiUtils.extractFormDataFromDOM(domPage, FETCH_FORMS.WALLET_ACCOUNT, {
                     ctl00$ContentPlaceHolder1$ToolkitScriptManager1: 'ctl00$ContentPlaceHolder1$updFiltro|ctl00$ContentPlaceHolder1$btnConsultar',
                     __EVENTARGUMENT: '',
                     __LASTFOCUS: ''
@@ -200,10 +199,9 @@ class WalletCrawler {
                 });
 
                 const historyText = await historyRequest.text();
-                const lastLine = historyText.split('\n').slice(-1)[0];
-                const errorMessage = extractMessagePostResponse(lastLine);
+                const errorMessage = CeiUtils.extractMessagePostResponse(historyText);
 
-                if (errorMessage && errorMessage.status === 2) {
+                if (errorMessage && errorMessage.type === 2) {
                     throw new CeiCrawlerError(CeiErrorTypes.SUBMIT_ERROR, errorMessage.message);
                 }
 
@@ -254,7 +252,7 @@ class WalletCrawler {
 
         for (const institution of institutions) {
             domPage(PAGE.SELECT_INSTITUTION).attr('value', institution.value);
-            const formDataStr = extractFormDataFromDOM(domPage, FETCH_FORMS.WALLET_INSTITUTION);
+            const formDataStr = CeiUtils.extractFormDataFromDOM(domPage, FETCH_FORMS.WALLET_INSTITUTION);
 
             const getAcountsPage = await cookieManager.fetch(PAGE.URL, {
                 ...FETCH_OPTIONS.WALLET_INSTITUTION,
