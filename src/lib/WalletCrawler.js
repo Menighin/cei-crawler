@@ -129,8 +129,6 @@ class WalletCrawler {
      * @returns {Promise<typedefs.AccountWallet[]>} - List of Stock histories
      */
     static async getWallet(cookieManager, options = null, date = null) {
-        let { institutions } = await this.getWalletOptions(cookieManager, options);
-
         const traceOperations = (options && options.trace) || false;
 
         const result = [];
@@ -159,6 +157,14 @@ class WalletCrawler {
             domPage(PAGE.DATE_INPUT).attr('value', CeiUtils.getDateForInput(date));
         }
 
+        // Get all institutions to iterate
+        const institutions = domPage(PAGE.SELECT_INSTITUTION_OPTIONS)
+            .map((_, option) => ({
+                value: option.attribs.value,
+                label: domPage(option).text()
+            })).get()
+            .filter(institution => institution.value > 0);
+
         for (const institution of institutions) {
 
             /* istanbul ignore next */
@@ -177,10 +183,17 @@ class WalletCrawler {
                 body: formDataInstitution
             });
 
-            const updtForm = CeiUtils.extractUpdateForm(await req.text());
+            const reqInstitutionText = await req.text();
+            const reqInstitutionDOM = cheerio.load(reqInstitutionText);
+
+            const updtForm = CeiUtils.extractUpdateForm(reqInstitutionText);
             CeiUtils.updateFieldsDOM(domPage, updtForm);
+
+            const accounts = reqInstitutionDOM(PAGE.SELECT_ACCOUNT_OPTIONS)
+                .map((_, option) => option.attribs.value).get()
+                .filter(account => account > 0);
             
-            for (const account of institution.accounts) {
+            for (const account of accounts) {
                 /* istanbul ignore next */
                 if (traceOperations)
                     console.log(`Selecting account ${account}`);
@@ -297,6 +310,10 @@ class WalletCrawler {
         return CeiUtils.parseTableTypes(data, STOCK_WALLET_TABLE_HEADER);
     }
 
+    /**
+     * Process the stock wallet to a DTO
+     * @param {cheerio.Root} dom DOM table stock history
+     */
     static _processNationalTreasuryWallet(dom) {
         const headers = Object.keys(TREASURE_WALLET_TABLE_HEADER);
 

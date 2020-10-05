@@ -117,8 +117,6 @@ class DividendsCrawler {
      * @returns {Promise<typedefs.DividendData>} - List of available Dividends information
      */
     static async getDividends(cookieManager, options = null, date = null) {
-        let { institutions } = await this.getDividendsOptions(cookieManager, options);
-
         const getPage = await cookieManager.fetch(PAGE.URL);
         const domPage = cheerio.load(await getPage.text());
 
@@ -144,6 +142,14 @@ class DividendsCrawler {
             domPage(PAGE.DATE_INPUT).attr('value', CeiUtils.getDateForInput(date));
         }
 
+        // Get all institutions to iterate
+        const institutions = domPage(PAGE.SELECT_INSTITUTION_OPTIONS)
+            .map((_, option) => ({
+                value: option.attribs.value,
+                label: domPage(option).text()
+            })).get()
+            .filter(institution => institution.value > 0);
+
 
         // Iterate over institutions, accounts, processing the stocks
         for (const institution of institutions) {
@@ -164,10 +170,17 @@ class DividendsCrawler {
                 body: formDataInstitution
             });
 
-            const updtForm = CeiUtils.extractUpdateForm(await req.text());
+            const reqInstitutionText = await req.text();
+            const reqInstitutionDOM = cheerio.load(reqInstitutionText);
+
+            const updtForm = CeiUtils.extractUpdateForm(reqInstitutionText);
             CeiUtils.updateFieldsDOM(domPage, updtForm);
 
-            for (const account of institution.accounts) {
+            const accounts = reqInstitutionDOM(PAGE.SELECT_ACCOUNT_OPTIONS)
+                .map((_, option) => option.attribs.value).get()
+                .filter(account => account > 0);
+
+            for (const account of accounts) {
                 /* istanbul ignore next */
                 if (traceOperations)
                     console.log(`Selecting account ${account}`);

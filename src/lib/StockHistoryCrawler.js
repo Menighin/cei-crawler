@@ -127,8 +127,6 @@ class StockHistoryCrawler {
      * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
      */
     static async getStockHistory(cookieManager, options = null, startDate = null, endDate = null) {
-        const { institutions } = await this.getStockHistoryOptions(cookieManager, options);
-
         const traceOperations = (options && options.trace) || false;
         
         const result = [];
@@ -158,6 +156,14 @@ class StockHistoryCrawler {
             domPage(PAGE.END_DATE_INPUT).attr('value', CeiUtils.getDateForInput(endDate));
         }
 
+        // Get all institutions to iterate
+        const institutions = domPage(PAGE.SELECT_INSTITUTION_OPTIONS)
+            .map((_, option) => ({
+                value: option.attribs.value,
+                label: domPage(option).text()
+            })).get()
+            .filter(institution => institution.value > 0);
+
         // Iterate over institutions, accounts, processing the stocks
         for (const institution of institutions) {
             /* istanbul ignore next */
@@ -176,10 +182,17 @@ class StockHistoryCrawler {
                 body: formDataInstitution
             });
 
-            const updtForm = CeiUtils.extractUpdateForm(await req.text());
+            const reqInstitutionText = await req.text();
+            const reqInstitutionDOM = cheerio.load(reqInstitutionText);
+
+            const updtForm = CeiUtils.extractUpdateForm(reqInstitutionText);
             CeiUtils.updateFieldsDOM(domPage, updtForm);
 
-            for (const account of institution.accounts) {
+            const accounts = reqInstitutionDOM(PAGE.SELECT_ACCOUNT_OPTIONS)
+                .map((_, option) => option.attribs.value).get()
+                .filter(account => account > 0);
+
+            for (const account of accounts) {
                 /* istanbul ignore next */
                 if (traceOperations)
                     console.log(`Selecting account ${account}`);
