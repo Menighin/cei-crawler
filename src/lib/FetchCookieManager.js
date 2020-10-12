@@ -1,6 +1,19 @@
+const https = require('https');
+const { readFileSync } = require('fs');
 const nodeFetch = require('node-fetch');
 const tough = require('tough-cookie');
 const CeiUtils = require('./CeiUtils');
+
+const certs = [
+    readFileSync(__dirname + '\\certificate.crt')
+];
+
+const agent = new https.Agent({
+    ca: certs,
+    keepAlive: true,
+    rejectUnauthorized: false
+});
+
 
 class FetchCookieManager {
 
@@ -27,7 +40,8 @@ class FetchCookieManager {
                 ...this._defaultHeaders,
                 ...(opts.headers || {}),
                 cookie
-            }
+            },
+            agent
         }
 
         const response = await CeiUtils.retry(
