@@ -17,6 +17,9 @@ const PAGE = {
     STOCKS_DIV: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados',
     STOCKS_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados table tbody',
     STOCKS_TABLE_ROWS: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados table tbody tr',
+    SUMMARY_STOCKS_DIV:'#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnResumoNegocios',
+    SUMMARY_STOCKS_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnResumoNegocios table',
+    SUMMARY_STOCKS_TABLE_ROWS: '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnResumoNegocios table tr',
     PAGE_ALERT_ERROR: '.alert-box.alert',
     PAGE_ALERT_SUCCESS: '.alert-box.success'
 }
@@ -32,6 +35,17 @@ const STOCK_TABLE_HEADERS = {
     price: 'float',
     totalValue: 'float',
     quotationFactor: 'float'
+};
+
+const SUMMARY_STOCK_TABLE_HEADERS = {
+    code: 'string',
+    period: 'string',
+    buyAmount: 'int',
+    saleAmount: 'int',
+    averageBuyPrice: 'float',
+    averageSalePrice: 'float',
+    quantityNet: 'int',
+    position: 'string',
 };
 
 const FETCH_OPTIONS = {
@@ -117,7 +131,6 @@ const ALERT_VALIDATION = {
 }
 
 class StockHistoryCrawler {
-
     /**
      * Get the stock history from CEI
      * @param {FetchCookieManager} cookieManager - FetchCookieManager to work with
@@ -222,17 +235,21 @@ class StockHistoryCrawler {
                 if (traceOperations)
                     console.log(`Processing stock history data`);
 
-                const data = this._processStockHistory(historyDOM);
+                const stockHistory = this._processStockHistory(historyDOM, false);
+                const summaryStockHistory = this._processStockHistory(historyDOM, true);
 
                 /* istanbul ignore next */
-                if (traceOperations)
-                    console.log (`Found ${data.length} operations`);
+                if (traceOperations) {
+                    console.log (`Found ${stockHistory.length} stockHistory operations`);
+                    console.log (`Found ${summaryStockHistory.length} summaryStockHistory operations`);
+                }
 
                 // Save the result
                 result.push({
                     institution: institution.label,
                     account: account,
-                    stockHistory: data
+                    stockHistory,
+                    summaryStockHistory
                 });
             }
         }
@@ -291,11 +308,14 @@ class StockHistoryCrawler {
     /**
      * Process the stock history to a DTO
      * @param {cheerio.Root} dom DOM table stock history
+     * @param {boolean} isSummary Get Summary Stock History
      */
-    static _processStockHistory(dom) {
-        const headers = Object.keys(STOCK_TABLE_HEADERS);
+    static _processStockHistory(dom, isSummary) {
+        const tableHeaders = isSummary ? SUMMARY_STOCK_TABLE_HEADERS : STOCK_TABLE_HEADERS;
+        const tableRowsSelector = isSummary ? PAGE.SUMMARY_STOCKS_TABLE : PAGE.STOCKS_TABLE;
+        const headers = Object.keys(tableHeaders);
 
-        const data = dom(PAGE.STOCKS_TABLE_ROWS)
+        const data = dom(tableRowsSelector)
             .map((_, tr) => dom('td', tr)
                 .map((_, td) => dom(td).text().trim())
                 .get()
@@ -305,7 +325,7 @@ class StockHistoryCrawler {
                 }, {})
             ).get();
 
-        return CeiUtils.parseTableTypes(data, STOCK_TABLE_HEADERS);
+        return CeiUtils.parseTableTypes(data, tableHeaders);
     }
 
 }

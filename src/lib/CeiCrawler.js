@@ -2,7 +2,7 @@ const StockHistoryCrawler = require('./StockHistoryCrawler');
 const DividendsCrawler = require('./DividendsCrawler');
 const WalletCrawler = require('./WalletCrawler');
 const typedefs = require("./typedefs");
-const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError')
+const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError');
 const FetchCookieManager = require('./FetchCookieManager');
 const cheerio = require('cheerio');
 const CeiUtils = require('./CeiUtils');
@@ -41,12 +41,17 @@ class CeiCrawler {
             'Origin': 'https://cei.b3.com.br',
             'Referer': 'https://cei.b3.com.br/CEI_Responsivo/login.aspx',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36'
-        });
+        }, this.options.navigationTimeout);
     }
 
     _setDefaultOptions() {
         if (!this.options.trace) this.options.trace = false;
         if (!this.options.navigationTimeout) this.options.navigationTimeout = 30000;
+    }
+
+    async login() {
+        this._isLogged = false;
+        await this._login();
     }
 
     async _login() {
@@ -58,7 +63,6 @@ class CeiCrawler {
         
         const getPageLogin = await this._cookieManager.fetch("https://cei.b3.com.br/CEI_Responsivo/login.aspx");
         const doomLoginPage = cheerio.load(await getPageLogin.text());
-
 
         doomLoginPage('#ctl00_ContentPlaceHolder1_txtLogin').attr('value', this.username);
         doomLoginPage('#ctl00_ContentPlaceHolder1_txtSenha').attr('value', this.password);
