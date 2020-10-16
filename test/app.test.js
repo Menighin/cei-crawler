@@ -21,6 +21,7 @@ test.before(t => {
     t.context.ceiCrawlerCap = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, { capDates: true });
     t.context.emptyOptionsCeiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD);
     t.context.wrongPasswordCeiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD + 'wrong');
+    t.context.ceiCrawlerTimeout = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, { navigationTimeout: 1 });
 });
 
 test.serial('login', async t => {
@@ -29,6 +30,20 @@ test.serial('login', async t => {
 });
 
 test.serial('stock-history', async t => {
+    const result = await t.context.ceiCrawler.getStockHistory();
+    t.true(result.length > 0);
+
+    let hasAnyStock = false;
+    for (const r of result) {
+        if (r.stockHistory.length > 0) {
+            hasAnyStock = true;
+            break;
+        }
+    }
+    t.true(hasAnyStock);
+});
+
+test.serial('summary-stock-history', async t => {
     const result = await t.context.ceiCrawler.getStockHistory();
     t.true(result.length > 0);
 
@@ -58,6 +73,22 @@ test.serial('stock-history-empty', async t => {
     t.false(hasAnyStock);
 });
 
+test.serial('summary-stock-history-empty', async t => {
+    const saturday = new Date(2020, 0, 4);
+    const sunday = new Date(2020, 0, 5);
+    const result = await t.context.ceiCrawler.getStockHistory(saturday, sunday);
+    t.true(result.length > 0);
+
+    let hasAnyStock = false;
+    for (const r of result) {
+        if (r.stockHistory.length > 0) {
+            hasAnyStock = true;
+            break;
+        }
+    }
+    t.false(hasAnyStock);
+});
+
 test.serial('invalid-dates', async t => {
     await t.throwsAsync(async () => t.context.ceiCrawler.getStockHistory(new Date(0), new Date(10000)));
     await t.throwsAsync(async () => t.context.ceiCrawler.getDividends(new Date(0)));
@@ -65,6 +96,11 @@ test.serial('invalid-dates', async t => {
 });
 
 test.serial('stock-history-invalid-dates-with-cap-on', async t => {
+    const result = await t.context.ceiCrawlerCap.getStockHistory(new Date(0), new Date(10000));
+    t.true(result.length > 0);
+});
+
+test.serial('summary-stock-history-invalid-dates-with-cap-on', async t => {
     const result = await t.context.ceiCrawlerCap.getStockHistory(new Date(0), new Date(10000));
     t.true(result.length > 0);
 });
@@ -93,6 +129,12 @@ test.serial('wrong-password', async t => {
         await t.context.wrongPasswordCeiCrawler.getStockHistory();
     });
 });
+
+test.serial('request-timeout', async t => {
+    await t.throwsAsync(async () => {
+        await t.context.ceiCrawlerTimeout.login();
+    });
+})
 
 test.serial('stockHistoryOptions', async t => {
     const result = await t.context.ceiCrawlerCap.getStockHistoryOptions();
