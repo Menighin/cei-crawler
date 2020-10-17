@@ -29,6 +29,13 @@ Criei o `cei-crawler` para um projeto de acompanhamento de investimentos. Caso e
   <a href="https://stoincs.com.br" target="_blank"><img src="./advertisement/snout.svg" width="50"></a>
 </p>
 
+## Considerações em relação a versão anterior:
+  * Remoção do puppeteer
+  * API 100% compatível
+  * Redução do uso de memória
+  * Melhoria de performance
+  * Melhoria no tratamento dos erros
+  * Melhoria nos teste
 
 ## Instalação
 Basta instalar utilizando o NPM:
@@ -41,6 +48,8 @@ Crie uma instância do `CeiCrawler` passando os parametros necessários e invoqu
 
 ```javascript
 let ceiCrawler = new CeiCrawler('username', 'password', {/* options */});
+ceiCrawler.login(); // Login é opcional, pois antes de cada método o cei-crawler irá verificar se já esta logado.
+                    // A vantagem em realizar o login em um passo diferente é para o tratamento de erros
 ```
 
 ### Métodos disponíveis
@@ -309,19 +318,14 @@ Resultado:
 }
 ```
 
-## Exemplo de uso
-```javascript
-let stockHistory = await ceiCrawler.getStockHistory(startDate, endDate);
-let dividends = await ceiCrawler.getDividends();
-```
-
 ## Opções
 Na criação de um `CeiCrawler` é possivel especificar alguns valores para o parâmetro `options` que modificam a forma que o crawler funciona. As opções são:
 
 | Propriedade           | Tipo      | Default | Descrição                                                                                                                                                                                               |
 |-----------------------|-----------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **capDates**          | _Boolean_ | _false_ | Se `true`, as datas utilizadas de input para buscas serão limitadas ao range de datas válidas do CEI, impedindo que ocorra um erro caso o usuário passe uma data maior ou menor.                        |
-| **navigationTimeout** | _Number_  | 30000   | Tempo, em ms, que o crawler espera por uma ação antes de considerar timeout. Diversas vezes, como a noite e aos fins de semana, o sistema do CEI parece ficar muito instavél e causa diversos timeouts. |
+| **navigationTimeout** | _Number_  | 30000   | Tempo, em ms, que o crawler espera por uma ação antes de considerar timeout. |
+| **loginTimeout** | _Number_  | 180000   | Tempo, em ms, que o crawler espera para realizar login antes de considerar timeout. Diversas vezes, como a noite e aos fins de semana, o sistema do CEI parece ficar muito instavél e causa diversos timeouts no login. |
 | **trace**             | _Boolean_ | _false_ | Printa mensagens de debug no log. Útil para desenvolvimento.                                                                                                                                            |
 
 Exemplo:
@@ -330,7 +334,9 @@ Exemplo:
 const ceiCrawlerOptions = {
     trace: false,
     capEndDate: true,
-    navigationTimeout: 60000
+    navigationTimeout: 60000,
+    loginTimeout: 240000,
+
 };
 
 let ceiCrawler = new CeiCrawler('username', 'password', ceiCrawlerOptions);
