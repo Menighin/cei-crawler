@@ -1,7 +1,6 @@
 const test = require('ava')
 const CeiCrawler = require('../src/app')
-const fs = require('fs')
-const typedefs = require("../src/lib/typedefs");
+const { CeiErrorTypes } = require('../src/lib/CeiCrawlerError');
 
 const dotenv = require('dotenv');
 
@@ -12,22 +11,15 @@ test.before(t => {
         throw Error('You should set environment variables CEI_USERNAME and CEI_PASSWORD in order to run tests');
     }
 
-    /** @type {typedefs.CeiCrawlerOptions} */
-    const ceiCrawlerOptions = {
-        puppeteerLaunch: {
-            headless: true,
-            timeout: 0
-        },
-        trace: false
-    }
-    t.context.ceiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, ceiCrawlerOptions);
-    t.context.ceiCrawlerCap = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, { capDates: true });
-    t.context.emptyOptionsCeiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD);
-    t.context.wrongPasswordCeiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD + 'wrong');
+    t.context.ceiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, { navigationTimeout: 60000 });
+    t.context.ceiCrawlerCap = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, { capDates: true, navigationTimeout: 60000 });
+    t.context.emptyOptionsCeiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, { navigationTimeout: 60000 });
+    t.context.wrongPasswordCeiCrawler = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD + 'wrong', { navigationTimeout: 60000 });
+    t.context.ceiCrawlerTimeout = new CeiCrawler(process.env.CEI_USERNAME, process.env.CEI_PASSWORD, { navigationTimeout: 1 });
 });
 
 test.serial('login', async t => {
-    await t.context.ceiCrawler._login();
+    await t.context.ceiCrawler.login();
     t.is(t.context.ceiCrawler._isLogged, true);
 });
 
@@ -51,7 +43,7 @@ test.serial('summary-stock-history', async t => {
 
     let hasAnyStock = false;
     for (const r of result) {
-        if (r.summaryStockHistory.length > 0) {
+        if (r.stockHistory.length > 0) {
             hasAnyStock = true;
             break;
         }
@@ -83,7 +75,7 @@ test.serial('summary-stock-history-empty', async t => {
 
     let hasAnyStock = false;
     for (const r of result) {
-        if (r.summaryStockHistory.length > 0) {
+        if (r.stockHistory.length > 0) {
             hasAnyStock = true;
             break;
         }
@@ -92,9 +84,13 @@ test.serial('summary-stock-history-empty', async t => {
 });
 
 test.serial('invalid-dates', async t => {
-    await t.throwsAsync(async () => t.context.ceiCrawler.getStockHistory(new Date(0), new Date(10000)));
-    await t.throwsAsync(async () => t.context.ceiCrawler.getDividends(new Date(0)));
-    await t.throwsAsync(async () => t.context.ceiCrawler.getWallet(new Date(0)));
+    const errorGetStockHistory = await t.throwsAsync(async () => t.context.ceiCrawler.getStockHistory(new Date(0), new Date(10000)));
+    const errorGetDividends = await t.throwsAsync(async () => t.context.ceiCrawler.getDividends(new Date(0)));
+    const errorGetWallet = await t.throwsAsync(async () => t.context.ceiCrawler.getWallet(new Date(0)));
+
+    t.true(errorGetStockHistory.type === CeiErrorTypes.SUBMIT_ERROR);
+    t.true(errorGetDividends.type === CeiErrorTypes.SUBMIT_ERROR);
+    t.true(errorGetWallet.type === CeiErrorTypes.SUBMIT_ERROR);
 });
 
 test.serial('stock-history-invalid-dates-with-cap-on', async t => {
@@ -119,19 +115,6 @@ test.serial('wallet', async t => {
     t.true(result.length > 0);
 });
 
-test.serial('login-fail', async t => {
-    await t.throwsAsync(async () => {
-        const wrongCeiCrawler = new CeiCrawler('1234', 'invalidPassword');
-        await wrongCeiCrawler.getStockHistory();
-    });
-});
-
-test.serial('wrong-password', async t => {
-    await t.throwsAsync(async () => {
-        await t.context.wrongPasswordCeiCrawler.getStockHistory();
-    });
-});
-
 test.serial('stockHistoryOptions', async t => {
     const result = await t.context.ceiCrawlerCap.getStockHistoryOptions();
     t.true(result.minDate.length > 0);
@@ -148,7 +131,28 @@ test.serial('dividendsOptions', async t => {
 });
 
 test.serial('close', async t => {
-    t.true(t.context.ceiCrawler._browser != null);
     await t.context.ceiCrawler.close();
-    t.true(t.context.ceiCrawler._browser == null);
+    t.true(t.context.ceiCrawler._isLogged == false);
+});
+
+test.serial('login-fail', async t => {
+    const error = await t.throwsAsync(async () => {
+        const wrongCeiCrawler = new CeiCrawler('1234', 'invalidPassword');
+        await wrongCeiCrawler.login();
+    });
+    t.true(error.type === CeiErrorTypes.LOGIN_FAILED);
+});
+
+test.serial('wrong-password', async t => {
+    const error = await t.throwsAsync(async () => {
+        await t.context.wrongPasswordCeiCrawler.login();
+    });
+    t.true(error.type === CeiErrorTypes.WRONG_PASSWORD);
+});
+
+test.serial('request-timeout', async t => {
+    const error = await t.throwsAsync(async () => {
+        await t.context.ceiCrawlerTimeout.login();
+    });
+    t.true(error.type === CeiErrorTypes.NAVIGATION_TIMEOUT);
 });
