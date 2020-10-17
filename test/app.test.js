@@ -19,31 +19,9 @@ test.before(t => {
 });
 
 test.serial('login', async t => {
-    await t.context.ceiCrawler._login();
+    await t.context.ceiCrawler.login();
     t.is(t.context.ceiCrawler._isLogged, true);
 });
-
-test.serial('login-fail', async t => {
-    const error = await t.throwsAsync(async () => {
-        const wrongCeiCrawler = new CeiCrawler('1234', 'invalidPassword');
-        await wrongCeiCrawler.login();
-    });
-    t.true(error.type === CeiErrorTypes.LOGIN_FAILED);
-});
-
-test.serial('wrong-password', async t => {
-    const error = await t.throwsAsync(async () => {
-        await t.context.wrongPasswordCeiCrawler.getStockHistory();
-    });
-    t.true(error.type === CeiErrorTypes.WRONG_PASSWORD);
-});
-
-test.serial('request-timeout', async t => {
-    const error = await t.throwsAsync(async () => {
-        await t.context.ceiCrawlerTimeout.login();
-    });
-    t.true(error.type === CeiErrorTypes.NAVIGATION_TIMEOUT);
-})
 
 test.serial('stock-history', async t => {
     const result = await t.context.ceiCrawler.getStockHistory();
@@ -155,4 +133,26 @@ test.serial('dividendsOptions', async t => {
 test.serial('close', async t => {
     await t.context.ceiCrawler.close();
     t.true(t.context.ceiCrawler._isLogged == false);
+});
+
+test.serial('login-fail', async t => {
+    const error = await t.throwsAsync(async () => {
+        const wrongCeiCrawler = new CeiCrawler('1234', 'invalidPassword');
+        await wrongCeiCrawler.login();
+    });
+    t.true(error.type === CeiErrorTypes.LOGIN_FAILED);
+});
+
+test.serial('wrong-password', async t => {
+    const error = await t.throwsAsync(async () => {
+        await t.context.wrongPasswordCeiCrawler.login();
+    });
+    t.true(error.type === CeiErrorTypes.WRONG_PASSWORD);
+});
+
+test.serial('request-timeout', async t => {
+    const error = await t.throwsAsync(async () => {
+        await t.context.ceiCrawlerTimeout.login();
+    });
+    t.true(error.type === CeiErrorTypes.NAVIGATION_TIMEOUT);
 });
