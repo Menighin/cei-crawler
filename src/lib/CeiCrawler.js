@@ -36,6 +36,7 @@ class CeiCrawler {
         this.password = password;
         this.options = options;
         this._setDefaultOptions();
+
         this._cookieManager = new FetchCookieManager({
             'Host': 'cei.b3.com.br',
             'Origin': 'https://cei.b3.com.br',
@@ -47,6 +48,7 @@ class CeiCrawler {
     _setDefaultOptions() {
         if (!this.options.trace) this.options.trace = false;
         if (!this.options.navigationTimeout) this.options.navigationTimeout = 30000;
+        if (!this.options.loginTimeout) this.options.loginTimeout = 150000;
     }
 
     async login() {
@@ -104,7 +106,7 @@ class CeiCrawler {
                 "method": "POST",
                 "mode": "cors",
                 "credentials": "include"
-            });
+            }, this._options.loginTimeout);
 
             const accessCookie = ((postLogin.headers.raw()['set-cookie'] || []).find(str => str.includes('Acesso=')) || '');
 
@@ -130,6 +132,17 @@ class CeiCrawler {
      * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
      */
     async getStockHistory(startDate, endDate) {
+        await this._login();
+        return await StockHistoryCrawler.getStockHistory(this._cookieManager, this.options, startDate, endDate);
+    }
+
+    /**
+     * Returns the stock history
+     * @param {Date} [startDate] - The start date of the history
+     * @param {Date} [endDate]  - The end date of the history
+     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
+     */
+    async getSummaryStockHistory(startDate, endDate) {
         await this._login();
         return await StockHistoryCrawler.getStockHistory(this._cookieManager, this.options, startDate, endDate);
     }
@@ -181,6 +194,9 @@ class CeiCrawler {
         return await WalletCrawler.getWalletOptions(this._cookieManager, this._options);
     }
 
+    /**
+     * @deprecated it is no longer necessary to use this method
+     */
     async close() {
         this._isLogged = false;
     }

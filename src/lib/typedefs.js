@@ -7,6 +7,7 @@
  * @property {boolean} trace - Indicates if it should print trace messages. Helpful for debugging.
  * @property {boolean} capDates - Prevent crawling with an invalid date in CEI
  * @property {Number} navigationTimeout - Fetch timeout
+ * @property {Number} loginTimeout - Login timeout
  * @memberof typdefs
  */
 

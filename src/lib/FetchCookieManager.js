@@ -33,9 +33,10 @@ class FetchCookieManager {
      * 
      * @param {String} url - URL
      * @param {Object} opts - fetch options
+     * @param {Number} fetchTimeout - fetch fetchTimeout
      * @returns {Promise<Response>} - Response
      */
-    async fetch(url, opts = {}) {
+    async fetch(url, opts = {}, fetchTimeout = null) {
         const cookie = await this._jar.getCookieString(url);
 
         const newOpts = {
@@ -53,7 +54,7 @@ class FetchCookieManager {
                 const controller = new AbortController();
                 const timeout = setTimeout(() => {
                     controller.abort();
-                }, this._navigationTimeout);
+                }, fetchTimeout || this._navigationTimeout);
 
                 let resp;
                 try {
@@ -64,7 +65,7 @@ class FetchCookieManager {
                 } catch (error) {
                     clearTimeout(timeout);
                     if (error.name === 'AbortError')
-                        throw new CeiCrawlerError(CeiErrorTypes.NAVIGATION_TIMEOUT, 'Requisição estourou o tempo limite');
+                        throw new CeiCrawlerError(CeiErrorTypes.NAVIGATION_TIMEOUT, `Requisição estourou o tempo limite em: ${url}`);
                     throw error;
                 } finally {
                     clearTimeout(timeout);
