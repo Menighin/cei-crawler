@@ -5,8 +5,14 @@
 Crawler para ler dados do Canal Eletrônico do Investidor 
 
 ## Descrição
-O `cei-crawler` utiliza o [puppeteer](https://github.com/puppeteer/puppeteer) para fazer o scrapping das informações do usuário.
-Para isso, basta criar uma instância do `CeiCrawler` e chamar os métodos necessários.
+O `cei-crawler` utiliza as seguintes dependências:
+* [cheerio](https://github.com/cheeriojs/cheerio) para fazer o parse do HTML.
+* [node-fetch](https://github.com/node-fetch/node-fetch) para fazer as requisições
+* [abort-controller](https://github.com/mysticatea/abort-controller) para controlar o timeout das requisições
+* [tough-cookie](https://github.com/salesforce/tough-cookie) para auxiliar no gerenciamento dos cookies
+
+Cada instância do `CeiCrawler` roda em um contexto separado, portante é possível realizar operações em usuários diferentes de forma simultânea
+
 
 ## Sponsor
 Caso o `cei-crawler` tenha te ajudado e você queira fazer alguma doação pra me ajudar a mantê-lo, utilize o QR code abaixo :)
@@ -23,6 +29,13 @@ Criei o `cei-crawler` para um projeto de acompanhamento de investimentos. Caso e
   <a href="https://stoincs.com.br" target="_blank"><img src="./advertisement/snout.svg" width="50"></a>
 </p>
 
+## Considerações em relação a versão anterior:
+  * Remoção do puppeteer
+  * API 100% compatível
+  * Redução do uso de memória
+  * Melhoria de performance
+  * Melhoria no tratamento dos erros
+  * Melhoria nos teste
 
 ## Instalação
 Basta instalar utilizando o NPM:
@@ -35,6 +48,8 @@ Crie uma instância do `CeiCrawler` passando os parametros necessários e invoqu
 
 ```javascript
 let ceiCrawler = new CeiCrawler('username', 'password', {/* options */});
+ceiCrawler.login(); // Login é opcional, pois antes de cada método o cei-crawler irá verificar se já esta logado.
+                    // A vantagem em realizar o login em um passo diferente é para o tratamento de erros
 ```
 
 ### Métodos disponíveis
@@ -136,7 +151,7 @@ Resultado:
 ```
 
 #### getStockHistory(_startDate_, _endDate_)
-Método que processa o histórico de compra e venda de ações. O retorno será um uma lista com todas operações de compra ou venda efetuadas dentro do período informado, se nenhuma data for passada o método retornará todo o histórico disponível.
+Método que processa o histórico e o resumo do histórico de compra e venda de ações. O retorno será um uma lista com todas operações de compra ou venda efetuadas dentro do período informado, se nenhuma data for passada o método retornará todo o histórico disponível.
 ```javascript
 let stockHistory = await ceiCrawler.getStockHistory(startDate, endDate);
 ```
@@ -158,6 +173,18 @@ Resultado:
                 price: 32.2,
                 totalValue: 6440,
                 cotation: 1
+            }
+        ],
+        summaryStockHistory: [
+            {
+                code:"ABCB4F",
+                period:"31/08/2020 à 15/09/2020",
+                buyAmount:30,
+                saleAmount:0,
+                averageBuyPrice:13.54,
+                averageSalePrice:0,
+                quantityNet:0,
+                position:"-"
             }
         ]
     }
@@ -191,32 +218,8 @@ Resultado:
   ]
 }
 ```
-#### getSummaryStockHistory(_startDate_, _endDate_)
-Método que processa o resumo do histórico de compra e venda de ações. O retorno será um uma lista com um resumo de todas operações de compra ou venda efetuadas dentro do período informado, se nenhuma data for passada o método retornará todo o histórico disponível.
-```javascript
-let summaryStockHistory = await ceiCrawler.getSummaryStockHistory(startDate, endDate);
-```
-Resultado:
-```javascript
-[
-    {
-	"institution":"1099 - INTER DTVM LTDA",
-	"account":"123456",
-	"summaryStockHistory": [
-	    {
-		"code":"ABCB4F",
-		"period":"31/08/2020 à 15/09/2020",
-		"buyAmount":30,
-		"saleAmount":0,
-		"averageBuyPrice":13.54,
-		"averageSalePrice":0,
-		"quantityNet":0,
-		"position":"-"
-            }
-        ]
-    }
-]
-```
+
+
 #### getDividends(_date_)
 Método que processa todos os dados disponíveis sobre proventos recebidos em um período e retorna como uma lista. Usualmente os proventos disponíveis na página do CEI são os creditados no mês atual e os já anunciados pela empresas com e sem data definida. Registros com date igual `null` são de proventos anunciados mas sem data definida de pagamento.
 ```javascript
@@ -315,43 +318,25 @@ Resultado:
 }
 ```
 
-#### close()
-O método close deve ser chamado quando é terminado o processamento dos dados e a instancia do `CeiCrawler` não será reutilizada em um curto espaço de tempo. Esse método simplesmente fecha o browser do `puppeteer`, liberando memória.
-Exemplos do comportamento:
-```javascript
-// Ambas as chamadas são executadas numa mesma janela do browser, somente um login é feito
-let stockHistory = await ceiCrawler.getStockHistory(startDate, endDate);
-let dividends = await ceiCrawler.getDividends();
-await ceiCrawler.close();
-
-// Se intercalarmos chamadas ao método close entre os métodos, o login é realizado duas vezes
-let stockHistory = await ceiCrawler.getStockHistory(startDate, endDate); // Abre browser, faz login e pega o histórico
-await ceiCrawler.close(); // Fecha o browser
-
-let dividends = await ceiCrawler.getDividends(); // Abre novamente, faz login e pega os dividendos
-await ceiCrawler.close(); // Fecha o browser
-```
-
 ## Opções
 Na criação de um `CeiCrawler` é possivel especificar alguns valores para o parâmetro `options` que modificam a forma que o crawler funciona. As opções são:
 
 | Propriedade           | Tipo      | Default | Descrição                                                                                                                                                                                               |
 |-----------------------|-----------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **puppeteerLaunch**   | _Object_  | _{}_    | Esse objeto é passado ao método `launch` do `Puppeteer`. As opções estão listadas [aqui](https://github.com/puppeteer/puppeteer/blob/v2.1.1/docs/api.md#puppeteerlaunchoptions).                        |
 | **capDates**          | _Boolean_ | _false_ | Se `true`, as datas utilizadas de input para buscas serão limitadas ao range de datas válidas do CEI, impedindo que ocorra um erro caso o usuário passe uma data maior ou menor.                        |
-| **navigationTimeout** | _Number_  | 30000   | Tempo, em ms, que o crawler espera por uma ação antes de considerar timeout. Diversas vezes, como a noite e aos fins de semana, o sistema do CEI parece ficar muito instavél e causa diversos timeouts. |
+| **navigationTimeout** | _Number_  | 30000   | Tempo, em ms, que o crawler espera por uma ação antes de considerar timeout. |
+| **loginTimeout** | _Number_  | 180000   | Tempo, em ms, que o crawler espera para realizar login antes de considerar timeout. Diversas vezes, como a noite e aos fins de semana, o sistema do CEI parece ficar muito instavél e causa diversos timeouts no login. |
 | **trace**             | _Boolean_ | _false_ | Printa mensagens de debug no log. Útil para desenvolvimento.                                                                                                                                            |
 
 Exemplo:
 
 ```javascript
 const ceiCrawlerOptions = {
-    puppeteerLaunch: {
-        headless: false,
-        timeout: 0
-    },
     trace: false,
-    capEndDate: true
+    capEndDate: true,
+    navigationTimeout: 60000,
+    loginTimeout: 240000,
+
 };
 
 let ceiCrawler = new CeiCrawler('username', 'password', ceiCrawlerOptions);
@@ -365,6 +350,9 @@ O CEI Crawler possui um exceção própria, `CeiCrawlerError`, que é lançada e
 | LOGIN_FAILED   | Lançada quando o login falha por timeout ou por CPF errado digitado                                                       |
 | WRONG_PASSWORD | Lançada quando a senha passada está errada                                                                                |
 | SUBMIT_ERROR   | Lançada quando acontece um erro ao submeter um formulario de pesquisa em alguma página do CEI. Por exemplo: data inválida |
+| SESSION_HAS_EXPIRED   | Lançada quando a sessão do usuário expira, nesse caso é necessário realizar o login novamente `ceiCrawler.login()` |
+| NAVIGATION_TIMEOUT   | Lançada quando a requisição estoura o tempo limite definida na opção `navigationTimeout` |
+
 
 Exemplo de como fazer um bom tratamento de erros:
 
@@ -384,8 +372,12 @@ try {
       // Handle wrong password
     else if (err.type === CeiErrorTypes.SUBMIT_ERROR)
       // Handle submit error
-  } else if (err.name === 'TimeoutError') {
-    // Handle timeout after 'navigationTimeout'
+    else if (err.type === CeiErrorTypes.SESSION_HAS_EXPIRED)
+      // Handle session expired
+    else if (err.type === CeiErrorTypes.NAVIGATION_TIMEOUT)
+      // Handle request timeout
+  } else {
+    // Handle generic errors
   }
 }
 ```

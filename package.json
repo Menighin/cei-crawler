@@ -24,7 +24,10 @@
   "license": "MIT",
   "dependencies": {
     "@babel/runtime": "^7.9.6",
-    "puppeteer": "^2.0.0"
+    "abort-controller": "^3.0.0",
+    "cheerio": "^1.0.0-rc.3",
+    "node-fetch": "^2.6.1",
+    "tough-cookie": "^4.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
