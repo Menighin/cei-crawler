@@ -10,6 +10,7 @@ O `cei-crawler` utiliza as seguintes dependências:
 * [node-fetch](https://github.com/node-fetch/node-fetch) para fazer as requisições
 * [abort-controller](https://github.com/mysticatea/abort-controller) para controlar o timeout das requisições
 * [tough-cookie](https://github.com/salesforce/tough-cookie) para auxiliar no gerenciamento dos cookies
+* [normalize-html-whitespace](https://www.npmjs.com/package/normalize-html-whitespace) para fazer a limpeza do HTML do CEI
 
 Cada instância do `CeiCrawler` roda em um contexto separado, portante é possível realizar operações em usuários diferentes de forma simultânea
 
