@@ -37,40 +37,10 @@ test.serial('stock-history', async t => {
     t.true(hasAnyStock);
 });
 
-test.serial('summary-stock-history', async t => {
-    const result = await t.context.ceiCrawler.getSummaryStockHistory();
-    t.true(result.length > 0);
-
-    let hasAnyStock = false;
-    for (const r of result) {
-        if (r.stockHistory.length > 0) {
-            hasAnyStock = true;
-            break;
-        }
-    }
-    t.true(hasAnyStock);
-});
-
 test.serial('stock-history-empty', async t => {
     const saturday = new Date(2020, 0, 4);
     const sunday = new Date(2020, 0, 5);
     const result = await t.context.ceiCrawler.getStockHistory(saturday, sunday);
-    t.true(result.length > 0);
-
-    let hasAnyStock = false;
-    for (const r of result) {
-        if (r.stockHistory.length > 0) {
-            hasAnyStock = true;
-            break;
-        }
-    }
-    t.false(hasAnyStock);
-});
-
-test.serial('summary-stock-history-empty', async t => {
-    const saturday = new Date(2020, 0, 4);
-    const sunday = new Date(2020, 0, 5);
-    const result = await t.context.ceiCrawler.getSummaryStockHistory(saturday, sunday);
     t.true(result.length > 0);
 
     let hasAnyStock = false;
@@ -95,11 +65,6 @@ test.serial('invalid-dates', async t => {
 
 test.serial('stock-history-invalid-dates-with-cap-on', async t => {
     const result = await t.context.ceiCrawlerCap.getStockHistory(new Date(0), new Date(10000));
-    t.true(result.length > 0);
-});
-
-test.serial('summary-stock-history-invalid-dates-with-cap-on', async t => {
-    const result = await t.context.ceiCrawlerCap.getSummaryStockHistory(new Date(0), new Date(10000));
     t.true(result.length > 0);
 });
 
@@ -128,11 +93,6 @@ test.serial('walletOptions', async t => {
 test.serial('dividendsOptions', async t => {
     const result = await t.context.ceiCrawlerCap.getDividendsOptions();
     t.true(result.minDate.length > 0);
-});
-
-test.serial('close', async t => {
-    await t.context.ceiCrawler.close();
-    t.true(t.context.ceiCrawler._isLogged == false);
 });
 
 test.serial('login-fail', async t => {

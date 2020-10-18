@@ -3,6 +3,7 @@ const CeiUtils = require('./CeiUtils');
 const FetchCookieManager = require('./FetchCookieManager');
 const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError')
 const cheerio = require('cheerio');
+const normalizeWhitespace = require('normalize-html-whitespace');
 
 const PAGE = {
     URL: 'https://cei.b3.com.br/CEI_Responsivo/ConsultarProventos.aspx',
@@ -198,22 +199,22 @@ class DividendsCrawler {
                     body: formDataHistory
                 });
 
-                const historyText = await historyRequest.text();
-                const errorMessage = CeiUtils.extractMessagePostResponse(historyText);
+                const dividendsText = normalizeWhitespace(await historyRequest.text());
+                const errorMessage = CeiUtils.extractMessagePostResponse(dividendsText);
 
                 if (errorMessage && errorMessage.type === 2) {
                     throw new CeiCrawlerError(CeiErrorTypes.SUBMIT_ERROR, errorMessage.message);
                 }
 
-                const historyDOM = cheerio.load(historyText);
+                const dividendsDOM = cheerio.load(dividendsText);
 
                 // Process the page
                 /* istanbul ignore next */
                 if (traceOperations)
                     console.log(`Processing dividends data`);
 
-                const futureEvents = this._processEvents(historyDOM, PAGE.FUTURE_EVENTS_TITLE);
-                const pastEvents = this._processEvents(historyDOM, PAGE.PAST_EVENTS_TITLE);
+                const futureEvents = this._processEvents(dividendsDOM, PAGE.FUTURE_EVENTS_TITLE);
+                const pastEvents = this._processEvents(dividendsDOM, PAGE.PAST_EVENTS_TITLE);
 
                 // Save the result
                 result.push({
@@ -290,7 +291,7 @@ class DividendsCrawler {
             .filter((_, el) => dom(el).text().includes(tableTitle))
             .first()
             .map((_, el) => dom(el).parent())
-            .map((_, el) => dom(PAGE.TABLE_CLASS_ROWS, el))
+            .map((_, el) => dom(PAGE.TABLE_CLASS_ROWS, el).get())
             .map((_, tr) => dom('td', tr)
                 .map((_, td) => dom(td).text().trim())
                 .get()
