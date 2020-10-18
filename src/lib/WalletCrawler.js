@@ -3,6 +3,7 @@ const CeiUtils = require('./CeiUtils');
 const FetchCookieManager = require('./FetchCookieManager');
 const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError')
 const cheerio = require('cheerio');
+const normalizeWhitespace = require('normalize-html-whitespace');
 
 const PAGE = {
     URL: 'https://cei.b3.com.br/CEI_Responsivo/ConsultarCarteiraAtivos.aspx',
@@ -211,22 +212,22 @@ class WalletCrawler {
                     body: formDataHistory
                 });
 
-                const historyText = await historyRequest.text();
-                const errorMessage = CeiUtils.extractMessagePostResponse(historyText);
+                const walletText = normalizeWhitespace(await historyRequest.text());
+                const errorMessage = CeiUtils.extractMessagePostResponse(walletText);
 
                 if (errorMessage && errorMessage.type === 2) {
                     throw new CeiCrawlerError(CeiErrorTypes.SUBMIT_ERROR, errorMessage.message);
                 }
 
-                const historyDOM = cheerio.load(historyText);
+                const walletDOM = cheerio.load(walletText);
 
                 // Process the page
                 /* istanbul ignore next */
                 if (traceOperations)
                     console.log(`Processing wallet data`);
 
-                const stockWallet = this._processStockWallet(historyDOM);
-                const nationalTreasuryWallet = this._processNationalTreasuryWallet(historyDOM);
+                const stockWallet = this._processStockWallet(walletDOM);
+                const nationalTreasuryWallet = this._processNationalTreasuryWallet(walletDOM);
 
                 // Save the result
                 result.push({

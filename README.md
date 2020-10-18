@@ -29,14 +29,6 @@ Criei o `cei-crawler` para um projeto de acompanhamento de investimentos. Caso e
   <a href="https://stoincs.com.br" target="_blank"><img src="./advertisement/snout.svg" width="50"></a>
 </p>
 
-## Considerações em relação a versão anterior:
-  * Remoção do puppeteer
-  * API 100% compatível
-  * Redução do uso de memória
-  * Melhoria de performance
-  * Melhoria no tratamento dos erros
-  * Melhoria nos teste
-
 ## Instalação
 Basta instalar utilizando o NPM:
 ```
@@ -173,18 +165,6 @@ Resultado:
                 price: 32.2,
                 totalValue: 6440,
                 cotation: 1
-            }
-        ],
-        summaryStockHistory: [
-            {
-                code:"ABCB4F",
-                period:"31/08/2020 à 15/09/2020",
-                buyAmount:30,
-                saleAmount:0,
-                averageBuyPrice:13.54,
-                averageSalePrice:0,
-                quantityNet:0,
-                position:"-"
             }
         ]
     }

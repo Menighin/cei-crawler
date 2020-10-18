@@ -137,17 +137,6 @@ class CeiCrawler {
     }
 
     /**
-     * Returns the stock history
-     * @param {Date} [startDate] - The start date of the history
-     * @param {Date} [endDate]  - The end date of the history
-     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
-     */
-    async getSummaryStockHistory(startDate, endDate) {
-        await this._login();
-        return await StockHistoryCrawler.getStockHistory(this._cookieManager, this.options, startDate, endDate);
-    }
-
-    /**
      * Returns the options for the stock history
      * @returns {Promise<typedefs.StockHistoryOptions>} - Options for stock history
      */
@@ -192,13 +181,6 @@ class CeiCrawler {
     async getWalletOptions() {
         await this._login();
         return await WalletCrawler.getWalletOptions(this._cookieManager, this._options);
-    }
-
-    /**
-     * @deprecated it is no longer necessary to use this method
-     */
-    async close() {
-        this._isLogged = false;
     }
 
 }
