@@ -161,7 +161,7 @@ class StockHistoryCrawler {
             const maxDate = CeiUtils.getDateFromInput(maxDateStr);
             
             // Prevent date out of bound if parameter is set
-            if (options.capDates && endDate < maxDate)
+            if (options.capDates && endDate > maxDate)
                 endDate = maxDate;
 
             domPage(PAGE.END_DATE_INPUT).attr('value', CeiUtils.getDateForInput(endDate));
