@@ -151,7 +151,6 @@ class DividendsCrawler {
             })).get()
             .filter(institution => institution.value > 0);
 
-
         // Iterate over institutions, accounts, processing the stocks
         for (const institution of institutions) {
 
@@ -187,34 +186,8 @@ class DividendsCrawler {
                     console.log(`Selecting account ${account}`);
 
                 domPage(PAGE.SELECT_ACCOUNT).attr('value', account);
-            
-                const formDataHistory = CeiUtils.extractFormDataFromDOM(domPage, FETCH_FORMS.DIVIDENDS_ACCOUNT, {
-                    ctl00$ContentPlaceHolder1$ToolkitScriptManager1: 'ctl00$ContentPlaceHolder1$updFiltro|ctl00$ContentPlaceHolder1$btnConsultar',
-                    __EVENTARGUMENT: '',
-                    __LASTFOCUS: ''
-                });
-                
-                const historyRequest = await cookieManager.fetch(PAGE.URL, {
-                    ...FETCH_OPTIONS.DIVIDENDS_ACCOUNT,
-                    body: formDataHistory
-                });
 
-                const dividendsText = normalizeWhitespace(await historyRequest.text());
-                const errorMessage = CeiUtils.extractMessagePostResponse(dividendsText);
-
-                if (errorMessage && errorMessage.type === 2) {
-                    throw new CeiCrawlerError(CeiErrorTypes.SUBMIT_ERROR, errorMessage.message);
-                }
-
-                const dividendsDOM = cheerio.load(dividendsText);
-
-                // Process the page
-                /* istanbul ignore next */
-                if (traceOperations)
-                    console.log(`Processing dividends data`);
-
-                const futureEvents = this._processEvents(dividendsDOM, PAGE.FUTURE_EVENTS_TITLE);
-                const pastEvents = this._processEvents(dividendsDOM, PAGE.PAST_EVENTS_TITLE);
+                const { futureEvents, pastEvents } = await this._getDataPage(domPage, cookieManager, traceOperations);
 
                 // Save the result
                 result.push({
@@ -278,6 +251,53 @@ class DividendsCrawler {
         }
     }
 
+    /**
+     * Returns the data from the page after trying more than once
+     * @param {cheerio.Root} dom DOM of page
+     * @param {FetchCookieManager} cookieManager - FetchCookieManager to work with
+     * @param {Boolean} traceOperations - Whether to trace operations or not
+     */
+    static async _getDataPage(dom, cookieManager, traceOperations) {
+        while(true) {
+            const formDataHistory = CeiUtils.extractFormDataFromDOM(dom, FETCH_FORMS.DIVIDENDS_ACCOUNT, {
+                ctl00$ContentPlaceHolder1$ToolkitScriptManager1: 'ctl00$ContentPlaceHolder1$updFiltro|ctl00$ContentPlaceHolder1$btnConsultar',
+                __EVENTARGUMENT: '',
+                __LASTFOCUS: ''
+            });
+            
+            const dividendsRequest = await cookieManager.fetch(PAGE.URL, {
+                ...FETCH_OPTIONS.DIVIDENDS_ACCOUNT,
+                body: formDataHistory
+            });
+
+            const dividendsText = normalizeWhitespace(await dividendsRequest.text());
+            const errorMessage = CeiUtils.extractMessagePostResponse(dividendsText);
+
+            if (errorMessage && errorMessage.type === 2) {
+                throw new CeiCrawlerError(CeiErrorTypes.SUBMIT_ERROR, errorMessage.message);
+            }
+
+            const dividendsDOM = cheerio.load(dividendsText);
+
+            // Process the page
+            /* istanbul ignore next */
+            if (traceOperations)
+                console.log(`Processing dividends data`);
+
+            const futureEvents = this._processEvents(dividendsDOM, PAGE.FUTURE_EVENTS_TITLE);
+            const pastEvents = this._processEvents(dividendsDOM, PAGE.PAST_EVENTS_TITLE);
+
+            if (errorMessage.type !== undefined || futureEvents.length > 0 || pastEvents.length > 0) {
+                return {
+                    futureEvents,
+                    pastEvents
+                };
+            }
+            
+            const updtForm = CeiUtils.extractUpdateForm(dividendsText);
+            CeiUtils.updateFieldsDOM(dom, updtForm);
+        }
+    }
 
     /**
      * Process the events given the parameters

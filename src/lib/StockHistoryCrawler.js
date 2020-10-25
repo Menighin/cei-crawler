@@ -209,31 +209,8 @@ class StockHistoryCrawler {
                     console.log(`Selecting account ${account}`);
 
                 domPage(PAGE.SELECT_ACCOUNT).attr('value', account);
-                
-                const formDataHistory = CeiUtils.extractFormDataFromDOM(domPage, FETCH_FORMS.STOCK_HISTORY_ACCOUNT, {
-                    ctl00$ContentPlaceHolder1$ToolkitScriptManager1: 'ctl00$ContentPlaceHolder1$updFiltro|ctl00$ContentPlaceHolder1$btnConsultar',
-                    __EVENTARGUMENT: ''
-                });
-                
-                const historyRequest = await cookieManager.fetch(PAGE.URL, {
-                    ...FETCH_OPTIONS.STOCK_HISTORY_ACCOUNT,
-                    body: formDataHistory
-                });
 
-                const historyText = normalizeWhitespace(await historyRequest.text());
-                const errorMessage = CeiUtils.extractMessagePostResponse(historyText);
-
-                if (errorMessage && errorMessage.type === 2) {
-                    throw new CeiCrawlerError(CeiErrorTypes.SUBMIT_ERROR, errorMessage.message);
-                }
-                
-                const historyDOM = cheerio.load(historyText);
-
-                /* istanbul ignore next */
-                if (traceOperations)
-                    console.log(`Processing stock history data`);
-
-                const stockHistory = this._processStockHistory(historyDOM);
+                const stockHistory = await this._getDataPage(domPage, cookieManager, traceOperations);
 
                 /* istanbul ignore next */
                 if (traceOperations) {
@@ -297,6 +274,48 @@ class StockHistoryCrawler {
             minDate: minDateStr,
             maxDate: maxDateStr,
             institutions: institutions
+        }
+    }
+
+    /**
+     * Returns the data from the page after trying more than once
+     * @param {cheerio.Root} dom DOM of page
+     * @param {FetchCookieManager} cookieManager - FetchCookieManager to work with
+     * @param {Boolean} traceOperations - Whether to trace operations or not
+     */
+    static async _getDataPage(dom, cookieManager, traceOperations) {
+        while(true) {
+            const formDataHistory = CeiUtils.extractFormDataFromDOM(dom, FETCH_FORMS.STOCK_HISTORY_ACCOUNT, {
+                ctl00$ContentPlaceHolder1$ToolkitScriptManager1: 'ctl00$ContentPlaceHolder1$updFiltro|ctl00$ContentPlaceHolder1$btnConsultar',
+                __EVENTARGUMENT: ''
+            });
+            
+            const historyRequest = await cookieManager.fetch(PAGE.URL, {
+                ...FETCH_OPTIONS.STOCK_HISTORY_ACCOUNT,
+                body: formDataHistory
+            });
+    
+            const historyText = normalizeWhitespace(await historyRequest.text());
+            const errorMessage = CeiUtils.extractMessagePostResponse(historyText);
+    
+            if (errorMessage && errorMessage.type === 2) {
+                throw new CeiCrawlerError(CeiErrorTypes.SUBMIT_ERROR, errorMessage.message);
+            }
+
+            const historyDOM = cheerio.load(historyText);
+
+            /* istanbul ignore next */
+            if (traceOperations)
+                console.log(`Processing stock history data`);
+
+            const stockHistory = this._processStockHistory(historyDOM);
+
+            if (errorMessage.type !== undefined || stockHistory.length > 0) {
+                return stockHistory;
+            }
+            
+            const updtForm = CeiUtils.extractUpdateForm(historyText);
+            CeiUtils.updateFieldsDOM(dom, updtForm);
         }
     }
 

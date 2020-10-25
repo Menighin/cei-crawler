@@ -201,33 +201,7 @@ class WalletCrawler {
 
                 domPage(PAGE.SELECT_ACCOUNT).attr('value', account);
         
-                const formDataHistory = CeiUtils.extractFormDataFromDOM(domPage, FETCH_FORMS.WALLET_ACCOUNT, {
-                    ctl00$ContentPlaceHolder1$ToolkitScriptManager1: 'ctl00$ContentPlaceHolder1$updFiltro|ctl00$ContentPlaceHolder1$btnConsultar',
-                    __EVENTARGUMENT: '',
-                    __LASTFOCUS: ''
-                });
-                
-                const historyRequest = await cookieManager.fetch(PAGE.URL, {
-                    ...FETCH_OPTIONS.WALLET_ACCOUNT,
-                    body: formDataHistory
-                });
-
-                const walletText = normalizeWhitespace(await historyRequest.text());
-                const errorMessage = CeiUtils.extractMessagePostResponse(walletText);
-
-                if (errorMessage && errorMessage.type === 2) {
-                    throw new CeiCrawlerError(CeiErrorTypes.SUBMIT_ERROR, errorMessage.message);
-                }
-
-                const walletDOM = cheerio.load(walletText);
-
-                // Process the page
-                /* istanbul ignore next */
-                if (traceOperations)
-                    console.log(`Processing wallet data`);
-
-                const stockWallet = this._processStockWallet(walletDOM);
-                const nationalTreasuryWallet = this._processNationalTreasuryWallet(walletDOM);
+                const { stockWallet, nationalTreasuryWallet } = await this._getDataPage(domPage, cookieManager, traceOperations);
 
                 // Save the result
                 result.push({
@@ -288,6 +262,54 @@ class WalletCrawler {
             minDate: minDateStr,
             maxDate: maxDateStr,
             institutions: institutions
+        }
+    }
+
+    /**
+     * Returns the data from the page after trying more than once
+     * @param {cheerio.Root} dom DOM of page
+     * @param {FetchCookieManager} cookieManager - FetchCookieManager to work with
+     * @param {Boolean} traceOperations - Whether to trace operations or not
+     */
+    static async _getDataPage(dom, cookieManager, traceOperations) {
+        while(true) {
+            const formDataWallet = CeiUtils.extractFormDataFromDOM(dom, FETCH_FORMS.WALLET_ACCOUNT, {
+                ctl00$ContentPlaceHolder1$ToolkitScriptManager1: 'ctl00$ContentPlaceHolder1$updFiltro|ctl00$ContentPlaceHolder1$btnConsultar',
+                __EVENTARGUMENT: '',
+                __LASTFOCUS: ''
+            });
+            
+            const walletRequest = await cookieManager.fetch(PAGE.URL, {
+                ...FETCH_OPTIONS.WALLET_ACCOUNT,
+                body: formDataWallet
+            });
+
+            const walletText = normalizeWhitespace(await walletRequest.text());
+            const errorMessage = CeiUtils.extractMessagePostResponse(walletText);
+
+            if (errorMessage && errorMessage.type === 2) {
+                throw new CeiCrawlerError(CeiErrorTypes.SUBMIT_ERROR, errorMessage.message);
+            }
+
+            const walletDOM = cheerio.load(walletText);
+
+            // Process the page
+            /* istanbul ignore next */
+            if (traceOperations)
+                console.log(`Processing wallet data`);
+
+            const stockWallet = this._processStockWallet(walletDOM);
+            const nationalTreasuryWallet = this._processNationalTreasuryWallet(walletDOM);
+
+            if (errorMessage.type !== undefined || stockWallet.length > 0 || nationalTreasuryWallet.length > 0) {
+                return {
+                    stockWallet,
+                    nationalTreasuryWallet
+                };
+            }
+            
+            const updtForm = CeiUtils.extractUpdateForm(historyText);
+            CeiUtils.updateFieldsDOM(dom, updtForm);
         }
     }
 
