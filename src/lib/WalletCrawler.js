@@ -18,10 +18,12 @@ const PAGE = {
     SUBMIT_BUTTON: '#ctl00_ContentPlaceHolder1_btnConsultar',
     STOCK_WALLET_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira',
     STOCK_WALLET_TABLE_BODY: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira tbody',
-    STOCK_WALLET_TABLE_BODY_ROWS: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira tbody tr',    TREASURE_WALLET_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_trBodyTesouroDireto',
+    STOCK_WALLET_TABLE_BODY_ROWS: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira tbody tr',    
+    TREASURE_WALLET_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_trBodyTesouroDireto',
     TREASURE_WALLET_TABLE_BODY: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_trBodyTesouroDireto tbody',
     TREASURE_WALLET_TABLE_BODY_ROWS: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_trBodyTesouroDireto tbody tr',
-    RESULT_FOOTER: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl01_divTotalCarteira',
+    RESULT_FOOTER_100: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_divTotalCarteira',
+    RESULT_FOOTER_101: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl01_divTotalCarteira',
     PAGE_ALERT_ERROR: '.alert-box.alert',
     PAGE_ALERT_SUCCESS: '.alert-box.success'
 }
@@ -301,7 +303,7 @@ class WalletCrawler {
             const stockWallet = this._processStockWallet(walletDOM);
             const nationalTreasuryWallet = this._processNationalTreasuryWallet(walletDOM);
 
-            if (errorMessage.type !== undefined || stockWallet.length > 0 || nationalTreasuryWallet.length > 0) {
+            if (errorMessage.type !== undefined || this._hasLoadedData(walletDOM)) {
                 return {
                     stockWallet,
                     nationalTreasuryWallet
@@ -351,6 +353,15 @@ class WalletCrawler {
             ).get();
 
         return CeiUtils.parseTableTypes(data, TREASURE_WALLET_TABLE_HEADER);
+    }
+
+    /**
+     * Check wheter the table was rendered on the screen to stop trying to get data
+     * @param {cheerio.Root} dom DOM table stock history
+     */
+    static _hasLoadedData(dom) {
+       const query = dom(`${PAGE.RESULT_FOOTER_100}, ${PAGE.RESULT_FOOTER_101}`);
+       return query.length > 0;
     }
 
 }
