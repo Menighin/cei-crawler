@@ -308,7 +308,7 @@ class WalletCrawler {
                 };
             }
             
-            const updtForm = CeiUtils.extractUpdateForm(historyText);
+            const updtForm = CeiUtils.extractUpdateForm(walletText);
             CeiUtils.updateFieldsDOM(dom, updtForm);
         }
     }
