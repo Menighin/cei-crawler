@@ -6,7 +6,7 @@ const cheerio = require('cheerio');
 const normalizeWhitespace = require('normalize-html-whitespace');
 
 const PAGE = {
-    URL: 'https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx',
+    URL: 'https://ceiapp.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx',
     SELECT_INSTITUTION: '#ctl00_ContentPlaceHolder1_ddlAgentes',
     SELECT_INSTITUTION_OPTIONS: '#ctl00_ContentPlaceHolder1_ddlAgentes option',
     SELECT_ACCOUNT: '#ctl00_ContentPlaceHolder1_ddlContas',
@@ -60,7 +60,7 @@ const FETCH_OPTIONS = {
             "x-requested-with": "XMLHttpRequest",
             "Connection": "keep-alive"
         },
-        "referrer": "https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx",
+        "referrer": "https://ceiapp.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx",
         "referrerPolicy": "strict-origin-when-cross-origin",
         "body": null,
         "method": "POST",
@@ -79,7 +79,7 @@ const FETCH_OPTIONS = {
           "x-microsoftajax": "Delta=true",
           "x-requested-with": "XMLHttpRequest"
         },
-        "referrer": "https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx",
+        "referrer": "https://ceiapp.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx",
         "referrerPolicy": "strict-origin-when-cross-origin",
         "body": null,
         "method": "POST",

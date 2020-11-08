@@ -6,7 +6,7 @@ const cheerio = require('cheerio');
 const normalizeWhitespace = require('normalize-html-whitespace');
 
 const PAGE = {
-    URL: 'https://cei.b3.com.br/CEI_Responsivo/ConsultarProventos.aspx',
+    URL: 'https://ceiapp.b3.com.br/CEI_Responsivo/ConsultarProventos.aspx',
     SUBMIT_BUTTON: '#ctl00_ContentPlaceHolder1_btnConsultar',
     TABLE_CLASS: '.responsive tbody',
     TABLE_CLASS_ROWS: '.responsive tbody tr',
@@ -49,7 +49,7 @@ const FETCH_OPTIONS = {
           "x-microsoftajax": "Delta=true",
           "x-requested-with": "XMLHttpRequest"
         },
-        "referrer": "https://cei.b3.com.br/CEI_Responsivo/ConsultarProventos.aspx",
+        "referrer": "https://ceiapp.b3.com.br/CEI_Responsivo/ConsultarProventos.aspx",
         "referrerPolicy": "strict-origin-when-cross-origin",
         "body": null,
         "method": "POST",
@@ -68,7 +68,7 @@ const FETCH_OPTIONS = {
           "x-microsoftajax": "Delta=true",
           "x-requested-with": "XMLHttpRequest"
         },
-        "referrer": "https://cei.b3.com.br/CEI_Responsivo/ConsultarProventos.aspx",
+        "referrer": "https://ceiapp.b3.com.br/CEI_Responsivo/ConsultarProventos.aspx",
         "referrerPolicy": "strict-origin-when-cross-origin",
         "body": null,
         "method": "POST",

@@ -40,7 +40,7 @@ class CeiCrawler {
         this._cookieManager = new FetchCookieManager({
             'Host': 'cei.b3.com.br',
             'Origin': 'https://cei.b3.com.br',
-            'Referer': 'https://cei.b3.com.br/CEI_Responsivo/login.aspx',
+            'Referer': 'https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36'
         }, this.options.navigationTimeout);
     }
@@ -63,7 +63,7 @@ class CeiCrawler {
         if ((this.options && this.options.trace) || false)
             console.log('Logging at CEI...');
         
-        const getPageLogin = await this._cookieManager.fetch("https://cei.b3.com.br/CEI_Responsivo/login.aspx");
+        const getPageLogin = await this._cookieManager.fetch("https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx");
         const doomLoginPage = cheerio.load(await getPageLogin.text());
 
         doomLoginPage('#ctl00_ContentPlaceHolder1_txtLogin').attr('value', this.username);
@@ -87,7 +87,7 @@ class CeiCrawler {
         });
 
         await CeiUtils.retry(async () => {
-            const postLogin = await this._cookieManager.fetch("https://cei.b3.com.br/CEI_Responsivo/login.aspx", {
+            const postLogin = await this._cookieManager.fetch("https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx", {
                 "headers": {
                     "accept": "*/*",
                     "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
@@ -100,7 +100,7 @@ class CeiCrawler {
                     "x-requested-with": "XMLHttpRequest",
                     'Connection': 'keep-alive'
                 },
-                "referrer": "https://cei.b3.com.br/CEI_Responsivo/login.aspx",
+                "referrer": "https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx",
                 "referrerPolicy": "strict-origin-when-cross-origin",
                 "body": formData,
                 "method": "POST",
