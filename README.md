@@ -299,6 +299,79 @@ Resultado:
 }
 ```
 
+#### getTreasure(_date_)
+Método que processa todos os dados disponíveis sobre Tesouro Direto em um período e retorna como uma lista e também uma lista das transações.
+```javascript
+let treasures = await ceiCrawler.getTreasures(date);
+```
+Resultado:
+```javascript
+[
+    {
+        "institution": "3 - XP INVESTIMENTOS CCTVM S/A",
+        "account": "123456",
+        "treasures": [
+            {
+                "code": "Tesouro IPCA+ 2045",
+                "expirationDate": "2045-05-15T03:00:00.000Z",
+                "investedValue": 12.34,
+                "grossValue": 13.43,
+                "netValue": 10.12,
+                "quantity": 0.01,
+                "blocked": 0,
+                "transactions": [
+                    {
+                        "tradeDate": "2020-11-27T03:00:00.000Z",
+                        "quantity": 0.01,
+                        "price": 1234.56,
+                        "notional": 12.34,
+                        "profitability": "IPCA + 4,05%",
+                        "grossProfitability": "IPCA + 566,89%",
+                        "grossProfitabilityPercent": 12.34,
+                        "grossValue": 45.67,
+                        "investmentTerm": 18,
+                        "taxBracket": 23.4,
+                        "taxIrValue": 0.12,
+                        "taxIofValue": 1.94,
+                        "feeB3Value": 0,
+                        "feeInstitutionValue": 0,
+                        "netValue": 42.67
+                    }
+                ]
+            }
+        ]
+    }
+]
+```
+#### getTreasureOptions()
+Retorna as opções dos formulários da página de tesouro direto
+```javascript
+const treasureOptions = await ceiCrawler.getTreasureOptions();
+```
+Resultado:
+```javascript
+{
+  "minDate": "27/07/2020",
+  "maxDate": "31/07/2020",
+  "institutions": [
+    {
+      "value": "123",
+      "label": "123 - RICO INVESTIMENTOS - GRUPO XP",
+      "accounts": [
+        "12345"
+      ]
+    },
+    {
+      "value": "321",
+      "label": "321 - INTER DTVM LTDA",
+      "accounts": [
+        "54321"
+      ]
+    }
+  ]
+}
+```
+
 ## Opções
 Na criação de um `CeiCrawler` é possivel especificar alguns valores para o parâmetro `options` que modificam a forma que o crawler funciona. As opções são:
 
@@ -367,7 +440,8 @@ try {
 - [x] Histórico de ações
 - [x] Dividendos
 - [x] Carteira de ações
-- [x] Tesouro Direto
+- [x] Tesouro Direto (Resumido)
+- [x] Tesouro Direto (Analítico)
 
 ## Licença
 MIT

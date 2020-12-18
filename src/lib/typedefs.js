@@ -80,7 +80,7 @@
  * @property {Number} quantity - Quantity of stock dividend is based
  * @property {Number} factor - Multiply factor for each stock unit
  * @property {Number} grossValue - Dividend value before taxes
- * @property {Number} netValue - Dividend value after taxes 
+ * @property {Number} netValue - Dividend value after taxes
  * @memberof typdefs
  */
 
@@ -127,6 +127,46 @@
 
 /**
  * @typedef WalletOptions
+ * @property {String} minDate - Minimum date which data is available
+ * @property {String} maxDate - Maximum date which data is available
+ * @property {InstitutionOption[]} institutions - Array of available institutions with its accounts
+ */
+
+/**
+ * @typedef TreasureTransactionItem
+ * @property {String} tradeDate - The application date of that transaction
+ * @property {String} quantity - The quantity date of that transaction
+ * @property {String} price - The price of that transaction
+ * @property {String} notional - The notional that transaction
+ * @property {Number} profitability - The profitability that transaction
+ * @property {Number} grossProfitability - The gross profitability that transaction
+ * @property {Number} grossProfitabilityPercent - The gross profitability in percent that transaction
+ * @property {Number} grossValue - The gross value that transaction
+ * @property {Number} investmentTerm - The investment term that transaction
+ * @property {Number} taxBracket - The tax bracket that transaction
+ * @property {Number} taxIrValue - The tax IR value that transaction
+ * @property {Number} taxIofValue - The tax IOF value that transaction
+ * @property {Number} feeB3Value - The fee B3 value that transaction
+ * @property {Number} feeInstitutionValue - The fee Finance Institution that transaction
+ * @property {Number} netValue - The new value that transaction
+ * @memberof typdefs
+ */
+
+/**
+ * @typedef TreasureItem
+ * @property {String} code - The code of the national treasury
+ * @property {String} expirationDate - The expiration date of that item
+ * @property {String} investedValue - The value invested
+ * @property {String} grossValue - The gross value now
+ * @property {Number} netValue - The net value now
+ * @property {Number} quantity - The quantity of that treasury
+ * @property {Number} blocked - The quantity blocked of that treasury
+ * @property {TreasureTransactionItem[]} transactions - The transactions of that treasury
+ * @memberof typdefs
+ */
+
+/**
+ * @typedef TreasureOptions
  * @property {String} minDate - Minimum date which data is available
  * @property {String} maxDate - Maximum date which data is available
  * @property {InstitutionOption[]} institutions - Array of available institutions with its accounts
