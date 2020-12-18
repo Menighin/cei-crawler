@@ -351,8 +351,6 @@ const treasureOptions = await ceiCrawler.getTreasureOptions();
 Resultado:
 ```javascript
 {
-  "minDate": "27/07/2020",
-  "maxDate": "31/07/2020",
   "institutions": [
     {
       "value": "123",

@@ -12,8 +12,6 @@ const PAGE = {
     SELECT_ACCOUNT: '#ctl00_ContentPlaceHolder1_ddlContas',
     SELECT_ACCOUNT_OPTIONS: '#ctl00_ContentPlaceHolder1_ddlContas option',
     DATE_INPUT: '#ctl00_ContentPlaceHolder1_txtDatePickerFiltro',
-    DATE_MIN_VALUE: '#ctl00_ContentPlaceHolder1_lblPeriodoInicial',
-    DATE_MAX_VALUE: '#ctl00_ContentPlaceHolder1_lblPeriodoFinal',
     ALERT_BOX: '.alert-box',
     SUBMIT_BUTTON: '#ctl00_ContentPlaceHolder1_btnConsultar',
     AGENT_TITLE: '#ctl00_ContentPlaceHolder1_lblTituloAgente',
@@ -179,21 +177,13 @@ class TreasureCrawler {
         // Set date
         if (date !== null) {
             /* istanbul ignore next */
-            const minDateStr = domPage(PAGE.DATE_MIN_VALUE).text().trim();
-            const minDate = CeiUtils.getDateFromInput(minDateStr);
-
-            /* istanbul ignore next */
-            const maxDateStr = domPage(PAGE.DATE_MAX_VALUE).text().trim();
-            const maxDate = CeiUtils.getDateFromInput(maxDateStr);
-
-            // Prevent date out of bound if parameter is set
-            if (options.capDates && date < minDate) {
-                date = minDate;
-            }
+            const maxDate = new Date();
+            maxDate.setDate(maxDate.getDate() - 1);
 
             if (options.capDates && date > maxDate) {
                 date = maxDate;
             }
+
             domPage(PAGE.DATE_INPUT).attr('value', CeiUtils.getDateForInput(date));
         }
 
@@ -267,10 +257,6 @@ class TreasureCrawler {
         const getPage = await cookieManager.fetch(PAGE.URL);
         const domPage = cheerio.load(await getPage.text());
 
-
-        const minDateStr = domPage(PAGE.DATE_MIN_VALUE).text().trim();
-        const maxDateStr = domPage(PAGE.DATE_MAX_VALUE).text().trim();
-
         const institutions = domPage(PAGE.SELECT_INSTITUTION_OPTIONS)
             .map((_, option) => ({
                 value: option.attribs.value,
@@ -300,8 +286,6 @@ class TreasureCrawler {
         }
 
         return {
-            minDate: minDateStr,
-            maxDate: maxDateStr,
             institutions: institutions
         }
     }
