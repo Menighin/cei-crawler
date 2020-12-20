@@ -1,6 +1,7 @@
 const StockHistoryCrawler = require('./StockHistoryCrawler');
 const DividendsCrawler = require('./DividendsCrawler');
 const WalletCrawler = require('./WalletCrawler');
+const TreasureCrawler = require('./TreasureCrawler');
 const typedefs = require("./typedefs");
 const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError');
 const FetchCookieManager = require('./FetchCookieManager');
@@ -26,7 +27,7 @@ class CeiCrawler {
     set options(options) { this._options = options; }
 
     /**
-     * 
+     *
      * @param {String} username - Username to login at CEI
      * @param {String} password - Password to login at CEI
      * @param {typedefs.CeiCrawlerOptions} options - Options for CEI Crawler and Fetch
@@ -62,13 +63,13 @@ class CeiCrawler {
         /* istanbul ignore next */
         if ((this.options && this.options.trace) || false)
             console.log('Logging at CEI...');
-        
+
         const getPageLogin = await this._cookieManager.fetch("https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx");
         const doomLoginPage = cheerio.load(await getPageLogin.text());
 
         doomLoginPage('#ctl00_ContentPlaceHolder1_txtLogin').attr('value', this.username);
         doomLoginPage('#ctl00_ContentPlaceHolder1_txtSenha').attr('value', this.password);
-        
+
         const formData = CeiUtils.extractFormDataFromDOM(doomLoginPage, [
             'ctl00$ContentPlaceHolder1$smLoad',
             '__EVENTTARGET',
@@ -181,6 +182,25 @@ class CeiCrawler {
     async getWalletOptions() {
         await this._login();
         return await WalletCrawler.getWalletOptions(this._cookieManager, this._options);
+    }
+
+    /**
+     * Returns the treasure for each account in CEI
+     * @param {Date} [date] - The date to get the wallet
+     * @returns {Promise<typedefs.TreasureItem[]>} - List of available Treasure information
+     */
+    async getTreasures(date) {
+        await this._login();
+        return await TreasureCrawler.getTreasure(this._cookieManager, this.options, date);
+    }
+
+    /**
+     * Returns the options for the treasure
+     * @returns {Promise<typedefs.TreasureOptions>} - Options for treasure
+     */
+    async getTreasureOptions() {
+        await this._login();
+        return await TreasureCrawler.getTreasureOptions(this._cookieManager, this._options);
     }
 
 }

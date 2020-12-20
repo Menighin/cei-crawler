@@ -57,10 +57,12 @@ test.serial('invalid-dates', async t => {
     const errorGetStockHistory = await t.throwsAsync(async () => t.context.ceiCrawler.getStockHistory(new Date(0), new Date(10000)));
     const errorGetDividends = await t.throwsAsync(async () => t.context.ceiCrawler.getDividends(new Date(0)));
     const errorGetWallet = await t.throwsAsync(async () => t.context.ceiCrawler.getWallet(new Date(0)));
+    const errorGetTreasure = await t.throwsAsync(async () => t.context.ceiCrawler.getTreasures(new Date(0)));
 
     t.true(errorGetStockHistory.type === CeiErrorTypes.SUBMIT_ERROR);
     t.true(errorGetDividends.type === CeiErrorTypes.SUBMIT_ERROR);
     t.true(errorGetWallet.type === CeiErrorTypes.SUBMIT_ERROR);
+    t.true(errorGetTreasure.type === CeiErrorTypes.SUBMIT_ERROR);
 });
 
 test.serial('stock-history-invalid-dates-with-cap-on', async t => {
@@ -80,6 +82,12 @@ test.serial('wallet', async t => {
     t.true(result.length > 0);
 });
 
+test.serial('treasure', async t => {
+    const nextWeek = new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 7);
+    const result = await t.context.ceiCrawlerCap.getTreasures(nextWeek);
+    t.true(result.length > 0);
+});
+
 test.serial('stockHistoryOptions', async t => {
     const result = await t.context.ceiCrawlerCap.getStockHistoryOptions();
     t.true(result.minDate.length > 0);
@@ -93,6 +101,11 @@ test.serial('walletOptions', async t => {
 test.serial('dividendsOptions', async t => {
     const result = await t.context.ceiCrawlerCap.getDividendsOptions();
     t.true(result.minDate.length > 0);
+});
+
+test.serial('treasureOptions', async t => {
+    const result = await t.context.ceiCrawlerCap.getTreasureOptions();
+    t.true(result.institutions.length > 0);
 });
 
 test.serial('login-fail', async t => {
