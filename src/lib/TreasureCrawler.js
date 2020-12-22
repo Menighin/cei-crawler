@@ -21,8 +21,8 @@ const PAGE = {
     TREASURE_DETAIL_TABLE: '.reveal-modal table',
     TREASURE_DETAIL_TABLE_BODY: '.reveal-modal table tbody',
     TREASURE_DETAIL_TABLE_BODY_ROWS: '.reveal-modal table tbody tr',
-    RESULT_FOOTER_TREASURE: '#ctl00_ContentPlaceHolder1_repTabela_ctl04_lblTotalInvestidor',
-    RESULT_FOOTER_TREASURE_DETAIL: '#ctl00_ContentPlaceHolder1_repTabelaModal_ctl02_lblQtdDetalheTotal',
+    RESULT_FOOTER_TREASURE: 'table tfoot',
+    RESULT_FOOTER_TREASURE_DETAIL: '.reveal-modal table tfoot',
     PAGE_ALERT_ERROR: '.alert-box.alert',
     PAGE_ALERT_SUCCESS: '.alert-box.success'
 };
