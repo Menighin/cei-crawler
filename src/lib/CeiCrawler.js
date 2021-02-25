@@ -1,5 +1,6 @@
 const StockHistoryCrawler = require('./StockHistoryCrawler');
 const DividendsCrawler = require('./DividendsCrawler');
+const IPOCrawler = require('./IPOCrawler');
 const WalletCrawler = require('./WalletCrawler');
 const TreasureCrawler = require('./TreasureCrawler');
 const typedefs = require("./typedefs");
@@ -163,6 +164,36 @@ class CeiCrawler {
     async getDividendsOptions() {
         await this._login();
         return await DividendsCrawler.getDividendsOptions(this._cookieManager, this._options);
+    }
+
+    // /**
+    //  * Returns the dividends data for each account in CEI
+    //  * @param {Date} [date] - The date to get the dividends
+    //  * @returns {Promise<typedefs.DividendData} - List of available Dividends information
+    //  */
+    // async getIPOTransactions(date) {
+    //     await this._login();
+    //     return await IPOCrawler.getIPOTransactionsDate(this._cookieManager, this.options, date);
+    // }
+
+    /**
+     * Returns the dividends data for each account in CEI
+     * @param {Date} [startDate] - The start date to get the IPO transactions
+     * @param {Date} [endDate] - The end date to get the IPO transactions
+     * @returns {Promise<typedefs.DividendData} - List of available Dividends information
+     */
+    async getIPOTransactions(startDate,endDate) {
+        await this._login();
+        return await IPOCrawler.getIPOTransactions(this._cookieManager, this.options, startDate, endDate);
+    }
+
+    /**
+     * Returns the options for the dividends
+     * @returns {Promise<typedefs.DividendsOptions>} - Options for dividends
+     */
+    async getIPOOptions() {
+        await this._login();
+        return await IPOCrawler.getIPOOptions(this._cookieManager, this._options);
     }
 
     /**
