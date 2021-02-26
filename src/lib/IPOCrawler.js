@@ -23,7 +23,7 @@ const IPO_TABLE_HEADERS = {
     code: 'string',
     isin: 'string',
     type: 'string',
-    buyMethod: 'int',
+    buyMethod: 'string',
     reservedAmount: 'int',
     reservedValue: 'float',
     maxPrice: 'float',
@@ -242,7 +242,7 @@ class IPOCrawler {
             if (traceOperations)
                 console.log(`Processing ipo transactions`);
 
-            return this._processTable(dom, PAGE.FUTURE_EVENTS_TITLE);
+            return this._processTable(dom);
 
         }
     }
@@ -250,10 +250,9 @@ class IPOCrawler {
     /**
      * Process the table given the parameters
      * @param {cheerio.Root} dom DOM table of ipo transactions
-     * @param {String} tableTitle The title of the table to process the events
      * @returns {typedef.IPOTransactions} 
      */
-    static _processTable(dom, tableTitle) {
+    static _processTable(dom) {
         const headers = Object.keys(IPO_TABLE_HEADERS);
 
         const data = dom(PAGE.TABLE_CLASS_ROWS).get()

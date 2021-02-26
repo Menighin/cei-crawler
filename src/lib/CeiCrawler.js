@@ -166,16 +166,6 @@ class CeiCrawler {
         return await DividendsCrawler.getDividendsOptions(this._cookieManager, this._options);
     }
 
-    // /**
-    //  * Returns the dividends data for each account in CEI
-    //  * @param {Date} [date] - The date to get the dividends
-    //  * @returns {Promise<typedefs.DividendData} - List of available Dividends information
-    //  */
-    // async getIPOTransactions(date) {
-    //     await this._login();
-    //     return await IPOCrawler.getIPOTransactionsDate(this._cookieManager, this.options, date);
-    // }
-
     /**
      * Returns the dividends data for each account in CEI
      * @param {Date} [startDate] - The start date to get the IPO transactions

@@ -369,6 +369,58 @@ Resultado:
   ]
 }
 ```
+#### getIPOTransactions(startDate,endDate)
+Retorna as transações de participação de ofertas públicas no período \[startDate,endDate\]
+```javascript
+const transactions = await getIPOTransactions(CeiUtils.getDateFromInput('03/09/2020'),CeiUtils.getDateFromInput('14/09/2020'));
+```
+Resultado:
+```javascript
+[
+  {
+    "institution": "114 - ITAU CV S/A",
+    "date": "03/09/2020",
+    "transactions": [
+      {
+        "company": "EMPREENDIMEN",
+        "offerName": "PAGUE MENOS CVM 400",
+        "code": "PGMN3L",
+        "isin": "BRPGMNACNOR8",
+        "type": "OUTRO",
+        "buyMethod": "Varejo sem alocação prioritária",
+        "reservedAmount": 0,
+        "reservedValue": 10000,
+        "maxPrice": 0,
+        "price": 8.5,
+        "allocAmount": 55,
+        "allocValue": 467.5,
+        "date": "2020-09-02T03:00:00.000Z"
+      }
+    ]
+  },
+  {
+    "institution": "114 - ITAU CV S/A",
+    "date": "14/09/2020",
+    "transactions": [
+      {
+        "company": "PET CENTER C",
+        "offerName": "PET CENTER CVM 400",
+        "code": "PETZ3L",
+        "isin": "BRPETZACNOR2",
+        "type": "OUTRO",
+        "buyMethod": "Varejo com Lock up",
+        "reservedAmount": 0,
+        "reservedValue": 10000,
+        "maxPrice": 0,
+        "price": 13.75,
+        "allocAmount": 233,
+        "allocValue": 3203.75,
+        "date": "2020-09-11T03:00:00.000Z"
+      }
+    ]
+  }
+]
+```
 
 ## Opções
 Na criação de um `CeiCrawler` é possivel especificar alguns valores para o parâmetro `options` que modificam a forma que o crawler funciona. As opções são:
