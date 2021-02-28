@@ -22,6 +22,9 @@ Mande também seu nome e usuário do GitHub (caso tenha) que eu coloco aqui no R
 <p align="center">
   <img src="./sponsor/picpay.png" width="150">
 </p>
+<p align="center">
+  <strong>PIX:</strong> joao.menighin@gmail.com
+</p>
 
 ## Advertisement
 Criei o `cei-crawler` para um projeto de acompanhamento de investimentos. Caso esteja procurando algo nesse sentido, confira o [Stoincs](https://www.stoincs.com.br)!

@@ -88,22 +88,22 @@ test.serial('treasure', async t => {
     t.true(result.length > 0);
 });
 
-test.serial('stockHistoryOptions', async t => {
+test.serial('stock-history-options', async t => {
     const result = await t.context.ceiCrawlerCap.getStockHistoryOptions();
     t.true(result.minDate.length > 0);
 });
 
-test.serial('walletOptions', async t => {
+test.serial('wallet-options', async t => {
     const result = await t.context.ceiCrawlerCap.getWalletOptions();
     t.true(result.minDate.length > 0);
 });
 
-test.serial('dividendsOptions', async t => {
+test.serial('dividends-options', async t => {
     const result = await t.context.ceiCrawlerCap.getDividendsOptions();
     t.true(result.minDate.length > 0);
 });
 
-test.serial('treasureOptions', async t => {
+test.serial('treasure-options', async t => {
     const result = await t.context.ceiCrawlerCap.getTreasureOptions();
     t.true(result.institutions.length > 0);
 });
@@ -128,4 +128,15 @@ test.serial('request-timeout', async t => {
         await t.context.ceiCrawlerTimeout.login();
     });
     t.true(error.type === CeiErrorTypes.NAVIGATION_TIMEOUT);
+});
+
+test.serial('ipo-operations', async t => {
+    const lastThreeDays = new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 3);
+    const result = await t.context.ceiCrawlerCap.getIPOTransactions(lastThreeDays);
+    t.true(result.length > 0);
+});
+
+test.serial('ipo-options', async t => {
+    const result = await t.context.ceiCrawlerCap.getIPOOptions();
+    t.true(result.minDate.length > 0);
 });

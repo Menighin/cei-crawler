@@ -79,7 +79,7 @@ class IPOCrawler {
      * @param {FetchCookieManager} cookieManager - FetchCookieManager to work with
      * @param {Date} [startDate] - The start date of the history of ipo data. If none passed, the mininum available date will be used.
      * @param {Date} [endDate] - The end date of the history of ipo data. If none passed, the maximum available date will be used.
-     * @returns {Promise<typedefs.IPOData>} - List of available ipo information
+     * @returns {Promise<typedefs.IPOData[]>} - List of available ipo information
      */
     static async getIPOTransactions(cookieManager, options = null, startDate = null,  endDate = null) {
         const getPage = await cookieManager.fetch(PAGE.URL);
@@ -95,29 +95,23 @@ class IPOCrawler {
         const minDate = CeiUtils.getDateFromInput(minDateStr);
         const maxDate = CeiUtils.getDateFromInput(maxDateStr);
 
-        if (startDate !== null) {
-            // Prevent date out of bound if parameter is set
-            if (startDate < minDate)
-                startDate = minDate;
-        }
-        else
-        // If parameter is not set, set min date
+        startDate = startDate || minDate;
+        // Prevent date out of bound if parameter is set
+        if (startDate < minDate)
             startDate = minDate;
 
-        if (endDate !== null) {
-            // Prevent date out of bound if parameter is set
-            if (endDate > maxDate)
-                endDate = maxDate;
-        }        
-        else
-            // If parameter is not set, set max date
+        endDate = endDate || maxDate;
+        // Prevent date out of bound if parameter is set
+        if (endDate > maxDate)
             endDate = maxDate;
 
          // Iterate over the range of dates and fetch the IPO transactions
-         for (var date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1))
+         for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1))
          {
-            var date_result = await this._getIPOTransactions(cookieManager, options, date);
-            date_result.forEach( (el) => result.push(el) );
+            if (traceOperations)
+                console.log(`Fetching operations from ${date}...`);
+            let dateResult = await this._getIPOTransactions(cookieManager, options, date);
+            dateResult.forEach(el => result.push(el));
          }   
 
         return result;
@@ -127,7 +121,7 @@ class IPOCrawler {
      * Gets ipo data available on CEI page.
      * @param {FetchCookieManager} cookieManager - FetchCookieManager to work with
      * @param {Date} [date] - The date of the IPO transactions.
-     * @returns {Promise<typedefs.IPOTransactions>} - List of available ipo transactions.
+     * @returns {Promise<typedefs.IPOTransaction[]>} - List of available ipo transactions.
      */
     static async _getIPOTransactions(cookieManager, options, date) {
         const getPage = await cookieManager.fetch(PAGE.URL);
@@ -139,7 +133,6 @@ class IPOCrawler {
 
         // Set date
         domPage(PAGE.DATE_INPUT).attr('value', CeiUtils.getDateForInput(date));
-        
 
         // Get all institutions to iterate
         const institutions = domPage(PAGE.SELECT_INSTITUTION_OPTIONS)
@@ -154,7 +147,7 @@ class IPOCrawler {
 
             /* istanbul ignore next */
             if (traceOperations)
-                console.log(`Selecting institution ${institution.label} (${institution.value})`)
+                console.log(`Selecting data of institution ${institution.label} (${institution.value}) in date ${date}`);
 
             domPage(PAGE.SELECT_INSTITUTION).attr('value', institution.value);
 
@@ -170,15 +163,13 @@ class IPOCrawler {
             });
             
             const transactions = await this._getDataPage(req, cookieManager, traceOperations);
-            transactions.forEach(element => 
-                result.push(
-                    {
-                        institution : institution.label,
-                        date : CeiUtils.getDateForInput(date),
-                        transactions : transactions
-                    }
-                ))
-            
+            result.push(
+                {
+                    institution : institution.label,
+                    date : new Date(date.setHours(12, 0, 0, 0)),
+                    transactions : transactions
+                }
+            );
         }
 
         return result;
@@ -218,7 +209,6 @@ class IPOCrawler {
      * @param {cheerio.Root} dom DOM of page
      * @param {FetchCookieManager} cookieManager - FetchCookieManager to work with
      * @param {Boolean} traceOperations - Whether to trace operations or not
-     * @returns {typedef.IPOData} - The IPO transactions data.
      */
     static async _getDataPage(req, cookieManager, traceOperations) {
         while(true) {
@@ -250,7 +240,6 @@ class IPOCrawler {
     /**
      * Process the table given the parameters
      * @param {cheerio.Root} dom DOM table of ipo transactions
-     * @returns {typedef.IPOTransactions} 
      */
     static _processTable(dom) {
         const headers = Object.keys(IPO_TABLE_HEADERS);

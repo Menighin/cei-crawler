@@ -172,4 +172,37 @@
  * @property {InstitutionOption[]} institutions - Array of available institutions with its accounts
  */
 
+ /**
+ * @typedef IPOTransaction
+ * @property {String} company - The name of the company
+ * @property {String} offerName - The IPO offer name
+ * @property {String} code - The company code in the IPO
+ * @property {String} isin - The IPO ISIN
+ * @property {String} type - The type of the IPO
+ * @property {String} buyMethod - The buy method of the operation
+ * @property {Number} reservedAmount - The reserved amount in the IPO
+ * @property {Number} reservedValue - The reserved value
+ * @property {Number} maxPrice - Max price the IPO got
+ * @property {Number} price - Current price
+ * @property {Number} allocAmount - The amount allocated
+ * @property {Number} allocValue - The value allocated
+ * @property {Date} date - The date of the reservation
+ * @memberof typdefs
+ */
+
+  /**
+ * @typedef IPOData
+ * @property {String} institution - The name of the institution the operation happened
+ * @property {Date} date - The date of the operations
+ * @property {IPOTransaction[]} transactions - The IPO transactions for this institution and date
+ * @memberof typdefs
+ */
+
+ /**
+ * @typedef IPOOptions
+ * @property {String} minDate - Minimum date which data is available
+ * @property {String} maxDate - Maximum date which data is available
+ * @property {InstitutionOption[]} institutions - Array of available institutions with its accounts
+ */
+
 exports.unused = {};
