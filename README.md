@@ -382,7 +382,7 @@ Resultado:
 [
   {
     "institution": "114 - ITAU CV S/A",
-    "date": "03/09/2020",
+    "date": "2020-09-03T15:00:00.000Z",
     "transactions": [
       {
         "company": "EMPREENDIMEN",
@@ -403,7 +403,7 @@ Resultado:
   },
   {
     "institution": "114 - ITAU CV S/A",
-    "date": "14/09/2020",
+    "date": "2020-09-14T15:00:00.000Z",
     "transactions": [
       {
         "company": "PET CENTER C",
