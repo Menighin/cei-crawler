@@ -85,7 +85,7 @@ Resultado:
         "totalValue": 2900
       }
     ],
-    "treasureWallet": []
+    "nationalTreasureWallet": []
   },
   {
     "institution": "222222 - RICO INVESTIMENTOS - GRUPO XP",
@@ -102,7 +102,7 @@ Resultado:
         "totalValue": 2514
       }
     ],
-    "treasureWallet": [
+    "nationalTreasureWallet": [
       {
         "code": "Tesouro IPCA+ 2024",
         "expirationDate": "2019-06-12T03:00:00.000Z",
