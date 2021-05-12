@@ -19,6 +19,7 @@ const PAGE = {
     STOCK_WALLET_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira',
     STOCK_WALLET_TABLE_BODY: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira tbody',
     STOCK_WALLET_TABLE_BODY_ROWS: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl00_grdCarteira tbody tr',    
+    STOCK_GUARANTEES_WALLET_TABLE_BODY_ROWS: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_rprCarteira_ctl01_grdCarteira tbody tr',    
     TREASURE_WALLET_TABLE: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_trBodyTesouroDireto',
     TREASURE_WALLET_TABLE_BODY: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_trBodyTesouroDireto tbody',
     TREASURE_WALLET_TABLE_BODY_ROWS: '#ctl00_ContentPlaceHolder1_rptAgenteContaMercado_ctl00_rptContaMercado_ctl00_trBodyTesouroDireto tbody tr',
@@ -300,7 +301,10 @@ class WalletCrawler {
             if (traceOperations)
                 console.log(`Processing wallet data`);
 
-            const stockWallet = this._processStockWallet(walletDOM);
+            const stockFreeWallet = this._processStockWallet(walletDOM, PAGE.STOCK_WALLET_TABLE_BODY_ROWS);
+            const stockGuaranteesWallet = this._processStockWallet(walletDOM, PAGE.STOCK_GUARANTEES_WALLET_TABLE_BODY_ROWS);
+            const stockWallet = stockFreeWallet.concat(stockGuaranteesWallet);
+
             const nationalTreasuryWallet = this._processNationalTreasuryWallet(walletDOM);
 
             if (errorMessage.type !== undefined || this._hasLoadedData(walletDOM)) {
@@ -318,11 +322,12 @@ class WalletCrawler {
     /**
      * Process the stock wallet to a DTO
      * @param {cheerio.Root} dom DOM table stock history
+     * @param {string} table selector
      */
-    static _processStockWallet(dom) {
+    static _processStockWallet(dom, tableSelector) {
         const headers = Object.keys(STOCK_WALLET_TABLE_HEADER);
 
-        const data = dom(PAGE.STOCK_WALLET_TABLE_BODY_ROWS)
+        const data = dom(tableSelector)
             .map((_, tr) => dom('td', tr)
                 .map((_, td) => dom(td).text().trim())
                 .get()
