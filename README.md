@@ -85,6 +85,18 @@ Resultado:
         "totalValue": 2900
       }
     ],
+    "stockGuaranteesWallet": [
+      {
+        "company": "BANCO INTER",
+        "stockType": "PN N2",
+        "code": "BIDI4",
+        "isin": "BRBIDIACNPR0",
+        "price": 11.43,
+        "quantity": 100,
+        "quotationFactor": 1,
+        "totalValue": 1143
+      }
+    ],
     "nationalTreasureWallet": []
   },
   {

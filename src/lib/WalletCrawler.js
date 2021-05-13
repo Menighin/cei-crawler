@@ -204,13 +204,14 @@ class WalletCrawler {
 
                 domPage(PAGE.SELECT_ACCOUNT).attr('value', account);
         
-                const { stockWallet, nationalTreasuryWallet } = await this._getDataPage(domPage, cookieManager, traceOperations);
+                const { stockWallet, stockGuaranteesWallet, nationalTreasuryWallet } = await this._getDataPage(domPage, cookieManager, traceOperations);
 
                 // Save the result
                 result.push({
                     institution: institution.label,
                     account: account,
                     stockWallet: stockWallet,
+                    stockGuaranteesWallet: stockGuaranteesWallet,
                     nationalTreasuryWallet: nationalTreasuryWallet
                 });
             }
@@ -301,15 +302,14 @@ class WalletCrawler {
             if (traceOperations)
                 console.log(`Processing wallet data`);
 
-            const stockFreeWallet = this._processStockWallet(walletDOM, PAGE.STOCK_WALLET_TABLE_BODY_ROWS);
+            const stockWallet = this._processStockWallet(walletDOM, PAGE.STOCK_WALLET_TABLE_BODY_ROWS);
             const stockGuaranteesWallet = this._processStockWallet(walletDOM, PAGE.STOCK_GUARANTEES_WALLET_TABLE_BODY_ROWS);
-            const stockWallet = stockFreeWallet.concat(stockGuaranteesWallet);
-
             const nationalTreasuryWallet = this._processNationalTreasuryWallet(walletDOM);
 
             if (errorMessage.type !== undefined || this._hasLoadedData(walletDOM)) {
                 return {
                     stockWallet,
+                    stockGuaranteesWallet,
                     nationalTreasuryWallet
                 };
             }
