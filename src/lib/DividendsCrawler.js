@@ -21,7 +21,8 @@ const PAGE = {
     PAGE_ALERT_SUCCESS: '.alert-box.success',
     TABLE_TITLE_SELECTOR: 'p.title',
     PAST_EVENTS_TITLE: 'Eventos em Dinheiro Creditado',
-    FUTURE_EVENTS_TITLE: 'Eventos em Dinheiro Provisionado'
+    FUTURE_EVENTS_TITLE: 'Eventos em Dinheiro Provisionado',
+    SPLIT_EVENTS_TITLE: 'Eventos em Ativos Creditado'
 }
 
 const DIVIDENDS_TABLE_HEADERS = {
@@ -35,6 +36,20 @@ const DIVIDENDS_TABLE_HEADERS = {
     grossValue: 'float',
     netValue: 'float'
 };
+
+const SPLITS_TABLE_HEADERS = {
+    stock: 'string',
+    stockType: 'string',
+    code: 'string',
+    type: 'string',
+    date: 'date',
+    baseQuantity: 'int',
+    factor: 'int',
+    destinationCode:'string',
+    quantity: 'int',
+    eventValue: 'float',
+    exerciseValue: 'float'
+}
 
 const FETCH_OPTIONS = {
     DIVIDENDS_INSTITUTION: {
@@ -187,14 +202,15 @@ class DividendsCrawler {
 
                 domPage(PAGE.SELECT_ACCOUNT).attr('value', account);
 
-                const { futureEvents, pastEvents } = await this._getDataPage(domPage, cookieManager, traceOperations);
+                const { futureEvents, pastEvents, splitEvents } = await this._getDataPage(domPage, cookieManager, traceOperations);
 
                 // Save the result
                 result.push({
                     institution: institution.label,
                     account: account,
                     futureEvents: futureEvents,
-                    pastEvents: pastEvents
+                    pastEvents: pastEvents,
+                    splitEvents: splitEvents
                 });
             }
         }
@@ -286,11 +302,13 @@ class DividendsCrawler {
 
             const futureEvents = this._processEvents(dividendsDOM, PAGE.FUTURE_EVENTS_TITLE);
             const pastEvents = this._processEvents(dividendsDOM, PAGE.PAST_EVENTS_TITLE);
+            const splitEvents = this._processEvents(dividendsDOM, PAGE.SPLIT_EVENTS_TITLE);
 
-            if (errorMessage.type !== undefined || futureEvents.length > 0 || pastEvents.length > 0) {
+            if (errorMessage.type !== undefined || futureEvents.length > 0 || pastEvents.length > 0 || splitEvents.length > 0) {
                 return {
                     futureEvents,
-                    pastEvents
+                    pastEvents,
+                    splitEvents
                 };
             }
             
@@ -305,7 +323,10 @@ class DividendsCrawler {
      * @param {String} tableTitle The title of the table to process the events
      */
     static _processEvents(dom, tableTitle) {
-        const headers = Object.keys(DIVIDENDS_TABLE_HEADERS);
+        // The header for dividends is the same, but for the split events is different
+        const headerKey = tableTitle === PAGE.SPLIT_EVENTS_TITLE ? SPLITS_TABLE_HEADERS : DIVIDENDS_TABLE_HEADERS;
+        
+        const headers = Object.keys(headerKey);
 
         const data = dom(PAGE.TABLE_TITLE_SELECTOR)
             .filter((_, el) => dom(el).text().includes(tableTitle))
@@ -322,7 +343,7 @@ class DividendsCrawler {
             )
             .get();
 
-        return CeiUtils.parseTableTypes(data, DIVIDENDS_TABLE_HEADERS);
+        return CeiUtils.parseTableTypes(data, headerKey);
     }
 }
 
