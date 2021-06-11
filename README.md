@@ -218,6 +218,8 @@ Resultado:
 
 #### getDividends(_date_)
 Método que processa todos os dados disponíveis sobre proventos recebidos em um período e retorna como uma lista. Usualmente os proventos disponíveis na página do CEI são os creditados no mês atual e os já anunciados pela empresas com e sem data definida. Registros com date igual `null` são de proventos anunciados mas sem data definida de pagamento.
+
+Além disso, caso existam eventos de desdobramento de ações, eles serão retornados em uma propriedade específica.
 ```javascript
 let dividends = await ceiCrawler.getDividends(date);
 ```
@@ -281,7 +283,22 @@ Resultado:
         "grossValue": 78,
         "netValue": 78
       }
-    ]
+    ],
+    "splitEvents": [
+      {
+        "stock": "B3",
+        "stockType": "ON NM",
+        "code": "B3SA3",
+        "type": "DESDOBRAMENTO DE AÇÕES",
+        "date": "2021-05-18T03:00:00.000Z",
+        "baseQuantity": 49,
+        "factor": 1,
+        "destinationCode": "B3SA3",
+        "quantity": 98,
+        "eventValue": 200,
+        "exerciseValue": 0
+      }
+      ]
   }
 ]
 ```
