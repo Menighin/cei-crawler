@@ -8,7 +8,7 @@ const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError');
 const { time } = require('console');
 
 const certs = [
-    readFileSync(__dirname + '/certificate.crt')
+    // readFileSync(__dirname + '/certificate.crt')
 ];
 
 const agent = new https.Agent({

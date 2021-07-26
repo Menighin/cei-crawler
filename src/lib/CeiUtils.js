@@ -45,11 +45,11 @@ class CeiUtils {
     }
 
     /**
-     * @param {Number} timestamp - Time to sleep in miliseconds
+     * @param {Number} ms - Time to sleep in miliseconds
      * @returns {Promise} - Promise
      */
-    static async sleep(timestamp) {
-        return new Promise((resolve) => setTimeout(resolve, timestamp));
+    static async sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
     /**
@@ -61,11 +61,13 @@ class CeiUtils {
 
     /**
      * @param {Promise|Function} callback - Time to sleep in miliseconds
+     * @param {Number} [attempts=5] - Number of attempts before throw exception
+     * @param {Number} [delayBetween=100] - Delay in miliseconds before retrying
+     * @param {Number} [failSilently=false] - If set to true and the callback still fails, only null will be returned and no error will be thrown
      * @param {CheckRetryCallback} [checkRetryCallback] - Filter when need attempt again on error
-     * @param {Number} [attempts] - Number of attempts before throw exception
      * @returns {Promise<any>} - Result of callback
      */
-    static async retry(callback, checkRetryCallback = () => true, attempts = 3) {
+    static async retry(callback, attempts = 5, delayBetween = 100, failSilently = false, checkRetryCallback = () => true) {
         let result = null;
 
         while (true) {
@@ -76,8 +78,8 @@ class CeiUtils {
                 if (checkRetryCallback(e)) {
                     attempts--;
                     if (attempts === 0) throw e;
-                    await CeiUtils.sleep(100);
-                } else {
+                    await CeiUtils.sleep(delayBetween);
+                } else if (!failSilently) {
                     throw e;
                 }
             }

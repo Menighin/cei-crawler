@@ -28,6 +28,7 @@
     "cheerio": "^1.0.0-rc.3",
     "node-fetch": "^2.6.1",
     "normalize-html-whitespace": "^1.0.0",
+    "puppeteer-core": "^10.1.0",
     "tough-cookie": "^4.0.0"
   },
   "devDependencies": {

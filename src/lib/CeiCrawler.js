@@ -8,14 +8,12 @@ const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError');
 const FetchCookieManager = require('./FetchCookieManager');
 const cheerio = require('cheerio');
 const CeiUtils = require('./CeiUtils');
+const CeiLoginService = require('./CeiLoginService');
 
 class CeiCrawler {
 
     /** @type {boolean} */
     _isLogged = false;
-
-    /** @type {FetchCookieManager} */
-    _cookieManager = null;
 
     get username() { return this._username; }
     set username(username) { this._username = username; }
@@ -26,6 +24,9 @@ class CeiCrawler {
     /** @type {typedefs.CeiCrawlerOptions} - Options for CEI Crawler and Fetch */
     get options() { return this._options; }
     set options(options) { this._options = options; }
+
+    /** @type {CeiLoginService} */
+    _ceiLoginService = null;
 
     /**
      *
@@ -39,18 +40,16 @@ class CeiCrawler {
         this.options = options;
         this._setDefaultOptions();
 
-        this._cookieManager = new FetchCookieManager({
-            'Host': 'cei.b3.com.br',
-            'Origin': 'https://cei.b3.com.br',
-            'Referer': 'https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36'
-        }, this.options.navigationTimeout);
+        this._ceiLoginService = new CeiLoginService(username, password, this.options.loginOptions);
+
     }
 
     _setDefaultOptions() {
         if (!this.options.trace) this.options.trace = false;
         if (!this.options.navigationTimeout) this.options.navigationTimeout = 30000;
-        if (!this.options.loginTimeout) this.options.loginTimeout = 150000;
+        if (!this.options.loginOptions) this.options.loginOptions = {};
+        if (!this.options.loginOptions.timeout) this.options.loginOptions.timeout = 150000;
+        if (!this.options.loginOptions.strategy) this.options.loginOptions.strategy = 'user-input';
     }
 
     async login() {
@@ -63,68 +62,11 @@ class CeiCrawler {
 
         /* istanbul ignore next */
         if ((this.options && this.options.trace) || false)
-            console.log('Logging at CEI...');
+            console.log(`Logging at CEI using ${this.options.loginOptions.strategy}...`);
 
-        const getPageLogin = await this._cookieManager.fetch("https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx");
-        const doomLoginPage = cheerio.load(await getPageLogin.text());
+        await this._ceiLoginService.getToken();
+        console.log('FOOOOOOOOOOOOOOOOOOOOOI');
 
-        doomLoginPage('#ctl00_ContentPlaceHolder1_txtLogin').attr('value', this.username);
-        doomLoginPage('#ctl00_ContentPlaceHolder1_txtSenha').attr('value', this.password);
-
-        const formData = CeiUtils.extractFormDataFromDOM(doomLoginPage, [
-            'ctl00$ContentPlaceHolder1$smLoad',
-            '__EVENTTARGET',
-            '__EVENTARGUMENT',
-            '__VIEWSTATE',
-            '__VIEWSTATEGENERATOR',
-            '__EVENTVALIDATION',
-            'ctl00$ContentPlaceHolder1$txtLogin',
-            'ctl00$ContentPlaceHolder1$txtSenha',
-            '__ASYNCPOST',
-            'ctl00$ContentPlaceHolder1$btnLogar'
-        ], {
-            ctl00$ContentPlaceHolder1$smLoad: 'ctl00$ContentPlaceHolder1$UpdatePanel1|ctl00$ContentPlaceHolder1$btnLogar',
-            __EVENTTARGET: '',
-            __EVENTARGUMENT: ''
-        });
-
-        await CeiUtils.retry(async () => {
-            const postLogin = await this._cookieManager.fetch("https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx", {
-                "headers": {
-                    "accept": "*/*",
-                    "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
-                    "cache-control": "no-cache",
-                    "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-                    "sec-fetch-dest": "empty",
-                    "sec-fetch-mode": "cors",
-                    "sec-fetch-site": "same-origin",
-                    "x-microsoftajax": "Delta=true",
-                    "x-requested-with": "XMLHttpRequest",
-                    'Connection': 'keep-alive'
-                },
-                "referrer": "https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx",
-                "referrerPolicy": "strict-origin-when-cross-origin",
-                "body": formData,
-                "method": "POST",
-                "mode": "cors",
-                "credentials": "include"
-            }, this._options.loginTimeout);
-
-            const accessCookie = ((postLogin.headers.raw()['set-cookie'] || []).find(str => str.includes('Acesso=')) || '');
-
-            if (accessCookie.includes('Acesso=0')) {
-                /* istanbul ignore next */
-                if ((this.options && this.options.trace) || false)
-                    console.log('Login success');
-                this._isLogged = true;
-            } else if (accessCookie.includes('Acesso=1')) {
-                throw new CeiCrawlerError(CeiErrorTypes.WRONG_PASSWORD, 'Senha inválida');
-            } else {
-                const loginText = await postLogin.text();
-                const info = CeiUtils.extractMessagePostResponse(loginText);
-                throw new CeiCrawlerError(CeiErrorTypes.LOGIN_FAILED, info.message || 'Login falhou');
-            }
-        }, e => e.type === CeiErrorTypes.LOGIN_FAILED && e.message.includes('could not be activated'));
     }
 
     /**
