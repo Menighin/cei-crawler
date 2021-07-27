@@ -25,6 +25,7 @@
   "dependencies": {
     "@babel/runtime": "^7.9.6",
     "abort-controller": "^3.0.0",
+    "axios": "^0.21.1",
     "cheerio": "^1.0.0-rc.3",
     "node-fetch": "^2.6.1",
     "normalize-html-whitespace": "^1.0.0",

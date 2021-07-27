@@ -10,6 +10,14 @@ class CeiUtils {
     }
 
     /**
+     * Returns a date in the format yyyy-MM-dd for input at CEI
+     * @param {Date} date - Date to be parsed
+     */
+    static getDateForQueryParam(date) {
+        return date.toISOString().slice(0,10);
+    }
+
+    /**
      * Return a date object given a date string
      * @param {String} dateStr Date string in dd/MM/yyyy format
      */

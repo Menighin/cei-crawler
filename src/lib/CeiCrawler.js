@@ -1,14 +1,9 @@
-const StockHistoryCrawler = require('./StockHistoryCrawler');
-const DividendsCrawler = require('./DividendsCrawler');
-const IPOCrawler = require('./IPOCrawler');
-const WalletCrawler = require('./WalletCrawler');
-const TreasureCrawler = require('./TreasureCrawler');
+const PositionCrawler = require('./PositionCrawler');
 const typedefs = require("./typedefs");
 const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError');
-const FetchCookieManager = require('./FetchCookieManager');
-const cheerio = require('cheerio');
 const CeiUtils = require('./CeiUtils');
 const CeiLoginService = require('./CeiLoginService');
+const AxiosWrapper = require('./AxiosWrapper');
 
 class CeiCrawler {
 
@@ -41,6 +36,7 @@ class CeiCrawler {
         this._setDefaultOptions();
 
         this._ceiLoginService = new CeiLoginService(username, password, this.options.loginOptions);
+        AxiosWrapper.setup(this.options);
 
     }
 
@@ -64,106 +60,17 @@ class CeiCrawler {
         if ((this.options && this.options.trace) || false)
             console.log(`Logging at CEI using ${this.options.loginOptions.strategy}...`);
 
-        await this._ceiLoginService.getToken();
-        console.log('FOOOOOOOOOOOOOOOOOOOOOI');
-
+        this.options.auth = await this._ceiLoginService.getToken();
     }
 
     /**
      * Returns the stock history
-     * @param {Date} [startDate] - The start date of the history
-     * @param {Date} [endDate]  - The end date of the history
+     * @param {Date} [date] - The date of the position
      * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
      */
-    async getStockHistory(startDate, endDate) {
+    async getPosition(date = new Date()) {
         await this._login();
-        return await StockHistoryCrawler.getStockHistory(this._cookieManager, this.options, startDate, endDate);
-    }
-
-    /**
-     * Returns the options for the stock history
-     * @returns {Promise<typedefs.StockHistoryOptions>} - Options for stock history
-     */
-    async getStockHistoryOptions() {
-        await this._login();
-        return await StockHistoryCrawler.getStockHistoryOptions(this._cookieManager, this.options);
-    }
-
-    /**
-     * Returns the dividends data for each account in CEI
-     * @param {Date} [date] - The date to get the dividends
-     * @returns {Promise<typedefs.DividendData} - List of available Dividends information
-     */
-    async getDividends(date) {
-        await this._login();
-        return await DividendsCrawler.getDividends(this._cookieManager, this.options, date);
-    }
-
-    /**
-     * Returns the options for the dividends
-     * @returns {Promise<typedefs.DividendsOptions>} - Options for dividends
-     */
-    async getDividendsOptions() {
-        await this._login();
-        return await DividendsCrawler.getDividendsOptions(this._cookieManager, this._options);
-    }
-
-    /**
-     * Returns the dividends data for each account in CEI
-     * @param {Date} [startDate] - The start date to get the IPO transactions
-     * @param {Date} [endDate] - The end date to get the IPO transactions
-     * @returns {Promise<typedefs.DividendData} - List of available Dividends information
-     */
-    async getIPOTransactions(startDate,endDate) {
-        await this._login();
-        return await IPOCrawler.getIPOTransactions(this._cookieManager, this.options, startDate, endDate);
-    }
-
-    /**
-     * Returns the options for the dividends
-     * @returns {Promise<typedefs.DividendsOptions>} - Options for dividends
-     */
-    async getIPOOptions() {
-        await this._login();
-        return await IPOCrawler.getIPOOptions(this._cookieManager, this._options);
-    }
-
-    /**
-     * Returns the wallets for each account in CEI
-     * @param {Date} [date] - The date to get the wallet
-     * @returns {Promise<typedefs.AccountWallet>} - List of available Dividends information
-     */
-    async getWallet(date) {
-        await this._login();
-        return await WalletCrawler.getWallet(this._cookieManager, this.options, date);
-    }
-
-    /**
-     * Returns the options for the wallet
-     * @returns {Promise<typedefs.WalletOptions>} - Options for wallet
-     */
-    async getWalletOptions() {
-        await this._login();
-        return await WalletCrawler.getWalletOptions(this._cookieManager, this._options);
-    }
-
-    /**
-     * Returns the treasure for each account in CEI
-     * @param {Date} [date] - The date to get the wallet
-     * @returns {Promise<typedefs.TreasureItem[]>} - List of available Treasure information
-     */
-    async getTreasures(date) {
-        await this._login();
-        return await TreasureCrawler.getTreasure(this._cookieManager, this.options, date);
-    }
-
-    /**
-     * Returns the options for the treasure
-     * @returns {Promise<typedefs.TreasureOptions>} - Options for treasure
-     */
-    async getTreasureOptions() {
-        await this._login();
-        return await TreasureCrawler.getTreasureOptions(this._cookieManager, this._options);
+        return await PositionCrawler.getPosition(this.options, date);
     }
 
 }

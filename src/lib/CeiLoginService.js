@@ -76,9 +76,9 @@ class CeiLoginService {
             }
             return json;
         });
-    
-        console.log(JSON.stringify(sessionStorage));
 
+        await browser.close();
+    
         return sessionStorage;
     }
 

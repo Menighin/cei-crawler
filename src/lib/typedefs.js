@@ -10,11 +10,18 @@
  */
 
 /**
+ * @typedef CeiAuth
+ * @property {String} token - Bearer token used in CEI
+ * @property {String} cache-guid - Cache GUID for the requests
+ */
+
+/**
  * @typedef CeiCrawlerOptions
  * @property {boolean} trace - Indicates if it should print trace messages. Helpful for debugging.
  * @property {boolean} capDates - Prevent crawling with an invalid date in CEI
  * @property {Number} navigationTimeout - Fetch timeout
  * @property {LoginOptions} loginOptions - The strategy the crawler will use to make the login. Options are: `user-input`
+ * @property {CeiAuth} auth - Auth logged info
  * @memberof typdefs
  */
 
