@@ -1,4 +1,5 @@
 const PositionCrawler = require('./PositionCrawler');
+const LastExecutionCrawler = require('./LastExecutionCrawler');
 const typedefs = require("./typedefs");
 const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError');
 const CeiUtils = require('./CeiUtils');
@@ -61,6 +62,9 @@ class CeiCrawler {
             console.log(`Logging at CEI using ${this.options.loginOptions.strategy}...`);
 
         this.options.auth = await this._ceiLoginService.getToken();
+        this.options.lastExecutionInfo = await LastExecutionCrawler.getLastExecutionInfo();
+
+        console.log(JSON.stringify(this.options));
     }
 
     /**
