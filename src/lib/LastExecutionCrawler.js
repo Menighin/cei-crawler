@@ -8,7 +8,7 @@ const URLS = {
 class LastExecutionCrawler {
 
     static async getLastExecutionInfo() {
-        const data = (await AxiosWrapper.request(URLS.LAST_EXECUTION)).data;
+        const data = (await AxiosWrapper.request(URLS.LAST_EXECUTION));
         return {
             generalDate: new Date(data.dataGeral),
             stockDate: new Date(data.dataRendaVariavel),

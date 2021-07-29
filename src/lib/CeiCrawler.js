@@ -36,17 +36,17 @@ class CeiCrawler {
         this.options = options;
         this._setDefaultOptions();
 
-        this._ceiLoginService = new CeiLoginService(username, password, this.options.loginOptions);
+        this._ceiLoginService = new CeiLoginService(username, password, this.options);
         AxiosWrapper.setup(this.options);
 
     }
 
     _setDefaultOptions() {
-        if (!this.options.trace) this.options.trace = false;
+        if (!this.options.debug) this.options.debug = false;
         if (!this.options.navigationTimeout) this.options.navigationTimeout = 30000;
         if (!this.options.loginOptions) this.options.loginOptions = {};
         if (!this.options.loginOptions.timeout) this.options.loginOptions.timeout = 150000;
-        if (!this.options.loginOptions.strategy) this.options.loginOptions.strategy = 'user-input';
+        if (!this.options.loginOptions.strategy) this.options.loginOptions.strategy = 'user-resolve';
     }
 
     async login() {
@@ -58,13 +58,11 @@ class CeiCrawler {
         if (this._isLogged) return;
 
         /* istanbul ignore next */
-        if ((this.options && this.options.trace) || false)
+        if (this.options.debug)
             console.log(`Logging at CEI using ${this.options.loginOptions.strategy}...`);
 
         this.options.auth = await this._ceiLoginService.getToken();
         this.options.lastExecutionInfo = await LastExecutionCrawler.getLastExecutionInfo();
-
-        console.log(JSON.stringify(this.options));
     }
 
     /**
@@ -72,9 +70,9 @@ class CeiCrawler {
      * @param {Date} [date] - The date of the position
      * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
      */
-    async getPosition(date = new Date()) {
+    async getPosition(date = null) {
         await this._login();
-        return await PositionCrawler.getPosition(this.options, date);
+        return await PositionCrawler.getPosition(date, this.options);
     }
 
 }

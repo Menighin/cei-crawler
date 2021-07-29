@@ -1,5 +1,6 @@
 const axios = require('axios').default;
 const https = require('https');
+const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError');
 
 class AxiosWrapper {
 
@@ -18,7 +19,9 @@ class AxiosWrapper {
         });
     }
 
-    static async request(url, queryParams = {}, pathParams = {}) {
+    static async request(url, opts = {}) {
+        const pathParams = opts.pathParams || {};
+        const queryParams = opts.queryParams || {};
         try {
             const urlWithParams = Object.keys(pathParams)
                 .reduce((p, v) => {
@@ -30,10 +33,10 @@ class AxiosWrapper {
                     ...queryParams
                 }
             });
-            return response;
-        } catch(e) {
-            console.log('ERROR ON AXIOS: ' + e.message);
-            throw e;
+            return response.data;
+        } catch (e) {
+            const msg = e.response.data == null || e.response.data.trim() == '' ? e.message : e.response.data;
+            throw new CeiCrawlerError(CeiErrorTypes.BAD_REQUEST, msg, e.response.status);
         }
     }
 }

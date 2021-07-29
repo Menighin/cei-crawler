@@ -3,8 +3,15 @@
  */
 
 /**
+ * @typedef LastExecutionInfo
+ * @property {Date} generalDate - new Date(data.dataGeral),
+ * @property {Date} stockDate - new Date(data.dataRendaVariavel),
+ * @property {Date} treasuryDirectDate - new Date(data.dataTesouroDireto)
+ */
+
+/**
  * @typedef LoginOptions
- * @property {String} strategy - The strategy the crawler will use to make the login. Options are: `user-input`
+ * @property {String} strategy - The strategy the crawler will use to make the login. Options are: `user-resolve`, `raw-token`
  * @property {Number} timeout - Login timeout
  * @property {String} browserPath - Path of the browser to run puppeteer
  */
@@ -17,11 +24,12 @@
 
 /**
  * @typedef CeiCrawlerOptions
- * @property {boolean} trace - Indicates if it should print trace messages. Helpful for debugging.
+ * @property {boolean} debug - Indicates if it should print debug messages. Helpful for debugging.
  * @property {boolean} capDates - Prevent crawling with an invalid date in CEI
  * @property {Number} navigationTimeout - Fetch timeout
  * @property {LoginOptions} loginOptions - The strategy the crawler will use to make the login. Options are: `user-input`
  * @property {CeiAuth} auth - Auth logged info
+ * @property {LastExecutionInfo} lastExecutionInfo - CEI info about the last execution
  * @memberof typdefs
  */
 

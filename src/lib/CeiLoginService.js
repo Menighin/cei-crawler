@@ -11,7 +11,7 @@ class CeiLoginService {
     /** @type {String} - Password to fill in at CEI page */
     _password = null;
 
-    /** @type {typedefs.LoginOptions} - Options for CEI Crawler and Fetch */
+    /** @type {typedefs.CeiCrawlerOptions} - Options for CEI Crawler and Fetch */
     _options = null;
 
     constructor(username, password, options) {
@@ -21,15 +21,17 @@ class CeiLoginService {
     }
 
     async getToken() {
-        switch(this._options.strategy) {
-            case 'user-input':
-                return await this._getTokenByUserInput();
+        switch(this._options.loginOptions.strategy) {
+            case 'user-resolve':
+                return await this._getTokenByUserResolve();
+            case 'raw-token':
+                return this._options.auth; 
             default:
                 throw CeiCrawlerError(CeiErrorTypes.INVALID_LOGIN_STRATEGY, `Invalid login strategy: ${this._options.strategy}`);
         }
     }
 
-    async _getTokenByUserInput() {
+    async _getTokenByUserResolve() {
         const browser = await puppeteer.launch({
             headless: false,
             executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',

@@ -15,22 +15,22 @@ class PositionCrawler {
      * @param {Date} [date] - The date of the wallet. If none passed, the default of CEI will be used
      * @returns {Promise<typedefs.AccountWallet[]>} - List of Stock histories
      */
-    static async getPosition(options = null, date = new Date()) {
-        const traceOperations = (options && options.trace) || false;
+    static async getPosition(date = null, options = null) {
+        const dateStr = CeiUtils.getDateForQueryParam(date || options.lastExecutionInfo.generalDate);
 
-        const dateStr = CeiUtils.getDateForQueryParam(date);
-        try {
-            const response = await AxiosWrapper.request(URLS.GET_DATA, {
+        if (options.debug)
+            console.log(`[PositionCrawler] Crawling wallet position on date ${dateStr}`);
+
+        const response = await AxiosWrapper.request(URLS.GET_DATA, {
+            queryParams: {
                 data: dateStr
-            }, {
+            },
+            pathParams: {
                 page: 1
-            });
-            
-            console.log(JSON.stringify(response.data));
-        } catch(e) {
-            console.log('ERROR ON AXIOS: ' + e.message);
-            throw e;
-        }
+            }
+        });
+        
+        return response;
     }
 }
 
