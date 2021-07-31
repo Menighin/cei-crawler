@@ -68,11 +68,12 @@ class CeiCrawler {
     /**
      * Returns the stock history
      * @param {Date} [date] - The date of the position
+     * @param {Number} [page=1] - The page of the data
      * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
      */
-    async getPosition(date = null) {
+    async getPosition(date = null, page = 1) {
         await this._login();
-        return await PositionCrawler.getPosition(date, this.options);
+        return await PositionCrawler.getPosition(date, page, this.options);
     }
 
 }
