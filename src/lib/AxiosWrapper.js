@@ -15,6 +15,10 @@ class AxiosWrapper {
             };
             config.params['cache-guid'] = options.auth['cache-guid'];
             config.httpsAgent = httpsAgent;
+
+            if (options.debug)
+                console.log(`[AxiosWrapper] ${config.method.toUpperCase()} ${config.url} ${JSON.stringify(config.params)}`);
+
             return config;
         });
     }

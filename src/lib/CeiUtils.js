@@ -199,6 +199,19 @@ class CeiUtils {
             return {};
         }
     }
+
+    /**
+     * Convert the string to kebab-case
+     * @param {String} str Text to be kebabize'd
+     * @returns The @param str in kebab-case
+     */
+    static kebabize(str) {
+        return str.split('').map((letter, idx) => {
+            return letter.toUpperCase() === letter
+            ? `${idx !== 0 ? '-' : ''}${letter.toLowerCase()}`
+            : letter;
+        }).join('');
+    }
 }
 
 module.exports = CeiUtils;

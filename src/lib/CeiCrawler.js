@@ -63,6 +63,7 @@ class CeiCrawler {
 
         this.options.auth = await this._ceiLoginService.getToken();
         this.options.lastExecutionInfo = await LastExecutionCrawler.getLastExecutionInfo();
+        this._isLogged = true;
     }
 
     /**
@@ -74,6 +75,19 @@ class CeiCrawler {
     async getPosition(date = null, page = 1) {
         await this._login();
         return await PositionCrawler.getPosition(date, page, this.options);
+    }
+
+    /**
+     * Returns the detail of a position given by CEI. The format of the position differs from type to type
+     * @param {String} id - The UUID of the position given by CEI
+     * @param {String} category - The category of the position
+     * @param {String} type - The type of the position
+     * @param {typedefs.CeiCrawlerOptions} options - Options for the crawler
+     * @returns {Any}
+     */
+    async getPositionDetail(id, category, type) {
+        await this._login();
+        return await PositionCrawler.getPositionDetail(id, category, type, this.options);
     }
 
 }
