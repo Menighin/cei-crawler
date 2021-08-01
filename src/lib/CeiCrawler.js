@@ -1,4 +1,5 @@
 const PositionCrawler = require('./PositionCrawler');
+const AccountStatementCrawler = require('./AccountStatementCrawler');
 const LastExecutionCrawler = require('./LastExecutionCrawler');
 const typedefs = require("./typedefs");
 const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError');
@@ -88,6 +89,19 @@ class CeiCrawler {
     async getPositionDetail(id, category, type) {
         await this._login();
         return await PositionCrawler.getPositionDetail(id, category, type, this.options);
+    }
+
+
+        /**
+     * Returns the stock history
+     * @param {Date} [startDate] - The start date to filter
+     * @param {Date} [endDate] - The end date to filter
+     * @param {Number} [page=1] - The page of the data
+     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
+     */
+    async getAccountStatement(startDate = null, endDate = null, page = 1) {
+        await this._login();
+        return await AccountStatementCrawler.getAccountStatement(startDate, endDate, page, this.options);
     }
 
 }
