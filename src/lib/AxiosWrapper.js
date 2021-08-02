@@ -40,6 +40,10 @@ class AxiosWrapper {
             return response.data;
         } catch (e) {
             const msg = e.response.data == null || e.response.data.trim() == '' ? e.message : e.response.data;
+
+            if (e.response.status === 401)
+                throw new CeiCrawlerError(CeiErrorTypes.UNAUTHORIZED, msg, e.response.status);
+            
             throw new CeiCrawlerError(CeiErrorTypes.BAD_REQUEST, msg, e.response.status);
         }
     }

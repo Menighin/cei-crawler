@@ -3,9 +3,9 @@ const AccountStatementCrawler = require('./AccountStatementCrawler');
 const LastExecutionCrawler = require('./LastExecutionCrawler');
 const typedefs = require("./typedefs");
 const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError');
-const CeiUtils = require('./CeiUtils');
 const CeiLoginService = require('./CeiLoginService');
 const AxiosWrapper = require('./AxiosWrapper');
+const StockTransactionsCrawler = require('./StockTransactionsCrawler');
 
 class CeiCrawler {
 
@@ -68,7 +68,7 @@ class CeiCrawler {
     }
 
     /**
-     * Returns the stock history
+     * Returns the wallet position
      * @param {Date} [date] - The date of the position
      * @param {Number} [page=1] - The page of the data
      * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
@@ -91,9 +91,8 @@ class CeiCrawler {
         return await PositionCrawler.getPositionDetail(id, category, type, this.options);
     }
 
-
-        /**
-     * Returns the stock history
+    /**
+     * Returns the account statement
      * @param {Date} [startDate] - The start date to filter
      * @param {Date} [endDate] - The end date to filter
      * @param {Number} [page=1] - The page of the data
@@ -102,6 +101,18 @@ class CeiCrawler {
     async getAccountStatement(startDate = null, endDate = null, page = 1) {
         await this._login();
         return await AccountStatementCrawler.getAccountStatement(startDate, endDate, page, this.options);
+    }
+
+    /**
+     * Returns the stock transactions
+     * @param {Date} [startDate] - The start date to filter
+     * @param {Date} [endDate] - The end date to filter
+     * @param {Number} [page=1] - The page of the data
+     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
+     */
+    async getStockTransactions(startDate = null, endDate = null, page = 1) {
+        await this._login();
+        return await StockTransactionsCrawler.getStockTransactions(startDate, endDate, page, this.options);
     }
 
 }

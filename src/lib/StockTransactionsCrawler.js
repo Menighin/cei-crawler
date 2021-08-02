@@ -3,10 +3,10 @@ const CeiUtils = require('./CeiUtils');
 const AxiosWrapper = require('./AxiosWrapper');
 
 const URLS = {
-    LIST_DATA: 'https://investidor.b3.com.br/api/extrato/v1/movimentacao/:page',
+    LIST_DATA: 'https://investidor.b3.com.br/api/extrato/v1/negociacao-ativos/:page',
 };
 
-class AccountStatementCrawler {
+class StockTransactionsCrawler {
 
     /**
      * Get data from the position screen
@@ -16,13 +16,13 @@ class AccountStatementCrawler {
      * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
      * @returns {Promise<typedefs.AccountWallet[]>} - List of Stock histories
      */
-    static async getAccountStatement(startDate, endDate, page, options = {}) {
+    static async getStockTransactions(startDate, endDate, page, options = {}) {
         const lastExecution = options.lastExecutionInfo.generalDate;
         const startDateStr = CeiUtils.getDateForQueryParam(startDate || CeiUtils.subtractMonth(lastExecution));
         const endDateStr = CeiUtils.getDateForQueryParam(endDate || lastExecution);
-        
+
         if (options.debug)
-            console.log(`[AccountStatementCrawler] Crawling statement for period ${startDateStr} - ${endDateStr}`);
+            console.log(`[StockTransactionsCrawler] Crawling statement for period ${startDateStr} - ${endDateStr}`);
 
         const response = await AxiosWrapper.request(URLS.LIST_DATA, {
             queryParams: {
@@ -39,4 +39,4 @@ class AccountStatementCrawler {
 
 }
 
-module.exports = AccountStatementCrawler;
+module.exports = StockTransactionsCrawler;
