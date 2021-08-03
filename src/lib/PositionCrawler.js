@@ -16,7 +16,7 @@ class PositionCrawler {
      * @param {Date} date - The date of the wallet. If none passed, the default of CEI will be used
      * @param {Number} page - The page of the data
      * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
-     * @returns {Promise<typedefs.AccountWallet[]>} - List of Stock histories
+     * @returns {Promise<{}>} - List of Stock histories
      */
     static async getPosition(date, page, options = {}) {
         const dateStr = CeiUtils.getDateForQueryParam(date || options.lastExecutionInfo.generalDate);
@@ -57,9 +57,11 @@ class PositionCrawler {
         // Try to get the detail with type
         try {
             return await AxiosWrapper.request(URLS.DETAIL_1, {
-                pathParams: pathParams
+                peathParams: pathParams
             });
         } catch (e) {
+            if (e.type === CeiErrorTypes.TOO_MANY_REQUESTS)
+                throw e;
             if (options.debug)
                 console.log(`[PositionCrawler] Failed getting detail for type and category ${type}, ${category}`);
         }

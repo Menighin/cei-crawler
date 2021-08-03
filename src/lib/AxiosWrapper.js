@@ -39,7 +39,8 @@ class AxiosWrapper {
             });
             return response.data;
         } catch (e) {
-            const msg = e.response.data == null || e.response.data.trim() == '' ? e.message : e.response.data;
+            const msgStr = e.response.data != null ? (e.response.data.message || e.response.data.trim()) : e.message;
+            const msg = msgStr === '' ? e.message : msgStr;
 
             if (e.response.status === 401)
                 throw new CeiCrawlerError(CeiErrorTypes.UNAUTHORIZED, msg, e.response.status);

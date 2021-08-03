@@ -6,6 +6,7 @@ const { CeiCrawlerError, CeiErrorTypes } = require('./CeiCrawlerError');
 const CeiLoginService = require('./CeiLoginService');
 const AxiosWrapper = require('./AxiosWrapper');
 const StockTransactionsCrawler = require('./StockTransactionsCrawler');
+const ProvisionedEventsCrawler = require('./ProvisionedEventsCrawler');
 
 class CeiCrawler {
 
@@ -113,6 +114,28 @@ class CeiCrawler {
     async getStockTransactions(startDate = null, endDate = null, page = 1) {
         await this._login();
         return await StockTransactionsCrawler.getStockTransactions(startDate, endDate, page, this.options);
+    }
+
+    /**
+     * Returns the provisioned events for the given date
+     * @param {Date} [date] - The date for the provisioned events
+     * @param {Number} [page=1] - The page of the data
+     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
+     */
+    async getProvisionedEvents(date = null, page = 1) {
+        await this._login();
+        return await ProvisionedEventsCrawler.getProvisionedEvents(date, page, this.options);
+    }
+
+    /**
+     * Returns the detail of a provisioned event
+     * @param {String} id - The UUID of the provisioned event
+     * @param {typedefs.CeiCrawlerOptions} options - Options for the crawler
+     * @returns {Any}
+     */
+    async getProvisionedEventDetail(id) {
+        await this._login();
+        return await ProvisionedEventsCrawler.getProvisionedEventDetails(id, this.options);
     }
 
 }
