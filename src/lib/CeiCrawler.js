@@ -7,6 +7,7 @@ const CeiLoginService = require('./CeiLoginService');
 const AxiosWrapper = require('./AxiosWrapper');
 const StockTransactionsCrawler = require('./StockTransactionsCrawler');
 const ProvisionedEventsCrawler = require('./ProvisionedEventsCrawler');
+const IpoCrawler = require('./IpoCrawler');
 
 class CeiCrawler {
 
@@ -136,6 +137,28 @@ class CeiCrawler {
     async getProvisionedEventDetail(id) {
         await this._login();
         return await ProvisionedEventsCrawler.getProvisionedEventDetails(id, this.options);
+    }
+
+    /**
+     * Returns the IPOs
+     * @param {Date} [date] - The date for the provisioned events
+     * @param {Number} [page=1] - The page of the data
+     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
+     */
+     async getIPOs(date = null, page = 1) {
+        await this._login();
+        return await IpoCrawler.getIPOs(date, page, this.options);
+    }
+
+    /**
+     * Returns the detail of an IPO
+     * @param {String} id - The UUID of the IPO event
+     * @param {typedefs.CeiCrawlerOptions} options - Options for the crawler
+     * @returns {Any}
+     */
+    async getIPODetail(id) {
+        await this._login();
+        return await IpoCrawler.getIPODetail(id, this.options);
     }
 
 }
