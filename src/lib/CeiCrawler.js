@@ -8,6 +8,7 @@ const AxiosWrapper = require('./AxiosWrapper');
 const StockTransactionsCrawler = require('./StockTransactionsCrawler');
 const ProvisionedEventsCrawler = require('./ProvisionedEventsCrawler');
 const IpoCrawler = require('./IpoCrawler');
+const ConsolidatedValueCrawler = require('./ConsolidatedValueCrawler');
 
 class CeiCrawler {
 
@@ -67,6 +68,17 @@ class CeiCrawler {
         this.options.auth = await this._ceiLoginService.getToken();
         this.options.lastExecutionInfo = await LastExecutionCrawler.getLastExecutionInfo();
         this._isLogged = true;
+    }
+
+    /**
+     * Returns the consolidated values
+     * @param {Date} [date] - The date of the position
+     * @param {Number} [page=1] - The page of the data
+     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
+     */
+    async getConsolidatedValues() {
+        await this._login();
+        return await ConsolidatedValueCrawler.getConsolidatedValues(this.options);
     }
 
     /**
