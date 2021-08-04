@@ -72,9 +72,7 @@ class CeiCrawler {
 
     /**
      * Returns the consolidated values
-     * @param {Date} [date] - The date of the position
-     * @param {Number} [page=1] - The page of the data
-     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
+     * @returns {Promise<typedefs.ConsolidatedValues>} - The consolidated values
      */
     async getConsolidatedValues() {
         await this._login();
@@ -82,18 +80,19 @@ class CeiCrawler {
     }
 
     /**
-     * Returns the wallet position
+     * Crawls the tab "Posição" at CEI
      * @param {Date} [date] - The date of the position
      * @param {Number} [page=1] - The page of the data
-     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
+     * @returns {Promise<typedefs.CeiListData<typedefs.PositionCategory>} - Wallet positions
      */
     async getPosition(date = null, page = 1) {
         await this._login();
+
         return await PositionCrawler.getPosition(date, page, this.options);
     }
 
     /**
-     * Returns the detail of a position given by CEI. The format of the position differs from type to type
+     * Crawls the detail of an item on tab "Posição"
      * @param {String} id - The UUID of the position given by CEI
      * @param {String} category - The category of the position
      * @param {String} type - The type of the position
@@ -106,11 +105,11 @@ class CeiCrawler {
     }
 
     /**
-     * Returns the account statement
+     * Crawls the tab "Movimentacao" at CEI
      * @param {Date} [startDate] - The start date to filter
      * @param {Date} [endDate] - The end date to filter
      * @param {Number} [page=1] - The page of the data
-     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
+     * @returns {Promise<typedefs.CeiListData<typedefs.AccountStatement>} - The account statement
      */
     async getAccountStatement(startDate = null, endDate = null, page = 1) {
         await this._login();
@@ -169,9 +168,13 @@ class CeiCrawler {
      * @returns {Any}
      */
     async getIPODetail(id) {
+        var a = this.test()
+        a.itens[0].name
         await this._login();
         return await IpoCrawler.getIPODetail(id, this.options);
     }
+
+
 
 }
 

@@ -9,12 +9,12 @@ const URLS = {
 class AccountStatementCrawler {
 
     /**
-     * Get data from the position screen
+     * Crawls the tab "Movimentacao" at CEI
      * @param {Date} startDate - The start date of the range
      * @param {Date} endDate - The end date of the range
      * @param {Number} page - The page of the data
      * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
-     * @returns {Promise<typedefs.AccountWallet[]>} - List of Stock histories
+     * @returns {Promise<typedefs.CeiListData<typedefs.AccountStatement>} - The account statement
      */
     static async getAccountStatement(startDate, endDate, page, options = {}) {
         const lastExecution = options.lastExecutionInfo.generalDate;

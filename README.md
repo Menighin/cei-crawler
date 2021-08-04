@@ -49,410 +49,203 @@ ceiCrawler.login(); // Login é opcional, pois antes de cada método o cei-crawl
 ```
 
 ### Métodos disponíveis
-#### getWallet(_date_)
-Retorna os dados das carteiras no CEI. As carteiras contém as posições consolidades de ativos e tesouro direto.
-O retorno será uma lista com cada item representando os dados de uma instituição e conta.
-O método recebe uma data como parâmetro para pegar a foto das carteiras no dia escolhido. Se nenhuma data for passada, será utilizada a data padrao do CEI que é o dia corrente. O CEI disponibiliza datas somente em um range de 2 meses, aparentemente.
+#### getConsolidatedValues()
+Retorna os investimentos consolidados num valor total e divididos em subcategorias
 
 ```javascript
-let wallets = await ceiCrawler.getWallet(date);
-```
-Resultado:
-```javascript
-[
-  {
-    "institution": "1111 - INTER DTVM LTDA",
-    "account": "111111",
-    "stockWallet": [
-      {
-        "company": "BANCO INTER",
-        "stockType": "PN N2",
-        "code": "BIDI4",
-        "isin": "BRBIDIACNPR0",
-        "price": 11.43,
-        "quantity": 100,
-        "quotationFactor": 1,
-        "totalValue": 1143
-      },
-      {
-        "company": "CENTAURO",
-        "stockType": "ON NM",
-        "code": "CNTO3",
-        "isin": "BRCNTOACNOR5",
-        "price": 29,
-        "quantity": 100,
-        "quotationFactor": 1,
-        "totalValue": 2900
-      }
-    ],
-    "stockGuaranteesWallet": [
-      {
-        "company": "BANCO INTER",
-        "stockType": "PN N2",
-        "code": "BIDI4",
-        "isin": "BRBIDIACNPR0",
-        "price": 11.43,
-        "quantity": 100,
-        "quotationFactor": 1,
-        "totalValue": 1143
-      }
-    ],
-    "nationalTreasureWallet": []
-  },
-  {
-    "institution": "222222 - RICO INVESTIMENTOS - GRUPO XP",
-    "account": "2222222",
-    "stockWallet": [
-      {
-        "company": "TENDA",
-        "stockType": "ON NM",
-        "code": "TEND3",
-        "isin": "BRTENDACNOR4",
-        "price": 25.14,
-        "quantity": 100,
-        "quotationFactor": 1,
-        "totalValue": 2514
-      }
-    ],
-    "nationalTreasureWallet": [
-      {
-        "code": "Tesouro IPCA+ 2024",
-        "expirationDate": "2019-06-12T03:00:00.000Z",
-        "investedValue": 1000.00,
-        "grossValue": 1500.00,
-        "netValue": 1400.00,
-        "quantity": 0.25,
-        "blocked": 0
-      }
-    ]
-  }
-]
-```
-
-#### getWalletOptions()
-Retorna as opções dos formulários da página de carteira de ativos
-```javascript
-const walletOptions = await ceiCrawler.getWalletOptions();
+let consolidated = await ceiCrawler.getConsolidatedValues();
 ```
 Resultado:
 ```javascript
 {
-  "minDate": "02/06/2020",
-  "maxDate": "31/07/2020",
-  "institutions": [
+  "total": 10000,
+  "subTotais": [
     {
-      "value": "123",
-      "label": "123 - RICO INVESTIMENTOS - GRUPO XP",
-      "accounts": [
-        "12345"
-      ]
+      "categoriaProduto": "Renda Variável",
+      "totalPosicao": 5000,
+      "percentual": 0.5
     },
     {
-      "value": "321",
-      "label": "321 - INTER DTVM LTDA",
-      "accounts": [
-        "54321"
-      ]
+      "categoriaProduto": "Tesouro Direto",
+      "totalPosicao": 5000,
+      "percentual": 0.5
     }
   ]
 }
 ```
 
-#### getStockHistory(_startDate_, _endDate_)
-Método que processa o histórico e o resumo do histórico de compra e venda de ações. O retorno será um uma lista com todas operações de compra ou venda efetuadas dentro do período informado, se nenhuma data for passada o método retornará todo o histórico disponível.
+#### getPosition(_date_, _page_)
+Retorna as posições da tela "Posição" em todas as categorias de investimentos.
+
+| Parâmetro  |  Tipo  | Default | Descrição                                                                                                    |
+|------------|--------|---------|--------------------------------------------------------------------------------------------------------------|
+| **_date_** |  Date  |  _null_ | Data da posição. Caso seja passado _null_ ou nenhum valor, será usada a ultima data de processamento do CEI. |
+| **_page_** | Number |    1    | Paginação dos dados. Por default retorna a primeira página.                                                  |
+
 ```javascript
-let stockHistory = await ceiCrawler.getStockHistory(startDate, endDate);
-```
-Resultado:
-```javascript
-[
-    {
-        institution: 'Banco Inter',
-        account: 12345,
-        stockHistory: [
-            {
-                date: "2019-06-12T03:00:00.000Z",
-                operation: "C", // C (Compra) ou V (Venda),
-                market: "Mercado a Vista",
-                expiration: "",
-                code: "BTOW3",
-                name: "B2W DIGITAL ON NM",
-                quantity: 200,
-                price: 32.2,
-                totalValue: 6440,
-                cotation: 1
-            }
-        ]
-    }
-]
-```
-#### getStockHistoryOptions()
-Retorna as opções dos formulários da página de negociações de ativos
-```javascript
-const stockHistoryOptions = await ceiCrawler.getStockHistoryOptions();
+let position = await ceiCrawler.getPosition();
 ```
 Resultado:
 ```javascript
 {
-  "minDate": "08/02/2019",
-  "maxDate": "31/07/2020",
-  "institutions": [
+  "paginaAtual": 1,
+  "totalPaginas": 1,
+  "itens": [
     {
-      "value": "123",
-      "label": "123 - RICO INVESTIMENTOS - GRUPO XP",
-      "accounts": [
-        "12345"
-      ]
+      "categoriaProduto": "RendaVariavel",
+      "tipoProduto": "Acao",
+      "descricaoTipoProduto": "Ações",
+      "posicoes": [
+        {
+          "id": "gfw2455-8a79-4127-990b-587sa37",
+          "temBloqueio": false,
+          "instituicao": "INTER DISTRIBUIDORA DE TITULOS E VALORES MOBILIARIOS LTDA",
+          "quantidade": 100,
+          "valorAtualizado": 2377.00,
+          "precoFechamento": 23.77,
+          "produto": "BIDI4 - BANCO INTER S.A.",
+          "tipo": "PN",
+          "marcacoes": [],
+          "codigoNegociacao": "BIDI4",
+          "documentoInstituicao": "358743882",
+          "existeLogotipo": false,
+          "disponivel": 100,
+          "documento": "48377283492",
+          "razaoSocial": "BANCO INTER S.A.",
+          "codigoIsin": "BRBRHEU2",
+          "distribuicao": "114",
+          "escriturador": "BANCO BRADESCO S/A",
+          "valorBruto": 0
+        }
+      ],
+      "totalPosicao": 2377.00,
+      "totalItemsPagina": 1
     },
     {
-      "value": "321",
-      "label": "321 - INTER DTVM LTDA",
-      "accounts": [
-        "54321"
-      ]
+      "categoriaProduto": "TesouroDireto",
+      "tipoProduto": "TesouroDireto",
+      "descricaoTipoProduto": "Tesouro Direto",
+      "posicoes": [
+        {
+          "id": "hfd4564-e70a-4596-93fd-987654dvbhw",
+          "temBloqueio": false,
+          "instituicao": "XP INVESTIMENTOS CCTVM S/A",
+          "quantidade": 1.01,
+          "valorAtualizado": 2200,
+          "vencimento": "2024-08-15T00:00:00",
+          "valorAplicado": 2000,
+          "produto": "Tesouro IPCA+ 2024",
+          "marcacoes": [],
+          "documentoInstituicao": "8573938583",
+          "existeLogotipo": false,
+          "indexador": "IPCA",
+          "disponivel": 1.01,
+          "documento": "7658493485",
+          "codigoIsin": "VRSIYASU@",
+          "valorBruto": 2038,
+          "nomeTituloPublico": "Tesouro IPCA+ 2024",
+          "valorLiquido": 29882,
+          "percRentabilidadeContratada": 4.71
+        }
+      ],
+      "totalPosicao": 22000,
+      "totalItemsPagina": 5
     }
-  ]
+  ],
+  "detalheStatusCode": 0,
+  "excecoes": []
 }
 ```
 
+#### getPositionDetail(_id_, _category_, _type_)
+Retorna o detalhe de uma posição da lista anterior.
 
-#### getDividends(_date_)
-Método que processa todos os dados disponíveis sobre proventos recebidos em um período e retorna como uma lista. Usualmente os proventos disponíveis na página do CEI são os creditados no mês atual e os já anunciados pela empresas com e sem data definida. Registros com date igual `null` são de proventos anunciados mas sem data definida de pagamento.
+| Parâmetro      |  Tipo  | Default      | Descrição                                                                                                                                                    |
+|----------------|--------|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **_id_**       | String |  _undefined_ | UUID da posição. Foi observado que o UUID de uma mesma posição pode mudar ao longo do tempo e essa requisição falhar após pega a lista com o `getPosition()` |
+| **_category_** | String |  _undefined_ | Categoria da posição informada no método `getPosition()`.                                                                                                    |
+| **_type_**     | String |  _undefined_ | Tipo da posição informada no método `getPosition()`.                                                                                                         |
 
-Além disso, caso existam eventos de desdobramento de ações, eles serão retornados em uma propriedade específica.
 ```javascript
-let dividends = await ceiCrawler.getDividends(date);
-```
-Resultado:
-```javascript
-[
-  {
-    "institution": "1099 - INTER DTVM LTDA",
-    "account": "12345",
-    "futureEvents": [
-      {
-        "stock": "BANCO INTER",
-        "stockType": "PN N2",
-        "code": "BIDI4",
-        "date": "2020-08-20T03:00:00.000Z",
-        "type": "JUROS SOBRE CAPITAL PRÓPRIO",
-        "quantity": 200,
-        "factor": 1,
-        "grossValue": 7.88,
-        "netValue": 5.8
-      },
-      {
-        "stock": "CIA HERING",
-        "stockType": "ON NM",
-        "code": "HGTX3",
-        "date": null,
-        "type": "JUROS SOBRE CAPITAL PRÓPRIO",
-        "quantity": 100,
-        "factor": 1,
-        "grossValue": 21.96,
-        "netValue": 18.67
-      },
-    ],
-    "pastEvents": [
-      {
-        "stock": "ITAUSA",
-        "stockType": "PN N1",
-        "code": "ITSA4",
-        "date": "2020-07-01T03:00:00.000Z",
-        "type": "DIVIDENDO",
-        "quantity": 300,
-        "factor": 1,
-        "grossValue": 6,
-        "netValue": 6
-      }
-    ]
-  },
-  {
-    "institution": "386 - RICO INVESTIMENTOS - GRUPO XP",
-    "account": "12345",
-    "futureEvents": [],
-    "pastEvents": [
-      {
-        "stock": "FII CSHG LOG",
-        "stockType": "CI",
-        "code": "HGLG11",
-        "date": "2020-07-14T03:00:00.000Z",
-        "type": "RENDIMENTO",
-        "quantity": 100,
-        "factor": 1,
-        "grossValue": 78,
-        "netValue": 78
-      }
-    ],
-    "splitEvents": [
-      {
-        "stock": "B3",
-        "stockType": "ON NM",
-        "code": "B3SA3",
-        "type": "DESDOBRAMENTO DE AÇÕES",
-        "date": "2021-05-18T03:00:00.000Z",
-        "baseQuantity": 49,
-        "factor": 1,
-        "destinationCode": "B3SA3",
-        "quantity": 98,
-        "eventValue": 200,
-        "exerciseValue": 0
-      }
-      ]
-  }
-]
-```
-#### getDividendsOptions()
-Retorna as opções dos formulários da página de proventos
-```javascript
-const dividendsOptions = await ceiCrawler.getDividendsOptions();
+let positionDetail = await ceiCrawler.getPositionDetail('gfw2455-8a79-4127-990b-587sa37', 'RendaVariavel', 'Acao');
 ```
 Resultado:
 ```javascript
 {
-  "minDate": "27/07/2020",
-  "maxDate": "31/07/2020",
-  "institutions": [
-    {
-      "value": "123",
-      "label": "123 - RICO INVESTIMENTOS - GRUPO XP",
-      "accounts": [
-        "12345"
-      ]
-    },
-    {
-      "value": "321",
-      "label": "321 - INTER DTVM LTDA",
-      "accounts": [
-        "54321"
-      ]
-    }
-  ]
+  "codigoIsin": "BRBIDIACNPR0",
+  "distribuicao": "114",
+  "empresa": "BANCO INTER S.A.",
+  "escriturador": "BANCO BRADESCO S/A",
+  "codigoNegociacao": "BIDI4",
+  "disponivel": 100,
+  "indisponivel": 0,
+  "quantidade": 100,
+  "marcacoes": [],
+  "possuiMarcacoes": false,
+  "existeLogotipo": false,
+  "documentoInstituicao": "358743882"
 }
 ```
 
-#### getTreasure(_date_)
-Método que processa todos os dados disponíveis sobre Tesouro Direto em um período e retorna como uma lista e também uma lista das transações.
+#### getAccountStatement(_startDate_, _endDate_, _page_)
+Retorna as movimentações da aba "Movimentação" no CEI.
+
+| Parâmetro       |  Tipo  | Default | Descrição                                                                                                                   |
+|-----------------|--------|---------|-----------------------------------------------------------------------------------------------------------------------------|
+| **_startDate_** | Date   |  _null_ | Data de inicio para trazer as movimentações. Caso `null`, será utilizada a ultima data de processamento do CEI menos 1 mês. |
+| **_endDate_**   | Date   |  _null_ | Data fim para trazer as movimentações. Caso `null`, será utilizada a ultima data de processamento do CEI.                   |
+| **_page_**      | Number |    1    | Paginação dos dados. Por default retorna a primeira página.                                                                 |
+
 ```javascript
-let treasures = await ceiCrawler.getTreasures(date);
-```
-Resultado:
-```javascript
-[
-    {
-        "institution": "3 - XP INVESTIMENTOS CCTVM S/A",
-        "account": "123456",
-        "treasures": [
-            {
-                "code": "Tesouro IPCA+ 2045",
-                "expirationDate": "2045-05-15T03:00:00.000Z",
-                "investedValue": 12.34,
-                "grossValue": 13.43,
-                "netValue": 10.12,
-                "quantity": 0.01,
-                "blocked": 0,
-                "transactions": [
-                    {
-                        "tradeDate": "2020-11-27T03:00:00.000Z",
-                        "quantity": 0.01,
-                        "price": 1234.56,
-                        "notional": 12.34,
-                        "profitability": "IPCA + 4,05%",
-                        "grossProfitability": "IPCA + 566,89%",
-                        "grossProfitabilityPercent": 12.34,
-                        "grossValue": 45.67,
-                        "investmentTerm": 18,
-                        "taxBracket": 23.4,
-                        "taxIrValue": 0.12,
-                        "taxIofValue": 1.94,
-                        "feeB3Value": 0,
-                        "feeInstitutionValue": 0,
-                        "netValue": 42.67
-                    }
-                ]
-            }
-        ]
-    }
-]
-```
-#### getTreasureOptions()
-Retorna as opções dos formulários da página de tesouro direto
-```javascript
-const treasureOptions = await ceiCrawler.getTreasureOptions();
+let accountStatement = await ceiCrawler.getAccountStatement();
 ```
 Resultado:
 ```javascript
 {
-  "institutions": [
+  "paginaAtual": 1,
+  "totalPaginas": 2,
+  "itens": [
     {
-      "value": "123",
-      "label": "123 - RICO INVESTIMENTOS - GRUPO XP",
-      "accounts": [
-        "12345"
-      ]
+      "data": "2021-08-02T00:00:00",
+      "movimentacoes": [
+        {
+          "tipoOperacao": "Credito",
+          "tipoMovimentacao": "Juros Sobre Capital Próprio",
+          "nomeProduto": "BIDI4 - BANCO INTER S.A.",
+          "instituicao": "INTER DISTRIBUIDORA DE TITULOS E VALORES MOBILIARIOS LTDA",
+          "quantidade": 100,
+          "valorOperacao": 1.49,
+          "precoUnitario": 0.01
+        }
+      ],
+      "totalItemsPagina": 1
     },
     {
-      "value": "321",
-      "label": "321 - INTER DTVM LTDA",
-      "accounts": [
-        "54321"
-      ]
+      "data": "2021-07-30T00:00:00",
+      "movimentacoes": [
+        {
+          "tipoOperacao": "Debito",
+          "tipoMovimentacao": "Transferência",
+          "nomeProduto": "ALZR11 - ALIANZA TRUST RENDA IMOBILIARIA FDO INV IMOB",
+          "instituicao": "RICO INVESTIMENTOS - GRUPO XP",
+          "quantidade": 5
+        },
+        {
+          "tipoOperacao": "Credito",
+          "tipoMovimentacao": "Transferência",
+          "nomeProduto": "ALZR11 - ALIANZA TRUST RENDA IMOBILIARIA FDO INV IMOB",
+          "instituicao": "XP INVESTIMENTOS CCTVM S/A",
+          "quantidade": 5
+        }
+      ],
+      "totalItemsPagina": 2
     }
-  ]
+  ],
+  "detalheStatusCode": 0,
+  "excecoes": []
 }
 ```
-#### getIPOTransactions(startDate,endDate)
-Retorna as transações de participação de ofertas públicas no período \[startDate,endDate\]
-```javascript
-const transactions = await getIPOTransactions(CeiUtils.getDateFromInput('03/09/2020'),CeiUtils.getDateFromInput('14/09/2020'));
-```
-Resultado:
-```javascript
-[
-  {
-    "institution": "114 - ITAU CV S/A",
-    "date": "2020-09-03T15:00:00.000Z",
-    "transactions": [
-      {
-        "company": "EMPREENDIMEN",
-        "offerName": "PAGUE MENOS CVM 400",
-        "code": "PGMN3L",
-        "isin": "BRPGMNACNOR8",
-        "type": "OUTRO",
-        "buyMethod": "Varejo sem alocação prioritária",
-        "reservedAmount": 0,
-        "reservedValue": 10000,
-        "maxPrice": 0,
-        "price": 8.5,
-        "allocAmount": 55,
-        "allocValue": 467.5,
-        "date": "2020-09-02T03:00:00.000Z"
-      }
-    ]
-  },
-  {
-    "institution": "114 - ITAU CV S/A",
-    "date": "2020-09-14T15:00:00.000Z",
-    "transactions": [
-      {
-        "company": "PET CENTER C",
-        "offerName": "PET CENTER CVM 400",
-        "code": "PETZ3L",
-        "isin": "BRPETZACNOR2",
-        "type": "OUTRO",
-        "buyMethod": "Varejo com Lock up",
-        "reservedAmount": 0,
-        "reservedValue": 10000,
-        "maxPrice": 0,
-        "price": 13.75,
-        "allocAmount": 233,
-        "allocValue": 3203.75,
-        "date": "2020-09-11T03:00:00.000Z"
-      }
-    ]
-  }
-]
-```
+
 
 ## Opções
 Na criação de um `CeiCrawler` é possivel especificar alguns valores para o parâmetro `options` que modificam a forma que o crawler funciona. As opções são:

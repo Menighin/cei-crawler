@@ -1,5 +1,4 @@
 const typedefs = require("./typedefs");
-const CeiUtils = require('./CeiUtils');
 const AxiosWrapper = require('./AxiosWrapper');
 
 const URLS = {
@@ -11,7 +10,7 @@ class ConsolidatedValueCrawler {
     /**
      * Get consolidated data
      * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
-     * @returns {Promise<typedefs.AccountWallet[]>} - List of Stock histories
+     * @returns {Promise<typedefs.ConsolidatedValues>} - The consolidated values
      */
     static async getConsolidatedValues(options = {}) {
 

@@ -16,7 +16,7 @@ class PositionCrawler {
      * @param {Date} date - The date of the wallet. If none passed, the default of CEI will be used
      * @param {Number} page - The page of the data
      * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
-     * @returns {Promise<{}>} - List of Stock histories
+     * @returns {Promise<typedefs.CeiListData<typedefs.PositionCategory>} - Wallet positions
      */
     static async getPosition(date, page, options = {}) {
         const dateStr = CeiUtils.getDateForQueryParam(date || options.lastExecutionInfo.generalDate);
@@ -37,12 +37,12 @@ class PositionCrawler {
     }
 
     /**
-     * Returns the detail of the given position
+     * Crawls the detail of an item on tab "Posição"
      * @param {String} id - The UUID of the position given by CEI
      * @param {String} category - The category of the position
      * @param {String} type - The type of the position
      * @param {typedefs.CeiCrawlerOptions} options - Options for the crawler
-     * @returns {Any}
+     * @returns {Any} 
      */
     static async getPositionDetail(id, category, type, options = {}) {
         if (options.debug)
