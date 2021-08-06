@@ -34,7 +34,7 @@ class CeiLoginService {
     async _getTokenByUserResolve() {
         const browser = await puppeteer.launch({
             headless: false,
-            executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+            executablePath: this._options.loginOptions.browserPath,
             args: ['--start-maximized']
         });
         const homePage = await browser.newPage();

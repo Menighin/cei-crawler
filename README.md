@@ -4,15 +4,19 @@
 
 Crawler para ler dados do Canal Eletrônico do Investidor 
 
-## Descrição
-O `cei-crawler` utiliza as seguintes dependências:
-* [cheerio](https://github.com/cheeriojs/cheerio) para fazer o parse do HTML.
-* [node-fetch](https://github.com/node-fetch/node-fetch) para fazer as requisições
-* [abort-controller](https://github.com/mysticatea/abort-controller) para controlar o timeout das requisições
-* [tough-cookie](https://github.com/salesforce/tough-cookie) para auxiliar no gerenciamento dos cookies
-* [normalize-html-whitespace](https://www.npmjs.com/package/normalize-html-whitespace) para fazer a limpeza do HTML do CEI
+## __Importante__
+Para versão antiga do CEI que não possui captcha obrigatório (por enquanto), utilize o [cei-crawler v2](https://github.com/Menighin/cei-crawler/tree/v2)
 
-Cada instância do `CeiCrawler` roda em um contexto separado, portante é possível realizar operações em usuários diferentes de forma simultânea
+## Descrição
+Essa versão do crawler varre a [Nova Area Logada do CEI](https://www.investidor.b3.com.br/nova-area-logada?utm_source=cei&utm_medium=banner&utm_campaign=lancamento).
+Essa área logada possui um captcha para que seja feito o login e por isso existem algumas estratégias de implementação para fazer o bypass do mesmo.
+Além disso, o CEI agora possui uma API. Tudo que o crawler faz basicamente é encapsular as chamadas dessas API's. 
+Portanto, o formato dos dados vem direto do CEI, *não há* transformação feita por esse crawler.
+Sendo assim, caso haja algo estranho ou errado nos dados retornados, provavelmente é o próprio CEI que está retornando.
+
+O `cei-crawler` utiliza as seguintes dependências:
+* [puppeteer-core](https://www.npmjs.com/package/puppeteer-core) para navegar com o browser e resolver o captcha.
+* [axios](https://www.npmjs.com/package/axios) para fazer as requisições http.
 
 
 ## Sponsor
@@ -48,7 +52,48 @@ ceiCrawler.login(); // Login é opcional, pois antes de cada método o cei-crawl
                     // A vantagem em realizar o login em um passo diferente é para o tratamento de erros
 ```
 
-### Métodos disponíveis
+## Login & Captcha
+A nova área logada do CEI possui validação por captcha. Não há forma simples de resolver e por isso algumas estratégias de resolução são implementadas.
+Essas estratégias são setadas na instanciação do crawler, com o objeto de `options`. As disponíveis são:
+
+#### `raw-token`
+Nessa estratégia de login, não é necessário informar usuário e senha porém deve-se informar o `token` e o `cache-guid` do usuário logado.
+Essa estratégia é útil caso você possua algum serviço terceiro que faça o login no CEI e pegue o token pra você.
+
+Exemplo:
+```javascript
+const ceiCrawler = new CeiCrawler(_, _, { 
+    loginOptions: {
+        strategy: 'raw-token'
+    },
+    auth: {
+        "cache-guid": "cache-guid do usuário logado",
+        token: "JWT do usuário logado"
+    }
+});
+
+const values = await ceiCrawler.getConsolidatedValues();
+```
+
+#### `user-resolve`
+Nessa estratégia de login, o usuário será promptado para fazer o login ele mesmo em uma janela de browser que será aberta.
+O crawler tenta preencher usuário e senha para você de forma que o input manual é somente para resolução do Captcha.
+Uma vez feito o login, o crawler trata de pegar as credencias e seguir adiante chamando os métodos.
+Nas opções do login deve-se também ser informado um caminho do browser para que o puppeteer o controle.
+
+Exemplo:
+```javascript
+const ceiCrawler = new CeiCrawler('user', 'password', { 
+    loginOptions: {
+        strategy: 'user-resolve',
+        browserPath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+    }
+});
+
+const values = await ceiCrawler.getConsolidatedValues();
+```
+
+## Métodos disponíveis
 #### `getConsolidatedValues()`
 Retorna os investimentos consolidados num valor total e divididos em subcategorias
 
@@ -74,12 +119,12 @@ Resultado:
 }
 ```
 
-#### `getPosition(_date_, _page_)`
+#### `getPosition(date, page)`
 Retorna as posições da tela "Posição" em todas as categorias de investimentos.
 
 | Parâmetro  |  Tipo  | Default | Descrição                                                                                                    |
 |------------|--------|---------|--------------------------------------------------------------------------------------------------------------|
-| **_date_** |  Date  |  _null_ | Data da posição. Caso seja passado _null_ ou nenhum valor, será usada a ultima data de processamento do CEI. |
+| **date**|  Dte  |  _null_ | Data da posição. Caso seja passado _null_ ou nenhum valor, será usada a ultima data de processamento do CEI. |
 | **_page_** | Number |    1    | Paginação dos dados. Por default retorna a primeira página.                                                  |
 
 ```javascript
@@ -157,7 +202,7 @@ Resultado:
 }
 ```
 
-#### `getPositionDetail(_id_, _category_, _type_)`
+#### `getPositionDetail(id, category, type)`
 Retorna o detalhe de uma posição da lista anterior.
 
 | Parâmetro      |  Tipo  | Default      | Descrição                                                                                                                                                    |
@@ -187,7 +232,7 @@ Resultado:
 }
 ```
 
-#### `getAccountStatement(_startDate_, _endDate_, _page_)`
+#### `getAccountStatement(startDate, endDate, page)`
 Retorna as movimentações da aba "Movimentação" no CEI.
 
 | Parâmetro       |  Tipo  | Default | Descrição                                                                                                                   |
@@ -246,7 +291,7 @@ Resultado:
 }
 ```
 
-#### `getIpos(_date_, _page_)`
+#### `getIpos(date, page)`
 Retorna os IPOs da tela "Ofertas Públicas" no CEI.
 
 | Parâmetro  |  Tipo  | Default | Descrição                                                                                                    |
@@ -286,7 +331,7 @@ Resultado:
 }
 ```
 
-#### `getIPODetail(_id_)`
+#### `getIPODetail(id)`
 Retorna o detalhe de uma posição da lista anterior.
 
 | Parâmetro      |  Tipo  | Default      | Descrição                                                                                                                                                    |
@@ -322,7 +367,7 @@ Resultado:
 }
 ```
 
-#### `getStockTransactions(_startDate_, _endDate_, _page_)`
+#### `getStockTransactions(startDate, endDate, page)`
 Retorna os dados da aba "Negociação" no CEI.
 
 | Parâmetro       |  Tipo  | Default | Descrição                                                                                                                   |
@@ -363,7 +408,7 @@ Resultado:
 }
 ```
 
-#### `getProvisionedEvents(_date_, _page_)`
+#### `getProvisionedEvents(date, page)`
 Retorna os eventos da tela "Eventos Provisionados" no CEI.
 
 | Parâmetro  |  Tipo  | Default | Descrição                                                                                                    |
@@ -399,7 +444,7 @@ Resultado:
 }
 ```
 
-#### `getProvisionedEventDetail(_id_)`
+#### `getProvisionedEventDetail(id)`
 Retorna o detalhe de um evento provisionado da lista anterior.
 
 | Parâmetro      |  Tipo  | Default      | Descrição                                                                                                                                                          |
