@@ -49,7 +49,7 @@ ceiCrawler.login(); // Login é opcional, pois antes de cada método o cei-crawl
 ```
 
 ### Métodos disponíveis
-#### getConsolidatedValues()
+#### `getConsolidatedValues()`
 Retorna os investimentos consolidados num valor total e divididos em subcategorias
 
 ```javascript
@@ -74,7 +74,7 @@ Resultado:
 }
 ```
 
-#### getPosition(_date_, _page_)
+#### `getPosition(_date_, _page_)`
 Retorna as posições da tela "Posição" em todas as categorias de investimentos.
 
 | Parâmetro  |  Tipo  | Default | Descrição                                                                                                    |
@@ -157,12 +157,12 @@ Resultado:
 }
 ```
 
-#### getPositionDetail(_id_, _category_, _type_)
+#### `getPositionDetail(_id_, _category_, _type_)`
 Retorna o detalhe de uma posição da lista anterior.
 
 | Parâmetro      |  Tipo  | Default      | Descrição                                                                                                                                                    |
 |----------------|--------|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **_id_**       | String |  _undefined_ | UUID da posição. Foi observado que o UUID de uma mesma posição pode mudar ao longo do tempo e essa requisição falhar após pega a lista com o `getPosition()` |
+| **_id_**       | String |  _undefined_ | UUID da posição. Foi observado que o UUID de uma mesma posição pode mudar ao longo do tempo e essa requisição falhar após pegar a lista com o `getPosition()` |
 | **_category_** | String |  _undefined_ | Categoria da posição informada no método `getPosition()`.                                                                                                    |
 | **_type_**     | String |  _undefined_ | Tipo da posição informada no método `getPosition()`.                                                                                                         |
 
@@ -187,7 +187,7 @@ Resultado:
 }
 ```
 
-#### getAccountStatement(_startDate_, _endDate_, _page_)
+#### `getAccountStatement(_startDate_, _endDate_, _page_)`
 Retorna as movimentações da aba "Movimentação" no CEI.
 
 | Parâmetro       |  Tipo  | Default | Descrição                                                                                                                   |
@@ -246,6 +246,194 @@ Resultado:
 }
 ```
 
+#### `getIpos(_date_, _page_)`
+Retorna os IPOs da tela "Ofertas Públicas" no CEI.
+
+| Parâmetro  |  Tipo  | Default | Descrição                                                                                                    |
+|------------|--------|---------|--------------------------------------------------------------------------------------------------------------|
+| **_date_** |  Date  |  _null_ | Data de consulta. Caso seja passado _null_ ou nenhum valor, será usada a ultima data de processamento do CEI.|
+| **_page_** | Number |    1    | Paginação dos dados. Por default retorna a primeira página.                                                  |
+
+```javascript
+let ipos = await ceiCrawler.getIPOs();
+```
+Resultado:
+```javascript
+{
+  "paginaAtual": 1,
+  "totalPaginas": 1,
+  "itens": [
+    {
+      "data": "2021-07-27T00:00:00",
+      "ofertasPublicas": [
+        {
+          "id": "c80c8b8f-62d2-4b48-b242-b0f310cfa95a",
+          "dataLiquidacao": "2021-07-27T00:00:00",
+          "nomeEmpresa": "INVESTO ETF MSCI US TECHNOLOGY FDO INV IND INV EXT",
+          "tipoOferta": "OUTRO",
+          "oferta": "ETF INVESTO",
+          "nomeInstituicao": "INTER DISTRIBUIDORA DE TITULOS E VALORES MOBILIARIOS LTDA",
+          "quantidade": 10,
+          "preco": 10,
+          "valor": 100
+        }
+      ],
+      "totalItemsPagina": 1
+    }
+  ],
+  "detalheStatusCode": 0,
+  "excecoes": []
+}
+```
+
+#### `getIPODetail(_id_)`
+Retorna o detalhe de uma posição da lista anterior.
+
+| Parâmetro      |  Tipo  | Default      | Descrição                                                                                                                                                    |
+|----------------|--------|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **_id_**       | String |  _undefined_ | UUID do IPO. Foi observado que o UUID de um mesmo IPO pode mudar ao longo do tempo e essa requisição falhar após pegar a lista com o `getIPOs()`             |
+
+```javascript
+let ipoDetail = await ceiCrawler.getIPODetail('c80c8b8f-62d2-4b48-b242-b0f310cfa95a');
+```
+Resultado:
+```javascript
+{
+  "nomeProduto": "OUTRO INVESTO ETF MSCI US TECHNOLOGY FDO INV IND INV EXT",
+  "nomeInstituicao": "INTER DISTRIBUIDORA DE TITULOS E VALORES MOBILIARIOS LTDA",
+  "ativo": {
+    "nomeEmpresa": "INVESTO ETF MSCI US TECHNOLOGY FDO INV IND INV EXT",
+    "ticker": "USTK11L",
+    "oferta": "ETF INVESTO",
+    "codigoIsin": "BRUSTKCTF007"
+  },
+  "valores": {
+    "preco": 10,
+    "precoMaximo": 0,
+    "valor": 100
+  },
+  "reserva": {
+    "modalidade": "Compra/Integralização de cotas do ETF INVESTO",
+    "quantidade": 10,
+    "valor": 0
+  },
+  "quantidadeAlocada": 10,
+  "dataLiquidacao": "2021-07-27T00:00:00"
+}
+```
+
+#### `getStockTransactions(_startDate_, _endDate_, _page_)`
+Retorna os dados da aba "Negociação" no CEI.
+
+| Parâmetro       |  Tipo  | Default | Descrição                                                                                                                   |
+|-----------------|--------|---------|-----------------------------------------------------------------------------------------------------------------------------|
+| **_startDate_** | Date   |  _null_ | Data de inicio para trazer as negociações. Caso `null`, será utilizada a ultima data de processamento do CEI menos 1 mês.   |
+| **_endDate_**   | Date   |  _null_ | Data fim para trazer as negociações. Caso `null`, será utilizada a ultima data de processamento do CEI.                     |
+| **_page_**      | Number |    1    | Paginação dos dados. Por default retorna a primeira página.                                                                 |
+
+```javascript
+let stockTransactions = await ceiCrawler.getStockTransactions();
+```
+Resultado:
+```javascript
+{
+  "paginaAtual": 1,
+  "totalPaginas": 1,
+  "itens": [
+    {
+      "data": "2021-07-20T00:00:00",
+      "totalCompra": 1000,
+      "totalVenda": 0,
+      "negociacaoAtivos": [
+        {
+          "tipoMovimentacao": "Compra",
+          "mercado": "Mercado à Vista",
+          "nomeInstituicao": "RICO INVESTIMENTOS - GRUPO XP",
+          "codigoNegociacao": "PNVL3",
+          "quantidade": 100,
+          "preco": 10.00,
+          "valor": 1000.00
+        }
+      ],
+      "totalItemsPagina": 1
+    }
+  ],
+  "detalheStatusCode": 0,
+  "excecoes": []
+}
+```
+
+#### `getProvisionedEvents(_date_, _page_)`
+Retorna os eventos da tela "Eventos Provisionados" no CEI.
+
+| Parâmetro  |  Tipo  | Default | Descrição                                                                                                    |
+|------------|--------|---------|--------------------------------------------------------------------------------------------------------------|
+| **_date_** |  Date  |  _null_ | Data de consulta. Caso seja passado _null_ ou nenhum valor, será usada a ultima data de processamento do CEI.|
+| **_page_** | Number |    1    | Paginação dos dados. Por default retorna a primeira página.                                                  |
+
+```javascript
+let events = await ceiCrawler.getProvisionedEvents();
+```
+Resultado:
+```javascript
+{
+  "totalValorLiquido": 8.62,
+  "paginaAtual": 1,
+  "totalPaginas": 1,
+  "itens": [
+    {
+      "id": "9cc87804-f9ae-143a-acfb-c953f38c72dd",
+      "produto": "WEGE3        - WEG S/A",
+      "tipo": "ON",
+      "tipoEvento": "JUROS SOBRE CAPITAL PRÓPRIO",
+      "previsaoPagamento": "2021-08-11T00:00:00",
+      "instituicao": "INTER DISTRIBUIDORA DE TITULOS E VALORES MOBILIARIOS LTDA",
+      "quantidade": 300,
+      "precoUnitario": 0.03,
+      "valorLiquido": 8.62,
+      "totalItemsPagina": 1
+    }
+  ],
+  "detalheStatusCode": 0,
+  "excecoes": []
+}
+```
+
+#### `getProvisionedEventDetail(_id_)`
+Retorna o detalhe de um evento provisionado da lista anterior.
+
+| Parâmetro      |  Tipo  | Default      | Descrição                                                                                                                                                          |
+|----------------|--------|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **_id_**       | String |  _undefined_ | UUID do evento. Foi observado que o UUID de um mesmo evento pode mudar ao longo do tempo e essa requisição falhar após pegar a lista com o `getProvisionedEvents()`|
+
+```javascript
+let eventDetail = await ceiCrawler.getProvisionedEventDetail('9cc87804-f9ae-143a-acfb-c953f38c72dd');
+```
+Resultado:
+```javascript
+{
+  "codigoNegociacao": "WEGE3",
+  "codigoIsin": "BRWEGEACNOR0",
+  "distribuicao": "202",
+  "escriturador": "BANCO BRADESCO S/A",
+  "empresa": "WEG S/A",
+  "dataAprovacao": "2021-03-23T00:00:00",
+  "dataAtualizacao": "2021-03-30T00:00:00",
+  "dataEx": "2021-03-29T00:00:00",
+  "impostoRenda": 15,
+  "valorImpostoRenda": 1.52,
+  "valorBruto": 10.14,
+  "disponivel": 100,
+  "indisponivel": 0,
+  "produto": "WEGE3        - WEG S/A",
+  "tipo": "ON",
+  "tipoEvento": "JUROS SOBRE CAPITAL PRÓPRIO",
+  "previsaoPagamento": "2021-08-11T00:00:00",
+  "quantidade": 100,
+  "precoUnitario": 0.03,
+  "valorLiquido": 8.62
+}
+```
 
 ## Opções
 Na criação de um `CeiCrawler` é possivel especificar alguns valores para o parâmetro `options` que modificam a forma que o crawler funciona. As opções são:

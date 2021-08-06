@@ -34,13 +34,12 @@ class IpoCrawler {
         return response;
     }
 
+
     /**
-     * Returns the detail of the given position
-     * @param {String} id - The UUID of the position given by CEI
-     * @param {String} category - The category of the position
-     * @param {String} type - The type of the position
+     * Crawls the detail of a line at the tab "Ofertas Públicas"
+     * @param {String} id - The UUID of the IPO event
      * @param {typedefs.CeiCrawlerOptions} options - Options for the crawler
-     * @returns {Any}
+     * @returns {Promise<typedefs.IPODetail>} - The dailed information of the IPO
      */
     static async getIPODetail(id, options = {}) {
         if (options.debug)

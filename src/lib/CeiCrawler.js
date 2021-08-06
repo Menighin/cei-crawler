@@ -117,11 +117,11 @@ class CeiCrawler {
     }
 
     /**
-     * Returns the stock transactions
+     * Crawls the tab "Negociacao"
      * @param {Date} [startDate] - The start date to filter
      * @param {Date} [endDate] - The end date to filter
      * @param {Number} [page=1] - The page of the data
-     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
+     * @returns {Promise<typedefs.CeiListData<typedefs.StockTransactionsDaily>} - Stock transactions
      */
     async getStockTransactions(startDate = null, endDate = null, page = 1) {
         await this._login();
@@ -129,32 +129,10 @@ class CeiCrawler {
     }
 
     /**
-     * Returns the provisioned events for the given date
+     * Crawls the tab "Ofertas Públicas"
      * @param {Date} [date] - The date for the provisioned events
      * @param {Number} [page=1] - The page of the data
-     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
-     */
-    async getProvisionedEvents(date = null, page = 1) {
-        await this._login();
-        return await ProvisionedEventsCrawler.getProvisionedEvents(date, page, this.options);
-    }
-
-    /**
-     * Returns the detail of a provisioned event
-     * @param {String} id - The UUID of the provisioned event
-     * @param {typedefs.CeiCrawlerOptions} options - Options for the crawler
-     * @returns {Any}
-     */
-    async getProvisionedEventDetail(id) {
-        await this._login();
-        return await ProvisionedEventsCrawler.getProvisionedEventDetails(id, this.options);
-    }
-
-    /**
-     * Returns the IPOs
-     * @param {Date} [date] - The date for the provisioned events
-     * @param {Number} [page=1] - The page of the data
-     * @returns {Promise<typedefs.StockHistory[]>} - List of Stock histories
+     * @returns {Promise<typedefs.CeiListData<typedefs.IPODaily>} - List of IPO operations
      */
      async getIPOs(date = null, page = 1) {
         await this._login();
@@ -162,19 +140,35 @@ class CeiCrawler {
     }
 
     /**
-     * Returns the detail of an IPO
+     * Crawls the detail of a line at the tab "Ofertas Públicas"
      * @param {String} id - The UUID of the IPO event
-     * @param {typedefs.CeiCrawlerOptions} options - Options for the crawler
-     * @returns {Any}
+     * @returns {Promise<typedefs.IPODetail>} - The detailed information of the IPO
      */
     async getIPODetail(id) {
-        var a = this.test()
-        a.itens[0].name
         await this._login();
         return await IpoCrawler.getIPODetail(id, this.options);
     }
 
+    /**
+     * Crawls the tab "Eventos provisionados"
+     * @param {Date} [date] - The date for the provisioned events
+     * @param {Number} [page=1] - The page of the data
+     * @returns {Promise<typedefs.CeiListData<typedefs.ProvisionedEvent>} - List of provisioned events
+     */
+    async getProvisionedEvents(date = null, page = 1) {
+        await this._login();
+        return await ProvisionedEventsCrawler.getProvisionedEvents(date, page, this.options);
+    }
 
+    /**
+     * Crawls the detail of a line at the tab "Eventos provisionados"
+     * @param {String} id - The UUID of the provisioned event
+     * @returns {Provise<typedefs.ProvisionedEventDetail>} - The detailed information of the event
+     */
+    async getProvisionedEventDetail(id) {
+        await this._login();
+        return await ProvisionedEventsCrawler.getProvisionedEventDetails(id, this.options);
+    }
 
 }
 

@@ -84,4 +84,114 @@
  * @property {AccountStatementEntry[]} movimentacoes - The entries for this date
  */
 
+/**
+ * @typedef IPO
+ * @property {String} id - The ID of the entry at CEI
+ * @property {String} dataLiquidacao - The date which the operation was liquidated
+ * @property {String} nomeEmpresa - Name of the company offer
+ * @property {String} nomeInstituicao - Name of the broker
+ * @property {String} oferta - Name of the company offering
+ * @property {Number} preco - The unit price
+ * @property {Number} quantitade - The quantity requested
+ * @property {String} tipoOferta - The type of the offer
+ * @property {Number} valor - The total amount of the operation
+ */
+
+/**
+ * @typedef IPODaily
+ * @property {String} data - The date of the transactions
+ * @property {IPO[]} ofertasPublicas - The IPOs for that date
+ * @property {Number} totalItemsPagina - The total quantity of items in the page
+ */
+
+/**
+ * @typedef IPOAsset
+ * @property {String} nomeEmpresa - The name of the company
+ * @property {String} ticker
+ * @property {String} oferta
+ * @property {String} codigoIsin
+ */
+
+/**
+ * @typedef IPOValues
+ * @property {Number} price - The unit price for the asset
+ * @property {Number} precoMaximo - The max price set
+ * @property {Number} valor - The value of the operation
+ */
+
+/**
+ * @typedef IPOReservation
+ * @property {String} modalidade
+ * @property {Number} quantidade
+ * @property {Number} valor
+ */
+
+/**
+ * @typedef IPODetail
+ * @property {String} nomeProduto
+ * @property {String} nomeInstituicao - The name of the broker used
+ * @property {IPOAsset} ativo - Information regarding the IPO asset
+ * @property {IPOValues} valores
+ * @property {IPOReservation} reserva - Information regarding the reservation
+ * @property {Number} quantidadeAlocada - The amount alocated
+ * @property {String} dataLiquidacao
+ */
+
+/**
+ * @typedef StockTransaction
+ * @property {String} codigoNegociacao - The code of the stock
+ * @property {String} mercado - The market where it was negotiated
+ * @property {String} nomeInstituicao - The broker used in the negotiation
+ * @property {Number} preco - The stock unit price
+ * @property {Number} quantidade - The quantity negotiated
+ * @property {String} tipoMovimentacao - The type of the transaction: "Compra" or "Venda"
+ * @property {Number} valor - The total amount of the transaction
+ */
+
+/**
+ * @typedef StockTransactionsDaily
+ * @property {String} data - The date of the transactions
+ * @property {StockTransaction[]} negociacaoAtivos - The transactions for that date
+ * @property {Number} totalCompra - The total amount bought on that day
+ * @property {Number} totalVenda - The total amount sold on that day
+ * @property {Number} totalItemsPagina - The total quantity of items in the page
+ */
+
+/**
+ * @typedef ProvisionedEvent
+ * @property {String} id - The UUID of this event on CEI
+ * @property {String} instituicao - Broker related to this event
+ * @property {Number} precoUnitario
+ * @property {String} previsaoPagamento - Date which the event should happen
+ * @property {String} produto - Name of the asset related to the event
+ * @property {Number} quantidade - Quantity related to this event
+ * @property {String} tipo
+ * @property {String} tipoEvento - Type of the event. E.g.: Dividendo, Rendimento, etc
+ * @property {Number} valorLiquido - Value related to this event
+ */
+
+/**
+ * @typedef ProvisionedEventDetail
+ * @property {String} codigoIsin
+ * @property {String} codigoNegociacao - The code of the asset
+ * @property {String} dataAprovacao
+ * @property {String} dataAtualizacao
+ * @property {String} dataEx
+ * @property {Number} disponivel
+ * @property {String} distribuicao
+ * @property {String} empresa
+ * @property {String} escriturador
+ * @property {Number} impostoRenda
+ * @property {Number} indisponivel
+ * @property {Number} precoUnitario
+ * @property {String} previsaoPagamento
+ * @property {String} produto
+ * @property {Number} quantidade
+ * @property {String} tipo
+ * @property {String} tipoEvento
+ * @property {Number} valorBruto
+ * @property {Number} valorImpostoRenda
+ * @property {Number} valorLiquido
+ */
+
 exports.unused = {};

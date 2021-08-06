@@ -9,12 +9,12 @@ const URLS = {
 class StockTransactionsCrawler {
 
     /**
-     * Get data from the position screen
-     * @param {Date} startDate - The start date of the range
-     * @param {Date} endDate - The end date of the range
-     * @param {Number} page - The page of the data
+     * Crawls the tab "Negociacao"
+     * @param {Date} [startDate] - The start date to filter
+     * @param {Date} [endDate] - The end date to filter
+     * @param {Number} [page=1] - The page of the data
      * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
-     * @returns {Promise<typedefs.AccountWallet[]>} - List of Stock histories
+     * @returns {Promise<typedefs.CeiListData<typedefs.StockTransactionsDaily>} - Stock transactions
      */
     static async getStockTransactions(startDate, endDate, page, options = {}) {
         const lastExecution = options.lastExecutionInfo.generalDate;

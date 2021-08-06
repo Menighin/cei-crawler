@@ -10,11 +10,11 @@ const URLS = {
 class ProvisionedEventsCrawler {
 
     /**
-     * Get data from the position screen
-     * @param {Date} date - The date of the wallet. If none passed, the default of CEI will be used
-     * @param {Number} page - The page of the data
+     * Crawls the tab "Eventos provisionados"
+     * @param {Date} [date] - The date for the provisioned events
+     * @param {Number} [page=1] - The page of the data
      * @param {typedefs.CeiCrawlerOptions} [options] - Options for the crawler
-     * @returns {Any} - List of Stock histories
+     * @returns {Promise<typedefs.CeiListData<typedefs.ProvisionedEvent>} - List of provisioned events
      */
     static async getProvisionedEvents(date, page, options = {}) {
         const dateStr = CeiUtils.getDateForQueryParam(date || options.lastExecutionInfo.generalDate);
@@ -34,13 +34,12 @@ class ProvisionedEventsCrawler {
         return response;
     }
 
+
     /**
-     * Returns the detail of the given position
-     * @param {String} id - The UUID of the position given by CEI
-     * @param {String} category - The category of the position
-     * @param {String} type - The type of the position
+     * Crawls the detail of a line at the tab "Eventos provisionados"
+     * @param {String} id - The UUID of the provisioned event
      * @param {typedefs.CeiCrawlerOptions} options - Options for the crawler
-     * @returns {Any}
+     * @returns {Provise<typedefs.ProvisionedEventDetail>} - The detailed information of the event
      */
     static async getProvisionedEventDetails(id, options = {}) {
         if (options.debug)
