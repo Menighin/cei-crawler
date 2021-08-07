@@ -49,7 +49,6 @@ class CeiCrawler {
         if (!this.options.debug) this.options.debug = false;
         if (!this.options.navigationTimeout) this.options.navigationTimeout = 30000;
         if (!this.options.loginOptions) this.options.loginOptions = {};
-        if (!this.options.loginOptions.timeout) this.options.loginOptions.timeout = 150000;
         if (!this.options.loginOptions.strategy) this.options.loginOptions.strategy = 'user-resolve';
     }
 

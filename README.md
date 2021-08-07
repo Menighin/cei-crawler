@@ -483,22 +483,23 @@ Resultado:
 ## Opções
 Na criação de um `CeiCrawler` é possivel especificar alguns valores para o parâmetro `options` que modificam a forma que o crawler funciona. As opções são:
 
-| Propriedade           | Tipo      | Default | Descrição                                                                                                                                                                                               |
-|-----------------------|-----------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **capDates**          | _Boolean_ | _false_ | Se `true`, as datas utilizadas de input para buscas serão limitadas ao range de datas válidas do CEI, impedindo que ocorra um erro caso o usuário passe uma data maior ou menor.                        |
-| **navigationTimeout** | _Number_  | 30000   | Tempo, em ms, que o crawler espera por uma ação antes de considerar timeout. |
-| **timeout** | _Number_  | 180000   | Tempo, em ms, que o crawler espera para realizar login antes de considerar timeout. Diversas vezes, como a noite e aos fins de semana, o sistema do CEI parece ficar muito instavél e causa diversos timeouts no login. |
-| **trace**             | _Boolean_ | _false_ | Printa mensagens de debug no log. Útil para desenvolvimento.                                                                                                                                            |
+| Propriedade               | Tipo      | Default        | Descrição                                                                                                                                                                                               |
+|---------------------------|-----------|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **debug**                 | _Boolean_ | _false_        | Se `true`, printa mensages de debug no log.                                                                                                                                                             |
+| **loginOptions.strategy** | _String_  | `user-resolve` | Estratégia utilizada no login. Veja [Login & Captcha](https://github.com/Menighin/cei-crawler/tree/v3#login--captcha) para mais informações.                                                            |
+| **login.browserPath**     | _String_  | `undefined`    | Caminho para o executavél do browser que será controlado para resolucao do Captcha. Veja [Login & Captcha](https://github.com/Menighin/cei-crawler/tree/v3#login--captcha) para mais informações.       |
+| **auth.token**            | _String_  | `undefined`    | Token JWT do usuário logado no CEI. Utilizado quando a estratégia de login é `raw-token`                                                                                                                |
+| **auth.cache-guid**       | _String_  | `undefined`    | UUID da sessão do usuário logado no CEI. Utilizado quando a estratégia de login é `raw-token`                                                                                                           |
 
 Exemplo:
 
 ```javascript
 const ceiCrawlerOptions = {
-    trace: false,
-    capEndDate: true,
-    navigationTimeout: 60000,
-    timeout: 240000,
-
+    debug: true,
+    loginOptions: {
+      strategy: 'user-resolve',
+      browserPath: 'path/to/browser.exe'
+    }
 };
 
 let ceiCrawler = new CeiCrawler('username', 'password', ceiCrawlerOptions);
@@ -507,13 +508,12 @@ let ceiCrawler = new CeiCrawler('username', 'password', ceiCrawlerOptions);
 ## Error Handling
 O CEI Crawler possui um exceção própria, `CeiCrawlerError`, que é lançada em alguns cenários. Essa exceção possui um atributo `type` para te direcionar no tratamento:
 
-| type           | Descrição                                                                                                                 |
-|----------------|---------------------------------------------------------------------------------------------------------------------------|
-| LOGIN_FAILED   | Lançada quando o login falha por timeout ou por CPF errado digitado                                                       |
-| WRONG_PASSWORD | Lançada quando a senha passada está errada                                                                                |
-| SUBMIT_ERROR   | Lançada quando acontece um erro ao submeter um formulario de pesquisa em alguma página do CEI. Por exemplo: data inválida |
-| SESSION_HAS_EXPIRED   | Lançada quando a sessão do usuário expira, nesse caso é necessário realizar o login novamente `ceiCrawler.login()` |
-| NAVIGATION_TIMEOUT   | Lançada quando a requisição estoura o tempo limite definida na opção `navigationTimeout` |
+| type                   | Descrição                                                                                                                        |
+|------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| UNAUTHORIZED           | Lançada quando uma request retorna 401. Isso pode significar que o token utiliza é inválido ou expirou.                          |
+| BAD_REQUEST            | Lançada quando uma requisição falha por má formação. Pode ser um parâmetro errado, uma data menor que o limite minimo, etc.      |
+| TOO_MANY_REQUESTS      | O CEI faz throttling de requisições. Se ao usar o crawler você fizer muitas requisições rapidamente esse erro pode ser retornado |
+| INVALID_LOGIN_STRATEGY | Lançada quando informada uma estratégia de login inválida.                                                                       |
 
 
 Exemplo de como fazer um bom tratamento de erros:
@@ -525,31 +525,19 @@ const { CeiErrorTypes } = require('cei-crawler')
 const ceiCrawler = new CeiCrawler('usuario', 'senha', { navigationTimeout: 20000 });
 
 try {
-  const wallet = ceiCrawler.getWallet();
+  const positions = ceiCrawler.getPositions();
 } catch (err) {
   if (err.name === 'CeiCrawlerError') {
-    if (err.type === CeiErrorTypes.LOGIN_FAILED)
-      // Handle login failed
-    else if (err.type === CeiErrorTypes.WRONG_PASSWORD)
-      // Handle wrong password
-    else if (err.type === CeiErrorTypes.SUBMIT_ERROR)
-      // Handle submit error
-    else if (err.type === CeiErrorTypes.SESSION_HAS_EXPIRED)
-      // Handle session expired
-    else if (err.type === CeiErrorTypes.NAVIGATION_TIMEOUT)
-      // Handle request timeout
+    if (err.type === CeiErrorTypes.UNAUTHORIZED)
+      // Handle unauthrozied
+    else if (err.type === CeiErrorTypes.TOO_MANY_REQUESTS)
+      // Handle too many requests
+    // else ...
   } else {
     // Handle generic errors
   }
 }
 ```
-
-## Features
-- [x] Histórico de ações
-- [x] Dividendos
-- [x] Carteira de ações
-- [x] Tesouro Direto (Resumido)
-- [x] Tesouro Direto (Analítico)
 
 ## Licença
 MIT
