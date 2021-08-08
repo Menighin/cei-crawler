@@ -483,13 +483,13 @@ Resultado:
 ## Opções
 Na criação de um `CeiCrawler` é possivel especificar alguns valores para o parâmetro `options` que modificam a forma que o crawler funciona. As opções são:
 
-| Propriedade               | Tipo      | Default        | Descrição                                                                                                                                                                                               |
-|---------------------------|-----------|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **debug**                 | _Boolean_ | _false_        | Se `true`, printa mensages de debug no log.                                                                                                                                                             |
-| **loginOptions.strategy** | _String_  | `user-resolve` | Estratégia utilizada no login. Veja [Login & Captcha](https://github.com/Menighin/cei-crawler/tree/v3#login--captcha) para mais informações.                                                            |
-| **login.browserPath**     | _String_  | `undefined`    | Caminho para o executavél do browser que será controlado para resolucao do Captcha. Veja [Login & Captcha](https://github.com/Menighin/cei-crawler/tree/v3#login--captcha) para mais informações.       |
-| **auth.token**            | _String_  | `undefined`    | Token JWT do usuário logado no CEI. Utilizado quando a estratégia de login é `raw-token`                                                                                                                |
-| **auth.cache-guid**       | _String_  | `undefined`    | UUID da sessão do usuário logado no CEI. Utilizado quando a estratégia de login é `raw-token`                                                                                                           |
+| Propriedade                 | Tipo      | Default        | Descrição                                                                                                                                                                                               |
+|-----------------------------|-----------|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **debug**                   | _Boolean_ | _false_        | Se `true`, printa mensages de debug no log.                                                                                                                                                             |
+| **loginOptions.strategy**   | _String_  | `user-resolve` | Estratégia utilizada no login. Veja [Login & Captcha](https://github.com/Menighin/cei-crawler/tree/v3#login--captcha) para mais informações.                                                            |
+| **loginOptions.browserPath**| _String_  | `undefined`    | Caminho para o executavél do browser que será controlado para resolucao do Captcha. Veja [Login & Captcha](https://github.com/Menighin/cei-crawler/tree/v3#login--captcha) para mais informações.       |
+| **auth.token**              | _String_  | `undefined`    | Token JWT do usuário logado no CEI. Utilizado quando a estratégia de login é `raw-token`                                                                                                                |
+| **auth.cache-guid**         | _String_  | `undefined`    | UUID da sessão do usuário logado no CEI. Utilizado quando a estratégia de login é `raw-token`                                                                                                           |
 
 Exemplo:
 

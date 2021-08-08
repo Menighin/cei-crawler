@@ -86,7 +86,6 @@ class CeiCrawler {
      */
     async getPosition(date = null, page = 1) {
         await this._login();
-
         return await PositionCrawler.getPosition(date, page, this.options);
     }
 
@@ -116,18 +115,6 @@ class CeiCrawler {
     }
 
     /**
-     * Crawls the tab "Negociacao"
-     * @param {Date} [startDate] - The start date to filter
-     * @param {Date} [endDate] - The end date to filter
-     * @param {Number} [page=1] - The page of the data
-     * @returns {Promise<typedefs.CeiListData<typedefs.StockTransactionsDaily>} - Stock transactions
-     */
-    async getStockTransactions(startDate = null, endDate = null, page = 1) {
-        await this._login();
-        return await StockTransactionsCrawler.getStockTransactions(startDate, endDate, page, this.options);
-    }
-
-    /**
      * Crawls the tab "Ofertas Públicas"
      * @param {Date} [date] - The date for the provisioned events
      * @param {Number} [page=1] - The page of the data
@@ -146,6 +133,18 @@ class CeiCrawler {
     async getIPODetail(id) {
         await this._login();
         return await IpoCrawler.getIPODetail(id, this.options);
+    }
+
+    /**
+     * Crawls the tab "Negociacao"
+     * @param {Date} [startDate] - The start date to filter
+     * @param {Date} [endDate] - The end date to filter
+     * @param {Number} [page=1] - The page of the data
+     * @returns {Promise<typedefs.CeiListData<typedefs.StockTransactionsDaily>} - Stock transactions
+     */
+    async getStockTransactions(startDate = null, endDate = null, page = 1) {
+        await this._login();
+        return await StockTransactionsCrawler.getStockTransactions(startDate, endDate, page, this.options);
     }
 
     /**

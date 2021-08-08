@@ -21,7 +21,7 @@ class CeiLoginService {
     }
 
     async getToken() {
-        switch(this._options.loginOptions.strategy) {
+        switch (this._options.loginOptions.strategy) {
             case 'user-resolve':
                 return await this._getTokenByUserResolve();
             case 'raw-token':

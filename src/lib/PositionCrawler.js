@@ -45,6 +45,7 @@ class PositionCrawler {
      * @returns {Any} 
      */
     static async getPositionDetail(id, category, type, options = {}) {
+        
         if (options.debug)
             console.log(`[PositionCrawler] Crawling wallet position detail for ${id} (${category}, ${type})`);
 
@@ -57,7 +58,7 @@ class PositionCrawler {
         // Try to get the detail with type
         try {
             return await AxiosWrapper.request(URLS.DETAIL_1, {
-                peathParams: pathParams
+                pathParams: pathParams
             });
         } catch (e) {
             if (e.type === CeiErrorTypes.TOO_MANY_REQUESTS)
