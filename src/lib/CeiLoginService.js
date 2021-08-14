@@ -31,6 +31,7 @@ class CeiLoginService {
         }
     }
 
+    /* istanbul ignore next */
     async _getTokenByUserResolve() {
         const browser = await puppeteer.launch({
             headless: false,
@@ -89,6 +90,7 @@ class CeiLoginService {
      * @param {puppeteer.Browser} browser Puppeteer browser running
      * @returns {puppeteer.Page} The main page to keep crawling
     */
+   /* istanbul ignore next */
     async _getMainPage(browser) {
         while (true) {
             for (const p of (await browser.pages())) {

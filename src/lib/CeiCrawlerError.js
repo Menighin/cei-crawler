@@ -1,3 +1,4 @@
+/* istanbul ignore next */
 class CeiCrawlerError extends Error {
     constructor(type, message, status = null) {
         super(message);
@@ -7,6 +8,7 @@ class CeiCrawlerError extends Error {
     }
 }
 
+/* istanbul ignore next */
 const CeiErrorTypes = Object.freeze({
     INVALID_LOGIN_STRATEGY: 'INVALID_LOGIN_STRATEGY',
     BAD_REQUEST: 'BAD_REQUEST',

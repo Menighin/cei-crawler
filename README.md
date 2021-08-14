@@ -4,7 +4,7 @@
 
 Crawler para ler dados do Canal Eletrônico do Investidor 
 
-## __Importante__
+## __Importante__ (Versão sem captcha)
 Para versão antiga do CEI que não possui captcha obrigatório (por enquanto), utilize o [cei-crawler v2](https://github.com/Menighin/cei-crawler/tree/v2)
 
 ## Descrição
