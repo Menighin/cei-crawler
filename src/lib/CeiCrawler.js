@@ -65,6 +65,7 @@ class CeiCrawler {
             console.log(`Logging at CEI using ${this.options.loginOptions.strategy}...`);
 
         this.options.auth = await this._ceiLoginService.getToken();
+        console.log(JSON.stringify(this.options.auth));
         this.options.lastExecutionInfo = await LastExecutionCrawler.getLastExecutionInfo();
         this._isLogged = true;
     }

@@ -55,7 +55,6 @@ class CeiLoginService {
             }
             await homePage.reload();
         } while (mainPage === null);
-
         try {
             await mainPage.waitForTimeout(4000);
             await CeiUtils.retry(async () => { await mainPage.focus('#extension_DocInput'); }, 10, 1000, true);
@@ -94,7 +93,7 @@ class CeiLoginService {
     async _getMainPage(browser) {
         while (true) {
             for (const p of (await browser.pages())) {
-                if (p.url().indexOf('b3investidor.b2clogin.com') !== -1)
+                if (p.url().indexOf('b3investidor.b3.com.br/b3Investidor.onmicrosoft.com') !== -1)
                     return p;
             };
             await CeiUtils.sleep(200);

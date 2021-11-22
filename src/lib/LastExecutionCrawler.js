@@ -1,7 +1,7 @@
 const AxiosWrapper = require('./AxiosWrapper');
 
 const URLS = {
-    LAST_EXECUTION: 'https://investidor.b3.com.br/api/v1/sistema/carga/ultima-execucao'
+    LAST_EXECUTION: 'https://investidor.b3.com.br/api/sistema/v1/carga/ultima-execucao'
 };
 
 

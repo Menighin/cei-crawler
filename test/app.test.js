@@ -50,9 +50,11 @@ test.serial('ipo-and-ipo-detail', async t => {
     const ipo = await t.context.ceiCrawler.getIPOs();
     t.true(ipo.paginaAtual === 1);
     
-    const id = ipo.itens[0].ofertasPublicas[0].id;
-    const ipoDetail = await t.context.ceiCrawler.getIPODetail(id);
-    t.true(ipoDetail !== undefined);
+    if (ipo.itens[0]) {
+        const id = ipo.itens[0].ofertasPublicas[0].id;
+        const ipoDetail = await t.context.ceiCrawler.getIPODetail(id);
+        t.true(ipoDetail !== undefined);
+    }
 });
 
 test.serial('get-stock-transactions', async t => {
